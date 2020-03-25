@@ -216,24 +216,31 @@ public abstract class ExecutionStrategy {
 
 
     /**
+     * 调用DataFetcher获取某个字段的值——现在已经解析dsl、入参数、类型转换等；
      * Called to fetch a value for a field from the {@link DataFetcher} associated with the field
      * {@link GraphQLFieldDefinition}.
      * <p>
+     *     片段表示任何一个逻辑字段，可以有多个字段值。
      * Graphql fragments mean that for any give logical field can have one or more {@link Field} values associated with it
      * in the query, hence the fieldList.  However the first entry is representative of the field for most purposes.
      *
-     * @param executionContext contains the top level execution parameters
-     * @param parameters       contains the parameters holding the fields to be executed and source object
+     * @param executionContext contains the top level execution parameters fixme 顶层的执行参数：变量、要查询的字段等；
+     * @param parameters       contains the parameters holding the fields to be executed and source object fixme 包含只有字段的参数
      *
      * @return a promise to a fetched object
      *
      * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value
      */
     protected CompletableFuture<FetchedValue> fetchField(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+        //当前查询的字段
         MergedField field = parameters.getField();
+
+        //当前查询字段的类型
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
+        //字段定义
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field.getSingleField());
 
+        //代码注册器
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());
 
@@ -257,6 +264,7 @@ public abstract class ExecutionStrategy {
                 .queryDirectives(queryDirectives)
                 .build();
 
+        //获取某个字段的dataFetcher。
         DataFetcher dataFetcher = codeRegistry.getDataFetcher(parentType, fieldDef);
 
         Instrumentation instrumentation = executionContext.getInstrumentation();

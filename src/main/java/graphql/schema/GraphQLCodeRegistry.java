@@ -17,6 +17,7 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 
 
 /**
+ * Graphql代码注册器持有graphql类型关联的执行代码，及field关联的DataFetcher。TypeResolver关联抽象的类型和GraphqlFieldVisibility
  * The {@link graphql.schema.GraphQLCodeRegistry} holds that execution code that is associated with graphql types, namely
  * the {@link graphql.schema.DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
  * abstract types and the {@link graphql.schema.visibility.GraphqlFieldVisibility}
@@ -26,9 +27,11 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
  */
 @PublicApi
 public class GraphQLCodeRegistry {
-
+    //字段坐标对应的datafetcher
     private final Map<FieldCoordinates, DataFetcherFactory> dataFetcherMap;
+    //字段名称对应的datafetcher
     private final Map<String, DataFetcherFactory> systemDataFetcherMap;
+
     private final Map<String, TypeResolver> typeResolverMap;
     private final GraphqlFieldVisibility fieldVisibility;
 
@@ -47,6 +50,7 @@ public class GraphQLCodeRegistry {
     }
 
     /**
+     * 获取一个字段对应的DataFetcher
      * Returns a data fetcher associated with a field within a container type
      *
      * @param parentType      the container type
@@ -59,6 +63,7 @@ public class GraphQLCodeRegistry {
     }
 
     /**
+     * 返回一个字段对应的fetcher
      * Returns a data fetcher associated with a field located at specified coordinates.
      *
      * @param coordinates     the field coordinates
@@ -70,17 +75,30 @@ public class GraphQLCodeRegistry {
         return getDataFetcherImpl(coordinates, fieldDefinition, dataFetcherMap, systemDataFetcherMap);
     }
 
+    /**
+     * 获取fieldDefinition和coordinates指定的datafetcher，如果没有，则使用默认的PropertyDataFetcher；
+     * @param coordinates
+     * @param fieldDefinition
+     * @param dataFetcherMap
+     * @param systemDataFetcherMap
+     * @return
+     */
     private static DataFetcher getDataFetcherImpl(FieldCoordinates coordinates, GraphQLFieldDefinition fieldDefinition, Map<FieldCoordinates, DataFetcherFactory> dataFetcherMap, Map<String, DataFetcherFactory> systemDataFetcherMap) {
         assertNotNull(coordinates);
         assertNotNull(fieldDefinition);
 
         DataFetcherFactory dataFetcherFactory = systemDataFetcherMap.get(fieldDefinition.getName());
+        /**
+         * 如果字段没有对应的fetcher、字段坐标没有对应的fetcher，则绑定PropertyDataFetcher；
+         */
         if (dataFetcherFactory == null) {
             dataFetcherFactory = dataFetcherMap.get(coordinates);
             if (dataFetcherFactory == null) {
                 dataFetcherFactory = DataFetcherFactories.useDataFetcher(new PropertyDataFetcher<>(fieldDefinition.getName()));
             }
         }
+
+        //将fetcher(dataFetcherFactory)和字段定义fieldDefinition相绑定
         return dataFetcherFactory.get(newDataFetchingFactoryEnvironment()
                 .fieldDefinition(fieldDefinition)
                 .build());

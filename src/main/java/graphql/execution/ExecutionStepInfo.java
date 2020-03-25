@@ -17,6 +17,7 @@ import static graphql.Assert.assertTrue;
 import static graphql.schema.GraphQLTypeUtil.isList;
 
 /**
+ *
  * As the graphql query executes, it forms a hierarchy from parent fields (and their type) to their child fields (and their type)
  * until a scalar type is encountered; this class captures that execution type information.
  * <p>

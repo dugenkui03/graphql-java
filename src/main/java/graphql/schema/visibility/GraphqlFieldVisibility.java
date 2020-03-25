@@ -9,6 +9,7 @@ import graphql.schema.GraphQLInputObjectField;
 import java.util.List;
 
 /**
+ * 控制字段的可见性：所有字段默认全部可见，但是你可以实现这个接口、然后改变部分字段的可见性。
  * This allows you to control the visibility of graphql fields.  By default
  * graphql-java makes every defined field visible but you can implement an instance of this
  * interface and reduce specific field visibility.
