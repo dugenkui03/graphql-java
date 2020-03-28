@@ -6,6 +6,13 @@ import graphql.PublicSpi;
 import java.util.Map;
 
 /**
+ * fixme:
+ *      被标量使用，用来解析和序列化对象；
+ *      两个主要的职责：输入强转型和输出强转型：
+ *          结果强转是将java对象转换成受限制的标量；
+ *          输入强转是将请求和硬编码中的参数强转成可接受的标量。
+ *
+ *
  * The Coercing interface is used by {@link graphql.schema.GraphQLScalarType}s to parse and serialise object values.
  * <p>
  * There are two major responsibilities, result coercion and input coercion.

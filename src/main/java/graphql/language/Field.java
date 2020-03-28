@@ -17,16 +17,22 @@ import static graphql.Assert.assertNotNull;
 import static java.util.Collections.emptyMap;
 
 /*
+ * fixme query文档对象
  * This is provided to a DataFetcher, therefore it is a public API.
  * This might change in the future.
  */
 @PublicApi
 public class Field extends AbstractNode<Field> implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
 
+    //字段名称
     private final String name;
+    //别名
     private final String alias;
+    //参数
     private final List<Argument> arguments;
+    //字段上用的指令
     private final List<Directive> directives;
+    //todo 字段子实体？
     private final SelectionSet selectionSet;
 
     public static final String CHILD_ARGUMENTS = "arguments";

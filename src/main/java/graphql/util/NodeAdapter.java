@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * fixme 将任意类型转换为Node，我们使用适配器是因为不想让Node继承接口
  * Adapts an arbitrary class to behave as a node.
  * We are using an Adapter because we don't want to require Nodes to implement a certain Interface.
  *
- * @param <T> the generic type of object
+ * @param <T> the generic type of object  对象的泛华类型
  */
 @PublicApi
 public interface NodeAdapter<T> {

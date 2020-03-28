@@ -96,8 +96,14 @@ public class NodeUtil {
         }
     }
 
+    /**
+     * 移除node节点的childLocationToRemove位置的孩子节点
+     */
     public static Node removeChild(Node node, NodeLocation childLocationToRemove) {
+        //获取其所有孩子节点
         NodeChildrenContainer namedChildren = node.getNamedChildren();
+
+        //builder是NodeChildrenContainer的builder
         NodeChildrenContainer newChildren = namedChildren.transform(builder -> builder.removeChild(childLocationToRemove.getName(), childLocationToRemove.getIndex()));
         return node.withNewChildren(newChildren);
     }

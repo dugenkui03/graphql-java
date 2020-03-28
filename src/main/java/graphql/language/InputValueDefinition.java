@@ -16,8 +16,12 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 输入值定义
+ */
 @PublicApi
 public class InputValueDefinition extends AbstractDescribedNode<InputValueDefinition> implements DirectivesContainer<InputValueDefinition>, NamedNode<InputValueDefinition>{
+    //输入名称、类型、默认值、指令
     private final String name;
     private final Type type;
     private final Value defaultValue;

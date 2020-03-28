@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 语言元素的基本接口：
  * The base interface for virtually all graphql language elements
  *
  * NOTE: This class implements {@link java.io.Serializable} and hence it can be serialised and placed into a distributed cache.  However we
@@ -36,6 +37,7 @@ public interface Node<T extends Node> extends Serializable {
     NodeChildrenContainer getNamedChildren();
 
     /**
+     * 将指定的node替换成新的node
      * Replaces the specified children and returns a new Node.
      *
      * @param newChildren must be empty for Nodes without children
@@ -45,6 +47,7 @@ public interface Node<T extends Node> extends Serializable {
     T withNewChildren(NodeChildrenContainer newChildren);
 
     /**
+     * 返回当前node的位置：行、列、名称
      * @return the source location where this node occurs
      */
     SourceLocation getSourceLocation();

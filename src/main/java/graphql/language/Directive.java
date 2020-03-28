@@ -19,6 +19,7 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
+    //指令名称、参数
     private final String name;
     private final List<Argument> arguments = new ArrayList<>();
 

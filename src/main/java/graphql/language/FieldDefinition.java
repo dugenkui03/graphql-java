@@ -18,9 +18,13 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> implements DirectivesContainer<FieldDefinition>, NamedNode<FieldDefinition> {
+    //名称、类型
     private final String name;
+    //非空、list和自定义TypeName
     private final Type type;
+    //输入
     private final List<InputValueDefinition> inputValueDefinitions;
+    //指令
     private final List<Directive> directives;
 
     public static final String CHILD_TYPE = "type";

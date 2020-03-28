@@ -5,13 +5,16 @@ import graphql.PublicApi;
 import java.util.Objects;
 
 /**
+ * FIXME
+ *       节点在父节点中的位置
+ *       可以是索引，也可以是带索引的名称
  * General position of a Node inside a parent.
  *
  * Can be an index or a name with an index.
  */
 @PublicApi
 public class NodeLocation {
-
+    //名称、索引
     private final String name;
     private final int index;
 

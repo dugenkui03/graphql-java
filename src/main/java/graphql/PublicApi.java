@@ -11,6 +11,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 
 /**
+ * 注释的挨批是公共的、稳定的api，但是不保证其派生类。
  * This represents code that the graphql-java project considers public API and has an imperative to be stable within
  * major releases.
  *
