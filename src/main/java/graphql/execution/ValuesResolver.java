@@ -93,13 +93,21 @@ public class ValuesResolver {
         return getArgumentValuesImpl(codeRegistry, argumentTypes, arguments, variables);
     }
 
+    /**
+     * 获取参数值
+     * @param codeRegistry 保存有 field关联的DataFetcher
+     * @param argumentTypes 参数类型？
+     * @param arguments 参数？
+     * @param variables 变量
+     * @return
+     */
     private Map<String, Object> getArgumentValuesImpl(GraphQLCodeRegistry codeRegistry, List<GraphQLArgument> argumentTypes, List<Argument> arguments, Map<String, Object> variables) {
         if (argumentTypes.isEmpty()) {
             return Collections.emptyMap();
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
-        Map<String, Argument> argumentMap = argumentMap(arguments);
+        Map<String, Argument> argumentMap = arguments.stream().collect(Collectors.toMap(Argument::getName, x->x));
         for (GraphQLArgument fieldArgument : argumentTypes) {
             String argName = fieldArgument.getName();
             Argument argument = argumentMap.get(argName);

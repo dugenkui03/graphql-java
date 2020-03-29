@@ -395,7 +395,7 @@ public abstract class ExecutionStrategy {
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
 //        返回子第一个字段的定义
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
-
+//        运行时数据结构
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
@@ -404,6 +404,9 @@ public abstract class ExecutionStrategy {
                 instrumentationParams
         );
 
+        /**
+         * GraphQLCodeRegistry保存有 field关联的DataFetcher
+         */
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());
 
