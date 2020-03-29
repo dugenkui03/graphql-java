@@ -26,7 +26,8 @@ public class DefaultValueUnboxer implements ValueUnboxer {
         if (result instanceof Optional) {
             Optional optional = (Optional) result;
             if (optional.isPresent()) {
-                return optional.get();
+//                return optional.get();
+                return unboxValue(optional.get());
             } else {
                 return null;
             }

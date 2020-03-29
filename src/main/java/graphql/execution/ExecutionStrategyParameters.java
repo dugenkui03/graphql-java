@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import static graphql.Assert.assertNotNull;
 
 /**
+ * fixme 重要：传递个执行策略的参数
  * The parameters that are passed to execution strategies
  */
 @PublicApi
@@ -19,6 +20,7 @@ public class ExecutionStrategyParameters {
     private final Object localContext;
     private final Map<String, Object> arguments;
     private final MergedSelectionSet fields;
+
     private final NonNullableFieldValidator nonNullableFieldValidator;
     private final ExecutionPath path;
     private final MergedField currentField;

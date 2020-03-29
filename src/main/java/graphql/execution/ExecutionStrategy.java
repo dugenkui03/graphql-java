@@ -432,6 +432,13 @@ public abstract class ExecutionStrategy {
 
 
     /**
+     * fixme
+     *      基于此字段的类型，解析此字段值；
+     *      如果是标量，则返回，如果是对象，则递归解析；
+     *
+     *todo:
+     *      根据规范，要包括四要素：CompleteValue(fieldType, fields, result, variableValues)
+     *
      * Called to complete a value for a field based on the type of the field.
      * <p>
      * If the field is a scalar type, then it will be coerced  and returned.  However if the field type is an complex object type, then
@@ -449,13 +456,16 @@ public abstract class ExecutionStrategy {
      */
     protected FieldValueInfo completeValue(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
+        //元素1：result
         Object result = executionContext.getValueUnboxer().unbox(parameters.getSource());
+        //元素2：字段类型
         GraphQLType fieldType = executionStepInfo.getUnwrappedNonNullType();
+        //元素3：字段值、list of ExecutionResult——最终的结果也是这个类型
         CompletableFuture<ExecutionResult> fieldValue;
-
         if (result == null) {
+            //如果字段的类型为空，则抛出NonNullableFieldWasNullException异常
             fieldValue = completeValueForNull(parameters);
-            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
+            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();//fieldValue 是 ExecutionResult
         } else if (isList(fieldType)) {
             return completeValueForList(executionContext, parameters, result);
         } else if (fieldType instanceof GraphQLScalarType) {
@@ -510,12 +520,17 @@ public abstract class ExecutionStrategy {
      * @return a {@link FieldValueInfo}
      */
     protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Object result) {
+        //将对象的每一个元素转换为列表
         Iterable<Object> resultIterable = toIterable(executionContext, parameters, result);
+
+        //查看是否是存在结果为null、但是字段要求非空的情况
         try {
             resultIterable = parameters.getNonNullFieldValidator().validate(parameters.getPath(), resultIterable);
         } catch (NonNullableFieldWasNullException e) {
             return FieldValueInfo.newFieldValueInfo(LIST).fieldValue(exceptionallyCompletedFuture(e)).build();
         }
+
+        //如果结果为null，则直接返回ExecutionResultImpl(null, null)即可
         if (resultIterable == null) {
             return FieldValueInfo.newFieldValueInfo(LIST).fieldValue(completedFuture(new ExecutionResultImpl(null, null))).build();
         }
@@ -523,36 +538,44 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * fixme
+     *      调用来处理列表类型的字段值;
+     *      递归调用completeValue(ExecutionContext, ExecutionStrategyParameters)处理列表元素的每一个值
+     *
      * Called to complete a list of value for a field based on a list type.  This iterates the values and calls
      * {@link #completeValue(ExecutionContext, ExecutionStrategyParameters)} for each value.
      *
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param iterableValues   the values to complete, can't be null
+     * @param iterableValues   the values to complete, can't be null 要"完成"的列表，不能为null
      *
      * @return a {@link FieldValueInfo}
      */
     protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Iterable<Object> iterableValues) {
-
+        //Iterable to Collection
         Collection<Object> values = FpKit.toCollection(iterableValues);
+        //父子字段之间的层级俄机构
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
+        //获取字段定义
         GraphQLFieldDefinition fieldDef = parameters.getExecutionStepInfo().getFieldDefinition();
+        //获取字段类型
         GraphQLObjectType fieldContainer = parameters.getExecutionStepInfo().getFieldContainer();
 
+        //instrument
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, createExecutionStepInfo(executionContext, parameters, fieldDef, fieldContainer), values);
         Instrumentation instrumentation = executionContext.getInstrumentation();
 
-        InstrumentationContext<ExecutionResult> completeListCtx = instrumentation.beginFieldListComplete(
-                instrumentationParams
-        );
+        InstrumentationContext<ExecutionResult> completeListCtx = instrumentation.beginFieldListComplete(instrumentationParams);
 
-        List<FieldValueInfo> fieldValueInfos = new ArrayList<>();
+
+        List<FieldValueInfo> fieldValueInfos = new ArrayList<>(values.size());
         int index = 0;
         for (Object item : values) {
             ExecutionPath indexedPath = parameters.getPath().segment(index);
 
             ExecutionStepInfo stepInfoForListElement = executionStepInfoFactory.newExecutionStepInfoForListElement(executionStepInfo, index);
 
+            //非空字段验证器
             NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, stepInfoForListElement);
 
             int finalIndex = index;
@@ -567,7 +590,9 @@ public abstract class ExecutionStrategy {
                             .path(indexedPath)
                             .source(value.getFetchedValue())
             );
-            fieldValueInfos.add(completeValue(executionContext, newParameters));
+            //fixme 重点：递归计算list元素
+            FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
+            fieldValueInfos.add(fieldValueInfo);
             index++;
         }
 
@@ -704,6 +729,7 @@ public abstract class ExecutionStrategy {
 
 
     /**
+     * 将对象转换为可遍历的类型
      * Converts an object that is known to should be an Iterable into one
      *
      * @param result the result object
@@ -722,7 +748,11 @@ public abstract class ExecutionStrategy {
     }
 
 
+    /**
+     * 将计算结果转换为可遍历的Iterable<Object>
+     */
     protected Iterable<Object> toIterable(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
+        //如果result类型是数组或者可遍历的链表，则判断根据其具体类型，返回Iterable<Object>
         if (result.getClass().isArray() || result instanceof Iterable) {
             return toIterable(result);
         }
@@ -731,9 +761,17 @@ public abstract class ExecutionStrategy {
         return null;
     }
 
+    /**
+     * 处理"类型不匹配问题"，将错误添加到context中
+     * @param context 执行上下文
+     * @param parameters  包含当前"路径"
+     * @param result    执行结果——这个类型跟"路径"标志的字段不匹配
+     */
     private void handleTypeMismatchProblem(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
+
         TypeMismatchError error = new TypeMismatchError(parameters.getPath(), parameters.getExecutionStepInfo().getUnwrappedNonNullType());
         logNotSafe.warn("{} got {}", error.getMessage(), result.getClass());
+        //CopyOnWriteArrayList的add加锁了
         context.addError(error);
 
         parameters.deferredErrorSupport().onError(error);

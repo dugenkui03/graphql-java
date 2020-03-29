@@ -4,6 +4,7 @@ package graphql.execution;
 import graphql.Internal;
 
 /**
+ * 如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException
  * This will check that a value is non null when the type definition says it must be and it will throw {@link NonNullableFieldWasNullException}
  * if this is not the case.
  *
@@ -21,6 +22,7 @@ public class NonNullableFieldValidator {
     }
 
     /**
+     * 被调用来检查结果是否是 结果为null、但是要求确实非null类型，这样的话需要抛出异常
      * Called to check that a value is non null if the type requires it to be non null
      *
      * @param path   the path to this place

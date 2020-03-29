@@ -81,15 +81,20 @@ public class FpKit {
      */
     @SuppressWarnings("unchecked")
     public static <T> Collection<T> toCollection(Object iterableResult) {
+        //如果是数组
         if (iterableResult.getClass().isArray()) {
+            //IntStream.range(a,b)是前闭后开的[a,b)
             List<Object> collect = IntStream.range(0, Array.getLength(iterableResult))
+                    //获取数组iterableResult的第i个元素
                     .mapToObj(i -> Array.get(iterableResult, i))
                     .collect(Collectors.toList());
             return (List<T>) collect;
         }
+        //如果是Collection，则直接返回
         if (iterableResult instanceof Collection) {
             return (Collection<T>) iterableResult;
         }
+        //如果是Iterable，则放到列表中
         Iterable<T> iterable = (Iterable<T>) iterableResult;
         Iterator<T> iterator = iterable.iterator();
         List<T> list = new ArrayList<>();

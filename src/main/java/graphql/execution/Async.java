@@ -118,6 +118,10 @@ public class Async {
         }
     }
 
+    /**
+     * CompletableFuture任务以异常结束
+     * @return
+     */
     public static <T> CompletableFuture<T> exceptionallyCompletedFuture(Throwable exception) {
         CompletableFuture<T> result = new CompletableFuture<>();
         result.completeExceptionally(exception);
