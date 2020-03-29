@@ -16,6 +16,7 @@ import static java.lang.String.format;
 
 /**
  * fixme 当graphql执行的时候，每个field形成一个从父亲到孩子的层级结构，该路径表示为一系列的segments。
+ * todo 似乎是孩子指向父亲的结构
  * As a graphql query is executed, each field forms a hierarchical path from parent field to child field and this
  * class represents that path as a series of segments.
  */
@@ -270,6 +271,9 @@ public class ExecutionPath {
             return Collections.emptyList();
         }
         List<Object> list = new ArrayList<>();
+        /**
+         * 当前节点是父节点p
+         */
         ExecutionPath p = this;
         while (p.segment != null) {
             list.add(p.segment.getValue());
