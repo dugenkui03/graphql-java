@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
 
 /**
+ * fixme: 异步非阻塞 执行策略
  * The standard graphql execution strategy that runs fields asynchronously non-blocking.
  */
 public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
@@ -44,21 +45,46 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         super(exceptionHandler);
     }
 
+    /**
+     *fixme:
+     *      执行策略的全局入口：执行字段的取值和转换
+     *      This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
+     *
+     * fixme 对每个字段都是异步执行的
+     *
+     * @param executionContext contains the top level execution parameters  执行上下文
+     * @param parameters       contains the parameters holding the fields to be executed and source object
+     *
+     * @return
+     * @throws NonNullableFieldWasNullException
+     */
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
-
+        //instrument
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, parameters);
-
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
+        /**
+         *  获取其所有字段?当前类型的所有子实体
+         */
         MergedSelectionSet fields = parameters.getFields();
+
+        /**
+         * 获取所有子实体的 key/名称
+         */
         List<String> fieldNames = new ArrayList<>(fields.keySet());
+        //保存子实体的异步结果
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
+        //解析后的字段？list of fieldNames
         List<String> resolvedFields = new ArrayList<>();
+
+        //遍历子实体
         for (String fieldName : fieldNames) {
+            //获取子实体对应的对象<String_fieldName,MergedField_fieldInfo>
             MergedField currentField = fields.getSubField(fieldName);
+
 
             ExecutionPath fieldPath = parameters.getPath().segment(mkNameForPath(currentField));
             ExecutionStrategyParameters newParameters = parameters

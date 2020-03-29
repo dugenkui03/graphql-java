@@ -38,6 +38,7 @@ public class ExecutionPath {
     }
 
     private final PathSegment segment;
+    //ArrayList:父亲到孩子的 segment list
     private final List<Object> pathList;
 
     /**
@@ -153,9 +154,10 @@ public class ExecutionPath {
     }
 
     /**
+     * 获取当前路径、并添加一个新的"片段"进去
      * Takes the current path and adds a new segment to it, returning a new path
      *
-     * @param segment the string path segment to add
+     * @param segment the string path segment to add 要添加的String segment
      * @return a new path containing that segment
      */
     public ExecutionPath segment(String segment) {
@@ -271,14 +273,15 @@ public class ExecutionPath {
             return Collections.emptyList();
         }
         List<Object> list = new ArrayList<>();
-        /**
-         * 当前节点是父节点p
-         */
+        //p指向当前对象
         ExecutionPath p = this;
+        //当p的"片段"不为空
         while (p.segment != null) {
+            //list中添加进去"片段"的值，并递归获取父亲的"片段"的值
             list.add(p.segment.getValue());
             p = p.parent;
         }
+        //while中顺序是孩子-》父亲，这里逆序：父亲-》孩子
         Collections.reverse(list);
         return list;
     }

@@ -75,6 +75,7 @@ public class DataFetcherResult<T> {
     }
 
     /**
+     *  DataFetcher结果可以提供一个上线问对象给孩子结果
      * A data fetcher result can supply a context object for that field that is passed down to child fields
      *
      * @return a local context object

@@ -142,9 +142,10 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * fixme:执行策略的全局入口：执行字段的取值和转换
      * This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
      *
-     * @param executionContext contains the top level execution parameters
+     * @param executionContext contains the top level execution parameters  执行上下文
      * @param parameters       contains the parameters holding the fields to be executed and source object
      *
      * @return a promise to an {@link ExecutionResult}
@@ -255,6 +256,7 @@ public abstract class ExecutionStrategy {
 
         //代码注册器
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
+        //todo 获取变量值：映射入参或者写死的，也有校验的逻辑
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());
 
         QueryDirectivesImpl queryDirectives = new QueryDirectivesImpl(field, executionContext.getGraphQLSchema(), executionContext.getVariables());
@@ -264,7 +266,7 @@ public abstract class ExecutionStrategy {
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
 
-        DataFetchingEnvironment environment = newDataFetchingEnvironment(executionContext)
+        DataFetchingEnvironment fetchingEnv = newDataFetchingEnvironment(executionContext)
                 .source(parameters.getSource())
                 .localContext(parameters.getLocalContext())
                 .arguments(argumentValues)
@@ -279,18 +281,17 @@ public abstract class ExecutionStrategy {
 
         //获取某个字段的dataFetcher。
         DataFetcher dataFetcher = codeRegistry.getDataFetcher(parentType, fieldDef);
-
         Instrumentation instrumentation = executionContext.getInstrumentation();
-
-        InstrumentationFieldFetchParameters instrumentationFieldFetchParams = new InstrumentationFieldFetchParameters(executionContext, fieldDef, environment, parameters, dataFetcher instanceof TrivialDataFetcher);
+        InstrumentationFieldFetchParameters instrumentationFieldFetchParams = new InstrumentationFieldFetchParameters(executionContext, fieldDef, fetchingEnv, parameters, dataFetcher instanceof TrivialDataFetcher);
         InstrumentationContext<Object> fetchCtx = instrumentation.beginFieldFetch(instrumentationFieldFetchParams);
 
         CompletableFuture<Object> fetchedValue;
+        //instrumentDataFetcher
         dataFetcher = instrumentation.instrumentDataFetcher(dataFetcher, instrumentationFieldFetchParams);
         ExecutionId executionId = executionContext.getExecutionId();
         try {
             log.debug("'{}' fetching field '{}' using data fetcher '{}'...", executionId, executionStepInfo.getPath(), dataFetcher.getClass().getName());
-            Object fetchedValueRaw = dataFetcher.get(environment);
+            Object fetchedValueRaw = dataFetcher.get(fetchingEnv);
             logNotSafe.debug("'{}' field '{}' fetch returned '{}'", executionId, executionStepInfo.getPath(), fetchedValueRaw == null ? "null" : fetchedValueRaw.getClass().getName());
 
             fetchedValue = Async.toCompletableFuture(fetchedValueRaw);
@@ -305,9 +306,11 @@ public abstract class ExecutionStrategy {
                 .handle((result, exception) -> {
                     fetchCtx.onCompleted(result, exception);
                     if (exception != null) {
-                        handleFetchingException(executionContext, parameters, environment, exception);
+                        //如果是异常，则将异常信息放到执行上下文executionContext中
+                        handleFetchingException(executionContext, parameters, fetchingEnv, exception);
                         return null;
                     } else {
+                        //如果是结果，则直接返回结果、并在thenApply中拆箱
                         return result;
                     }
                 })
@@ -318,9 +321,14 @@ public abstract class ExecutionStrategy {
                                                 ExecutionStrategyParameters parameters,
                                                 Object result) {
 
+        /**
+         * 如果是DataFetcherResult：data、errors、localContext、mapRelativeErrors
+         */
         if (result instanceof DataFetcherResult) {
             //noinspection unchecked
             DataFetcherResult<?> dataFetcherResult = (DataFetcherResult) result;
+
+            //是否做错误映射：mapRelativeErrors
             if (dataFetcherResult.isMapRelativeErrors()) {
                 dataFetcherResult.getErrors().stream()
                         .map(relError -> new AbsoluteGraphQLError(parameters, relError))
@@ -329,16 +337,21 @@ public abstract class ExecutionStrategy {
                 dataFetcherResult.getErrors().forEach(executionContext::addError);
             }
 
+            //如果这个字段没有设置localContext，则获取其父亲的localContext传递给孩子
             Object localContext = dataFetcherResult.getLocalContext();
             if (localContext == null) {
                 // if the field returns nothing then they get the context of their parent field
                 localContext = parameters.getLocalContext();
             }
-            return FetchedValue.newFetchedValue()
 
+            return FetchedValue.newFetchedValue()
+                    //拆箱后的值
                     .fetchedValue(executionContext.getValueUnboxer().unbox(dataFetcherResult.getData()))
+                    //未拆箱的值
                     .rawFetchedValue(dataFetcherResult.getData())
+                    //错误
                     .errors(dataFetcherResult.getErrors())
+                    //localContext上下文
                     .localContext(localContext)
                     .build();
         } else {
@@ -858,6 +871,7 @@ public abstract class ExecutionStrategy {
 
 
     /**
+     * 为当前的字段创建一个类型信息层级
      * Builds the type info hierarchy for the current field
      *
      * @param executionContext the execution context  in play
@@ -900,7 +914,9 @@ public abstract class ExecutionStrategy {
         return mkNameForPath(mergedField.getFields());
     }
 
-
+    /**
+     * 查询字段集中的别名？
+     */
     @Internal
     public static String mkNameForPath(List<Field> currentField) {
         Field field = currentField.get(0);

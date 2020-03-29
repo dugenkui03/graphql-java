@@ -152,6 +152,9 @@ public class ValueFetcher {
         return FetchedValue.newFetchedValue().errors(singletonList(exceptionWhileDataFetching)).build();
     }
 
+    /**
+     * 使用默认的DefaultValueUnboxer进行拆箱
+     */
     private FetchedValue unboxPossibleOptional(FetchedValue result) {
         return result.transform(
                 builder -> builder.fetchedValue(DefaultValueUnboxer.unboxValue(result.getFetchedValue()))
