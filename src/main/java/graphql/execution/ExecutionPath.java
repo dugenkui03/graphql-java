@@ -15,11 +15,16 @@ import static java.lang.String.format;
 
 
 /**
+ * fixme 当graphql执行的时候，每个field形成一个从父亲到孩子的层级结构，该路径表示为一系列的segments。
  * As a graphql query is executed, each field forms a hierarchical path from parent field to child field and this
  * class represents that path as a series of segments.
  */
 @PublicApi
 public class ExecutionPath {
+
+    /**
+     * fixme 重要：静态私有变量，所有的路径都开始于此。
+     */
     private static final ExecutionPath ROOT_PATH = new ExecutionPath();
 
     /**
@@ -31,9 +36,14 @@ public class ExecutionPath {
         return ROOT_PATH;
     }
 
-    private final ExecutionPath parent;
     private final PathSegment segment;
     private final List<Object> pathList;
+
+    /**
+     * 重要：指向父亲
+     */
+    private final ExecutionPath parent;
+
 
     private ExecutionPath() {
         parent = null;
@@ -81,34 +91,44 @@ public class ExecutionPath {
     }
 
     /**
+     * fixme 从提供的路径字符串，解析一个ExecutionPath对象
      * Parses an execution path from the provided path string in the format /segment1/segment2[index]/segmentN
      *
      * @param pathString the path string
      * @return a parsed execution path
      */
     public static ExecutionPath parse(String pathString) {
-        pathString = pathString == null ? "" : pathString;
-        pathString = pathString.trim();
+//        如果是空
+        pathString = pathString == null ? "" : pathString.trim();
+
         StringTokenizer st = new StringTokenizer(pathString, "/[]", true);
-        ExecutionPath path = ExecutionPath.rootPath();
+        ExecutionPath rootPath = ExecutionPath.rootPath();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             if ("/".equals(token)) {
                 assertTrue(st.hasMoreTokens(), mkErrMsg(), pathString);
-                path = path.segment(st.nextToken());
+                /**
+                 * 如果是路径分隔 / ，添加string segment
+                 */
+                rootPath = rootPath.segment(st.nextToken());
             } else if ("[".equals(token)) {
                 assertTrue(st.countTokens() >= 2, mkErrMsg(), pathString);
-                path = path.segment(Integer.parseInt(st.nextToken()));
+                /**
+                 * 如果是 [] 分隔符，则添加int segment
+                 */
+                rootPath = rootPath.segment(Integer.parseInt(st.nextToken()));
                 String closingBrace = st.nextToken();
                 assertTrue(closingBrace.equals("]"), mkErrMsg(), pathString);
             } else {
                 throw new AssertException(format(mkErrMsg(), pathString));
             }
         }
-        return path;
+        return rootPath;
     }
 
     /**
+     * fixme 将list对象转换为 ExecutionPath
+     *
      * This will create an execution path from the list of objects
      *
      * @param objects the path objects
@@ -116,15 +136,15 @@ public class ExecutionPath {
      */
     public static ExecutionPath fromList(List<?> objects) {
         assertNotNull(objects);
-        ExecutionPath path = ExecutionPath.rootPath();
+        ExecutionPath rootPath = ExecutionPath.rootPath();
         for (Object object : objects) {
             if (object instanceof Number) {
-                path = path.segment(((Number) object).intValue());
+                rootPath = rootPath.segment(((Number) object).intValue());
             } else {
-                path = path.segment(String.valueOf(object));
+                rootPath = rootPath.segment(String.valueOf(object));
             }
         }
-        return path;
+        return rootPath;
     }
 
     private static String mkErrMsg() {
@@ -234,12 +254,17 @@ public class ExecutionPath {
     }
 
     /**
+     * 将path转换成segment
      * @return converts the path into a list of segments
      */
     public List<Object> toList() {
         return new ArrayList<>(pathList);
     }
 
+    /**
+     *
+     * @return
+     */
     private List<Object> toListImpl() {
         if (parent == null) {
             return Collections.emptyList();

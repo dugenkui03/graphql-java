@@ -99,6 +99,7 @@ public class ExecutionStrategyParameters {
     }
 
     /**
+     * 查询中的第一个字段
      * This returns the current field in its query representations.
      *
      * @return the current merged fields

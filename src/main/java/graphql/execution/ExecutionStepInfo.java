@@ -17,6 +17,13 @@ import static graphql.Assert.assertTrue;
 import static graphql.schema.GraphQLTypeUtil.isList;
 
 /**
+ *fixme：
+ *      当查的执行时，他形成一个父字段到子字段的层级结构;
+ *      直到遇见标量。该类型捕获执行类型信息。
+ *
+ *fixme：
+ *      静态的graphql类型系统不包括child到父节点的类型，也不包含实例类型的非空性。
+ *      重点：ExecutionStemInfo作为帮助类型、在执行过程中提供了这些信息。
  *
  * As the graphql query executes, it forms a hierarchy from parent fields (and their type) to their child fields (and their type)
  * until a scalar type is encountered; this class captures that execution type information.
@@ -28,14 +35,17 @@ import static graphql.schema.GraphQLTypeUtil.isList;
 public class ExecutionStepInfo {
 
     /**
+     * fixme 代表一个field或者对象列表中的列表元素。永远不可能代表标量、枚举，因为此时不可能在继续递归求解了。
      * An ExecutionStepInfo represent either a field or a list element inside a list of objects/interfaces/unions.
-     *
      * A StepInfo never represent a Scalar/Enum inside a list (e.g. [String]) because GraphQL execution doesn't descend down
      * scalar/enums lists.
      *
      */
 
     /**
+     * fixme
+     *      如果 stepInfo代表一个字段，则type等于fieldDefinition.getType()；
+     *      如果StepInfo是列表元素，那么类型就是现在的类型元素。
      * If this StepInfo represent a field the type is equal to fieldDefinition.getType()
      *
      * if this StepInfo is a list element this type is the actual current list element. For example:
@@ -52,6 +62,7 @@ public class ExecutionStepInfo {
     private final GraphQLOutputType type;
 
     /**
+     * fixme： 以索引字段为路径结果 是列表元素的特征。
      * A list element is characterized by having a path ending with an index segment. (ExecutionPath.isListSegment())
      */
     private final ExecutionPath path;

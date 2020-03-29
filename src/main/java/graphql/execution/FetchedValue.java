@@ -9,9 +9,13 @@ import java.util.function.Consumer;
 
 @Internal
 public class FetchedValue {
+//    解开包装后的值
     private final Object fetchedValue;
+//    dataFetcher返回的值
     private final Object rawFetchedValue;
+//    传递给孩子对象的上下文信息
     private final Object localContext;
+//    dataFetcher中抛出的错误
     private final List<GraphQLError> errors;
 
     private FetchedValue(Object fetchedValue, Object rawFetchedValue, List<GraphQLError> errors, Object localContext) {

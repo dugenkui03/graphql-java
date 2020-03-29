@@ -20,6 +20,7 @@ public class DefaultValueUnboxer implements ValueUnboxer {
         return unboxValue(object);
     }
 
+    //是否需要递归拆箱
     @Internal // used by next-gen at the moment
     public static Object unboxValue(Object result) {
         if (result instanceof Optional) {

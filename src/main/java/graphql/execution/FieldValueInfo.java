@@ -12,6 +12,7 @@ import static graphql.Assert.assertNotNull;
 @PublicApi
 public class FieldValueInfo {
 
+    //对象类型
     public enum CompleteValueType {
         OBJECT,
         LIST,
@@ -21,7 +22,9 @@ public class FieldValueInfo {
 
     }
 
+    //对象类型
     private final CompleteValueType completeValueType;
+//    最终结果接口
     private final CompletableFuture<ExecutionResult> fieldValue;
     private final List<FieldValueInfo> fieldValueInfos;
 

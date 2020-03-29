@@ -174,6 +174,13 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * fixme
+     *          调用其来获取字段值集齐额外的运行信息，并且根据query进一步解析。
+     *          先fetchField获取字段值的异步包装，然后调用completeField获取字段值并返回。
+     * fixme
+     *          执行策略可以迭代要执行的字段，并且为每个字段调用此方法；
+     *          片段fragment可包含多个字段，因此称为字段列表。
+     *
      * Called to fetch a value for a field and its extra runtime info and resolve it further in terms of the graphql query.  This will call
      * #fetchField followed by #completeField and the completed {@link graphql.execution.FieldValueInfo} is returned.
      * <p>
@@ -197,8 +204,14 @@ public abstract class ExecutionStrategy {
                 new InstrumentationFieldParameters(executionContext, fieldDef, createExecutionStepInfo(executionContext, parameters, fieldDef, null))
         );
 
+        /**
+         * 获取解析字段的异步包装
+         */
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
-        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) ->
+        /**
+         * thenApply将CompletableFuture<T>转换成CompletableFuture<U>，相当于stream的map操作
+         */
+        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply(fetchedValue ->
                 completeField(executionContext, parameters, fetchedValue));
 
         CompletableFuture<ExecutionResult> executionResultFuture = result.thenCompose(FieldValueInfo::getFieldValue);
@@ -322,6 +335,7 @@ public abstract class ExecutionStrategy {
                 localContext = parameters.getLocalContext();
             }
             return FetchedValue.newFetchedValue()
+
                     .fetchedValue(executionContext.getValueUnboxer().unbox(dataFetcherResult.getData()))
                     .rawFetchedValue(dataFetcherResult.getData())
                     .errors(dataFetcherResult.getErrors())
@@ -352,6 +366,12 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * fixme:
+     *      根据字段的类型解析字段。
+     *
+     * fixme:
+     *      如果字段是标量，则强制转换并返回；
+     *      如果是复杂对象，则会递归调用 执行策略、并且返回解析的字段。
      * Called to complete a field based on the type of the field.
      * <p>
      * If the field is a scalar type, then it will be coerced  and returned.  However if the field type is an complex object type, then
@@ -362,16 +382,20 @@ public abstract class ExecutionStrategy {
      *
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param fetchedValue     the fetched raw value
+     * @param fetchedValue     the fetched raw value fixme 当前这层fetcher获取的结果
      *
      * @return a {@link FieldValueInfo}
      *
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
     protected FieldValueInfo completeField(ExecutionContext executionContext, ExecutionStrategyParameters parameters, FetchedValue fetchedValue) {
+        //返回查询中的第一个字段？
         Field field = parameters.getField().getSingleField();
+//        返回字段的类型
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
+//        返回子第一个字段的定义
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
+
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
