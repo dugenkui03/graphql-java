@@ -80,6 +80,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * fixme 包装：只可能是被list或者非空包装
      * Returns true if the given type is a non null or list type, that is a wrapped type
      *
      * @param type the type to check
@@ -102,6 +103,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * 是否是标量
      * Returns true if the given type is a scalar type
      *
      * @param type the type to check
@@ -113,6 +115,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * 是否是枚举
      * Returns true if the given type is an enum type
      *
      * @param type the type to check
@@ -124,6 +127,9 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * fixme
+     *      给定的类型是否是叶子节点类型、即不能包含任何字段；
+     *      拆箱后是标量或者枚举，而非对象。
      * Returns true if the given type is a leaf type, that it cant contain any more fields
      *
      * @param type the type to check
@@ -138,6 +144,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * 是否是输入类型的：标量、枚举或者输入类型
      * Returns true if the given type is an input type
      *
      * @param type the type to check
@@ -169,6 +176,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * 去掉多层的包装
      * Unwraps all layers of the type or just returns the type again if its not a wrapped type
      *
      * @param type the type to unwrapOne
@@ -192,6 +200,7 @@ public class GraphQLTypeUtil {
     }
 
     /**
+     * 获取拆分的多层包装
      * graphql types can be wrapped in {@link GraphQLNonNull} and {@link GraphQLList} type wrappers
      * so this method will unwrap the type down to the raw unwrapped type and return that wrapping
      * as a stack, with the top of the stack being the raw underling type.

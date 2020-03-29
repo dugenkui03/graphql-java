@@ -38,6 +38,7 @@ public interface GraphqlFieldVisibility {
 
 
     /**
+     * 从一个类型中获取其子属性？
      * Called to get the list of fields from an input object type
      *
      * @param fieldsContainer the type in play

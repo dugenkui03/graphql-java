@@ -14,5 +14,6 @@ public interface GraphQLInputFieldsContainer extends GraphQLNamedType {
 
     GraphQLInputObjectField getFieldDefinition(String name);
 
+    //子属性？
     List<GraphQLInputObjectField> getFieldDefinitions();
 }
