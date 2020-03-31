@@ -75,7 +75,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
          * 获取所有子实体的 key/名称
          */
         List<String> fieldNames = new ArrayList<>(fields.keySet());
-        //保存子实体的异步结果
+        //fixme 保存子实体的异步结果
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
         //解析后的字段？list of fieldNames
         List<String> resolvedFields = new ArrayList<>();
@@ -87,16 +87,25 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
 
             ExecutionPath fieldPath = parameters.getPath().segment(mkNameForPath(currentField));
+            //策略参数
             ExecutionStrategyParameters newParameters = parameters
                     .transform(builder -> builder.field(currentField).path(fieldPath).parent(parameters));
 
             resolvedFields.add(fieldName);
             CompletableFuture<FieldValueInfo> future;
 
+            /**
+             * 当前字段是延迟字段
+             */
             if (isDeferred(executionContext, newParameters, currentField)) {
                 executionStrategyCtx.onDeferredField(currentField);
+                //获取 ExecutionContext 和 ExecutionStrategyParameters 对应的空值FieldValueInfo
                 future = resolveFieldWithInfoToNull(executionContext, newParameters);
-            } else {
+            }
+            /**
+             * 当前字段不是延迟字段。todo 重要，调用dataFetcher和解析字段值，都在resolveFieldWithInfo中
+             */
+            else {
                 future = resolveFieldWithInfo(executionContext, newParameters);
             }
             futures.add(future);
@@ -105,6 +114,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         executionStrategyCtx.onDispatched(overallResult);
 
         Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
+
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult);
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
@@ -125,6 +135,13 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         return overallResult;
     }
 
+    /**
+     * 是否是 延迟字段
+     * @param executionContext 执行上下文
+     * @param parameters 执行策略参数
+     * @param currentField
+     * @return
+     */
     private boolean isDeferred(ExecutionContext executionContext, ExecutionStrategyParameters parameters, MergedField currentField) {
         DeferSupport deferSupport = executionContext.getDeferSupport();
         if (deferSupport.checkForDeferDirective(currentField, executionContext.getVariables())) {

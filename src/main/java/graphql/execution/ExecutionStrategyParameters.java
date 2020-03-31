@@ -15,6 +15,7 @@ import static graphql.Assert.assertNotNull;
  */
 @PublicApi
 public class ExecutionStrategyParameters {
+    //父子结构
     private final ExecutionStepInfo executionStepInfo;
     private final Object source;
     private final Object localContext;

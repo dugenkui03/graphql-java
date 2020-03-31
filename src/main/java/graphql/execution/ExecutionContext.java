@@ -5,6 +5,7 @@ import graphql.GraphQLError;
 import graphql.PublicApi;
 import graphql.cachecontrol.CacheControl;
 import graphql.execution.defer.DeferSupport;
+import graphql.execution.defer.DeferredErrorSupport;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.language.Document;
@@ -36,6 +37,7 @@ public class ExecutionContext {
     private final Map<String, FragmentDefinition> fragmentsByName;
     private final OperationDefinition operationDefinition;
     private final Document document;
+    //变量及其变量值
     private final Map<String, Object> variables;
     private final Object root;
     private final Object context;

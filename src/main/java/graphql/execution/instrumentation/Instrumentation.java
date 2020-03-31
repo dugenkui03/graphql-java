@@ -136,7 +136,7 @@ public interface Instrumentation {
     /**
      * This is called just before the complete field is started.
      *
-     * @param parameters the parameters to this step
+     * @param parameters the parameters to this step fixme 包含 fetchedValue
      *
      * @return a non null {@link InstrumentationContext} object that will be called back when the step ends
      */

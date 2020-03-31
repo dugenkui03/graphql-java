@@ -19,6 +19,13 @@ public abstract class AbstractAsyncExecutionStrategy extends ExecutionStrategy {
         super(dataFetcherExceptionHandler);
     }
 
+    /**
+     * 处理结果
+     * @param executionContext
+     * @param fieldNames
+     * @param overallResult
+     * @return
+     */
     protected BiConsumer<List<ExecutionResult>, Throwable> handleResults(ExecutionContext executionContext, List<String> fieldNames, CompletableFuture<ExecutionResult> overallResult) {
         return (List<ExecutionResult> results, Throwable exception) -> {
             if (exception != null) {

@@ -21,25 +21,37 @@ import static graphql.schema.DataFetcherFactoryEnvironment.newDataFetchingFactor
 import static graphql.util.FpKit.getByName;
 
 /**
+ * 字段是你在graphql中获取数据值的方式，一个"字段定义代表一个字段、字段类型、字段参数和DataFetcher，
  * Fields are the ways you get data values in graphql and a field definition represents a field, its type, the arguments it takes
  * and the {@link graphql.schema.DataFetcher} used to get data values for that field.
  *
+ * fixme: 字段可以被认为是graphql中的函数，他们有名字、参数、并返回结果。
  * Fields can be thought of as functions in graphql, they have a name, take defined arguments and return a value.
  *
+ * fixme:像方法一样，字段也能够被deprecated，表示在未来将不会被支持。
  * Fields can also be deprecated, which indicates the consumers that a field wont be supported in the future.
  *
  * See http://graphql.org/learn/queries/#fields for more details on the concept.
  */
 @PublicApi
 public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQLDirectiveContainer {
-
+    //字段名称
     private final String name;
+    /**
+     * 字段描述，紧跟在字段或者实体定义上，用#描述的注释。必须紧跟着被注释的内容、有一行空格都不行
+     */
     private final String description;
+    //字段原始类型
     private final GraphQLOutputType originalType;
+    //字段对应的dataFetcher
     private final DataFetcherFactory dataFetcherFactory;
+    //deprecate的原因
     private final String deprecationReason;
+    //字段参数
     private final List<GraphQLArgument> arguments;
+    //实体字段指令
     private final List<GraphQLDirective> directives;
+
     private final FieldDefinition definition;
 
     private GraphQLOutputType replacedType;

@@ -222,6 +222,9 @@ public abstract class ExecutionStrategy {
         return result;
     }
 
+    /**
+     * 获取 ExecutionContext 和 ExecutionStrategyParameters 对应的空值FieldValueInfo
+     */
     protected CompletableFuture<FieldValueInfo> resolveFieldWithInfoToNull(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
         FetchedValue fetchedValue = FetchedValue.newFetchedValue().build();
         FieldValueInfo fieldValueInfo = completeField(executionContext, parameters, fetchedValue);
@@ -411,11 +414,12 @@ public abstract class ExecutionStrategy {
 //        运行时数据结构
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
-        Instrumentation instrumentation = executionContext.getInstrumentation();
+        //        构造beginFieldComplete()方法的参数
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchedValue);
-        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(
-                instrumentationParams
-        );
+
+//        获取Instrumentation并调用beginFieldComplete方法
+        Instrumentation instrumentation = executionContext.getInstrumentation();
+        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(instrumentationParams);
 
         /**
          * GraphQLCodeRegistry保存有 field关联的DataFetcher

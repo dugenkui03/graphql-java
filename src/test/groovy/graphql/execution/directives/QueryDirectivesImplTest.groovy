@@ -4,6 +4,9 @@ import graphql.TestUtil
 import graphql.execution.MergedField
 import spock.lang.Specification
 
+/**
+ * TODO 重要，查询指令
+ */
 class QueryDirectivesImplTest extends Specification {
 
     def sdl = '''

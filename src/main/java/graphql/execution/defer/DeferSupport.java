@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static graphql.Directives.*;
 
 /**
+ * 提供了对字段上指令 defer 的支持，这表示该字段的值将会在其他字段值返回后，通过Publisher stream返回。
  * This provides support for @defer directives on fields that mean that results will be sent AFTER
  * the main result is sent via a Publisher stream.
  */
