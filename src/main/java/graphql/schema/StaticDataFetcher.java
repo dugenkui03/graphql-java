@@ -5,6 +5,7 @@ import graphql.PublicApi;
 import graphql.TrivialDataFetcher;
 
 /**
+ * 总是返回相同值的DataFetcher
  * A {@link graphql.schema.DataFetcher} that always returns the same value
  */
 @PublicApi

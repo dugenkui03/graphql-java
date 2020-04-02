@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import static graphql.execution.instrumentation.SimpleInstrumentationContext.whenCompleted;
 
 /**
+ * 这个fetcher使用TracingSupport来捕获 trace追踪信息，并放到结果中
  * This {@link Instrumentation} implementation uses {@link TracingSupport} to
  * capture tracing information and puts it into the {@link ExecutionResult}
  */
@@ -29,6 +30,7 @@ import static graphql.execution.instrumentation.SimpleInstrumentationContext.whe
 public class TracingInstrumentation extends SimpleInstrumentation {
 
     public static class Options {
+        //是否包含不重要的DataFetcher
         private final boolean includeTrivialDataFetchers;
 
         private Options(boolean includeTrivialDataFetchers) {
@@ -40,6 +42,8 @@ public class TracingInstrumentation extends SimpleInstrumentation {
         }
 
         /**
+         * PropertyDataFetcher默认包含在跟踪器中
+         * <p></p>
          * By default trivial data fetchers (those that simple pull data from an object into field) are included
          * in tracing but you can control this behavior.
          *
@@ -72,15 +76,42 @@ public class TracingInstrumentation extends SimpleInstrumentation {
         return new TracingSupport(options.includeTrivialDataFetchers);
     }
 
+    /**
+     * 将追踪信息放到最后的结果中
+     *
+     * ExecutionResult——最终返回结果，允许instrument结果
+     */
     @Override
     public CompletableFuture<ExecutionResult> instrumentExecutionResult(ExecutionResult executionResult, InstrumentationExecutionParameters parameters) {
+        /**
+         * 获取 拓展结果
+         */
         Map<Object, Object> currentExt = executionResult.getExtensions();
 
+        /**
+         * 获取InstrumentationState的实现类：跟踪辅助类：TracingSupport
+         */
         TracingSupport tracingSupport = parameters.getInstrumentationState();
+
+        /**
+         * 初始化 "跟踪map"
+         */
         Map<Object, Object> tracingMap = new LinkedHashMap<>();
+
+        /**
+         * 在"跟踪map"中放入 拓展结果
+         *
+         */
         tracingMap.putAll(currentExt == null ? Collections.emptyMap() : currentExt);
+
+        /**
+         * fixme：将字段跟踪信息放到 拓展结果中
+         */
         tracingMap.put("tracing", tracingSupport.snapshotTracingData());
 
+        /**
+         * 返回最终结果+拓展结果
+         */
         return CompletableFuture.completedFuture(new ExecutionResultImpl(executionResult.getData(), executionResult.getErrors(), tracingMap));
     }
 

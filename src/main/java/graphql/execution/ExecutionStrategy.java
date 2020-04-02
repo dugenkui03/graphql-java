@@ -252,7 +252,7 @@ public abstract class ExecutionStrategy {
         //当前查询的字段
         MergedField field = parameters.getField();
 
-        //当前查询字段的类型
+        //当前查询字段的类型：类似于java属性所在类
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
         //字段定义
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field.getSingleField());
@@ -281,6 +281,10 @@ public abstract class ExecutionStrategy {
                 .selectionSet(fieldCollector)
                 .queryDirectives(queryDirectives)
                 .build();
+        /**
+         * 根据DataFetchingEnvironment获取dataFetcher实例
+         * DataFetcher dataFetcher1 = fetchingEnv.getGraphQLSchema().getCodeRegistry().getDataFetcher(fetchingEnv.getParentType(), fetchingEnv.getFieldDefinition());
+         */
 
         //获取某个字段的dataFetcher。
         DataFetcher dataFetcher = codeRegistry.getDataFetcher(parentType, fieldDef);
@@ -887,7 +891,7 @@ public abstract class ExecutionStrategy {
      * 为当前的字段创建一个类型信息层级:父字段到子字段的层级结构
      * Builds the type info hierarchy for the current field
      *
-     * @param executionContext the execution context  in play
+     * @param executionContext the execution context in play 执行上下文
      * @param parameters       contains the parameters holding the fields to be executed and source object
      * @param fieldDefinition  the field definition to build type info for
      * @param fieldContainer   the field container
@@ -918,24 +922,18 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * 查询字段集中的别名？
+     * fixme 查询字段集中第一个字段的别名
      */
     @Internal
     public static String mkNameForPath(Field currentField) {
         return mkNameForPath(Collections.singletonList(currentField));
     }
 
-    /**
-     * 查询字段集中的别名？
-     */
     @Internal
     public static String mkNameForPath(MergedField mergedField) {
         return mkNameForPath(mergedField.getFields());
     }
 
-    /**
-     * 查询字段集中的别名？
-     */
     @Internal
     public static String mkNameForPath(List<Field> currentField) {
         Field field = currentField.get(0);

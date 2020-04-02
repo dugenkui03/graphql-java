@@ -87,6 +87,7 @@ public class StarWarsSchema {
             .build();
 
     public static GraphQLObjectType droidType = newObject()
+            //由tag 1 和此处定义克制
             .name("Droid")
             .description("A mechanical creature in the Star Wars universe.")
             .withInterface(characterInterface)
@@ -125,6 +126,9 @@ public class StarWarsSchema {
             .build();
 
     public static GraphQLObjectType queryType = newObject()
+            /**
+             * hero、human、droid的parentType是QueryType
+             */
             .name("QueryType")
             .field(newFieldDefinition()
                     .name("hero")
@@ -142,6 +146,7 @@ public class StarWarsSchema {
                             .description("id of the human")
                             .type(nonNull(GraphQLString)))
                     .dataFetcher(StarWarsData.getHumanDataFetcher()))
+            //tag 1
             .field(newFieldDefinition()
                     .name("droid")
                     .type(droidType)

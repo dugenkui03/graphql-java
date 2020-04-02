@@ -1,5 +1,6 @@
 package graphql.execution.instrumentation
 
+import com.google.gson.Gson
 import graphql.GraphQL
 import graphql.StarWarsSchema
 import graphql.TestUtil
@@ -49,6 +50,9 @@ class TracingInstrumentationTest extends Specification {
         specExtensions == extensions
 
         def tracing = extensions['tracing']
+
+        Gson gson = new Gson();
+        print(gson.toJson(tracing)+"\n")
 
         tracing["version"] == 1L
         tracing["startTime"] != null
@@ -134,11 +138,13 @@ class TracingInstrumentationTest extends Specification {
                 .build()
         when:
         def executionResult = graphQL.execute(query)
-
         def specExtensions = executionResult.toSpecification().get("extensions")
         def tracing = specExtensions['tracing']
 
         then:
+
+        Gson gson = new Gson();
+        print(gson.toJson(tracing))
 
         tracing["version"] == 1L
         tracing["startTime"] != null
