@@ -9,9 +9,12 @@ import graphql.language.SourceLocation;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 非法语法异常
+ */
 @Internal
 public class InvalidSyntaxException extends GraphQLException {
-
+    //错误信息及其位置
     private final String message;
     private final String sourcePreview;
     private final String offendingToken;

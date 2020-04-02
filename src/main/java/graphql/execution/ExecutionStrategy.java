@@ -728,8 +728,11 @@ public abstract class ExecutionStrategy {
                         .source(result)
         );
 
-        // Calling this from the executionContext to ensure we shift back from mutation strategy to the query strategy.
-
+        /**
+         * fixme 递归回了execute方法：从执行上下文回掉，已确保将 更新策略 转换成了查询策略
+         *      Calling this from the executionContext to ensure
+         *      we shift back from mutation strategy to the query strategy.
+         */
         return executionContext.getQueryStrategy().execute(executionContext, newParameters);
     }
 
@@ -850,13 +853,19 @@ public abstract class ExecutionStrategy {
         }
     }
 
-    protected ExecutionResult handleNonNullException(ExecutionContext executionContext, CompletableFuture<ExecutionResult> result, Throwable e) {
-        ExecutionResult executionResult = null;
+    /**
+     * 将执行上下文、执行结果和异常信息构造成ExecutionResult——字段为空时？
+     */
+    protected ExecutionResult handleNonNullException(
+            ExecutionContext executionContext, CompletableFuture<ExecutionResult> result, Throwable e) {
+        //获取执行上下文的错误信息
         List<GraphQLError> errors = new ArrayList<>(executionContext.getErrors());
+        ExecutionResult executionResult = null;
         Throwable underlyingException = e;
         if (e instanceof CompletionException) {
             underlyingException = e.getCause();
         }
+        //非空字段是空值
         if (underlyingException instanceof NonNullableFieldWasNullException) {
             assertNonNullFieldPrecondition((NonNullableFieldWasNullException) underlyingException, result);
             if (!result.isDone()) {
@@ -875,7 +884,7 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * 为当前的字段创建一个类型信息层级
+     * 为当前的字段创建一个类型信息层级:父字段到子字段的层级结构
      * Builds the type info hierarchy for the current field
      *
      * @param executionContext the execution context  in play
@@ -908,11 +917,17 @@ public abstract class ExecutionStrategy {
     }
 
 
+    /**
+     * 查询字段集中的别名？
+     */
     @Internal
     public static String mkNameForPath(Field currentField) {
         return mkNameForPath(Collections.singletonList(currentField));
     }
 
+    /**
+     * 查询字段集中的别名？
+     */
     @Internal
     public static String mkNameForPath(MergedField mergedField) {
         return mkNameForPath(mergedField.getFields());

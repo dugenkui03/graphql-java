@@ -36,11 +36,11 @@ import static graphql.util.FpKit.getByName;
 @PublicApi
 public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQLDirectiveContainer {
     //字段名称
-    private final String name;
+    private final String name;//
     /**
      * 字段描述，紧跟在字段或者实体定义上，用#描述的注释。必须紧跟着被注释的内容、有一行空格都不行
      */
-    private final String description;
+    private final String description;//
     //字段原始类型
     private final GraphQLOutputType originalType;
     //字段对应的dataFetcher
@@ -51,9 +51,9 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
     private final List<GraphQLArgument> arguments;
     //实体字段指令
     private final List<GraphQLDirective> directives;
-
+    //字段定义
     private final FieldDefinition definition;
-
+    //？
     private GraphQLOutputType replacedType;
 
     public static final String CHILD_ARGUMENTS = "arguments";

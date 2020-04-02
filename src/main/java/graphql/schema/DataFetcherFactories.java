@@ -12,6 +12,8 @@ import java.util.function.BiFunction;
 public class DataFetcherFactories {
 
     /**
+     * 返回创建参数类型DataFetcher的工厂。
+     *
      * Creates a {@link graphql.schema.DataFetcherFactory} that always returns the provided {@link graphql.schema.DataFetcher}
      *
      * @param dataFetcher the data fetcher to always return
@@ -24,6 +26,8 @@ public class DataFetcherFactories {
     }
 
     /**
+     * 对DataFetcher的结果进行在一次的封装。
+     *
      * This helper function allows you to wrap an existing data fetcher and map the value once it completes.  It helps you handle
      * values that might be {@link  java.util.concurrent.CompletionStage} returned values as well as plain old objects.
      *

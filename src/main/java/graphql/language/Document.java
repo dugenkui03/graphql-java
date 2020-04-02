@@ -19,7 +19,7 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class Document extends AbstractNode<Document> {
-
+    //定义列表
     private final List<Definition> definitions;
 
     public static final String CHILD_DEFINITIONS = "definitions";

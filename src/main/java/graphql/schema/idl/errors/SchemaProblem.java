@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 当使用Schema解析器或者schame生成器时可能遇到的错误。
+ *
  * A number of problems can occur when using the schema tools like {@link SchemaParser}
  * or {@link graphql.schema.idl.SchemaGenerator} classes and they are reported via this
  * exception as a list of {@link GraphQLError}s

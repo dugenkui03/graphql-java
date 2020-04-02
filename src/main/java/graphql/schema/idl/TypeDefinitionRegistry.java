@@ -43,6 +43,7 @@ import static graphql.schema.idl.SchemaExtensionsChecker.gatherOperationDefs;
 import static java.util.Optional.ofNullable;
 
 /**
+ *
  * A {@link TypeDefinitionRegistry} contains the set of type definitions that come from compiling
  * a graphql schema definition file via {@link SchemaParser#parse(String)}
  */

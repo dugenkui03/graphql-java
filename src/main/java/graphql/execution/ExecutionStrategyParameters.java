@@ -111,6 +111,9 @@ public class ExecutionStrategyParameters {
         return currentField;
     }
 
+    /**
+     * 使用 void accept(T t); 对ExecutionStrategyParameters进行转换
+     */
     public ExecutionStrategyParameters transform(Consumer<Builder> builderConsumer) {
         Builder builder = newParameters(this);
         builderConsumer.accept(builder);
