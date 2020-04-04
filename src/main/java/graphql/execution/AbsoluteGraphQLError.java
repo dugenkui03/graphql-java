@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static graphql.Assert.assertNotNull;
 
 /**
+ * "将DataFetcher的相对错误、解析为"绝对错误"
  * A {@link GraphQLError} that has been changed from a {@link DataFetcher} relative error to an absolute one.
  */
 @Internal

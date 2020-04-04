@@ -37,15 +37,21 @@ public class TracingSupport implements InstrumentationState {
     private final long startRequestNanos;
 
     /**
-     * 元素是某个字段的
+     * 元素是某个字段的执行信息。
      */
     private final ConcurrentLinkedQueue<Map<String, Object>> fieldData;
-    private final Map<String, Object> parseMap = new LinkedHashMap<>();
-    private final Map<String, Object> validationMap = new LinkedHashMap<>();
+
+    /**
+     * 解析和验证时间map时间map
+     */
+    private final Map<String, Object> parseMap = new LinkedHashMap<>(2);
+    private final Map<String, Object> validationMap = new LinkedHashMap<>(2);
     //是否跟踪trivial标记的dataFetcher
     private final boolean includeTrivialDataFetchers;
 
     /**
+     * 创建InstrumentationState的时间、就是请求开始的时间。
+     *
      * The timer starts as soon as you create this object
      *
      * @param includeTrivialDataFetchers whether the trace trivial data fetchers

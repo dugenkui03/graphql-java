@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.execution.instrumentation.SimpleInstrumentationContext.whenCompleted;
+import graphql.execution.instrumentation.SimpleInstrumentationContext;
 
 /**
  * 这个fetcher使用TracingSupport来捕获 trace追踪信息，并放到结果中
@@ -119,20 +119,20 @@ public class TracingInstrumentation extends SimpleInstrumentation {
     public InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters) {
         TracingSupport tracingSupport = parameters.getInstrumentationState();
         TracingSupport.TracingContext ctx = tracingSupport.beginField(parameters.getEnvironment(), parameters.isTrivialDataFetcher());
-        return whenCompleted((result, t) -> ctx.onEnd());
+        return SimpleInstrumentationContext.whenCompleted((result, t) -> ctx.onEnd());
     }
 
     @Override
     public InstrumentationContext<Document> beginParse(InstrumentationExecutionParameters parameters) {
         TracingSupport tracingSupport = parameters.getInstrumentationState();
         TracingSupport.TracingContext ctx = tracingSupport.beginParse();
-        return whenCompleted((result, t) -> ctx.onEnd());
+        return SimpleInstrumentationContext.whenCompleted((result, t) -> ctx.onEnd());
     }
 
     @Override
     public InstrumentationContext<List<ValidationError>> beginValidation(InstrumentationValidationParameters parameters) {
         TracingSupport tracingSupport = parameters.getInstrumentationState();
         TracingSupport.TracingContext ctx = tracingSupport.beginValidation();
-        return whenCompleted((result, t) -> ctx.onEnd());
+        return SimpleInstrumentationContext.whenCompleted((result, t) -> ctx.onEnd());
     }
 }

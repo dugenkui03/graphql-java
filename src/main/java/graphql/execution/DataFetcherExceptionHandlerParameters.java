@@ -8,6 +8,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import java.util.Map;
 
 /**
+ * DataFetcherExceptionHandler的参数
  * The parameters available to {@link DataFetcherExceptionHandler}s
  */
 @PublicApi

@@ -290,6 +290,12 @@ public abstract class ExecutionStrategy {
         DataFetcher dataFetcher = codeRegistry.getDataFetcher(parentType, fieldDef);
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationFieldFetchParameters instrumentationFieldFetchParams = new InstrumentationFieldFetchParameters(executionContext, fieldDef, fetchingEnv, parameters, dataFetcher instanceof TrivialDataFetcher);
+        /**
+         * fixme 非常重要：对于tracingInstrument
+         *      1. TracingSupport.beginField()一部分动作已经执行、记录下了startFieldFetchTime；
+         *      2. 另一部分、记录instrument结束后的状态值动作，记录在Function中；
+         *      3. function在onDispatched、onCompleted中被间接调用；
+         */
         InstrumentationContext<Object> fetchCtx = instrumentation.beginFieldFetch(instrumentationFieldFetchParams);
 
         CompletableFuture<Object> fetchedValue;
@@ -308,10 +314,23 @@ public abstract class ExecutionStrategy {
             fetchedValue = new CompletableFuture<>();
             fetchedValue.completeExceptionally(e);
         }
+
+        /**
+         * 执行 codeToRunOnDispatch.accept(result)
+         */
         fetchCtx.onDispatched(fetchedValue);
         return fetchedValue
                 .handle((result, exception) -> {
+
+                    /**
+                     * 执行 codeToRunOnComplete.accept(result, t)
+                     * fixme：只记录dataFetcher返回值后的时间，不记录对dataFetcher值解析的时间
+                     */
                     fetchCtx.onCompleted(result, exception);
+
+                    /**
+                     * 如果dataFetcher抛异常
+                     */
                     if (exception != null) {
                         //如果是异常，则将异常信息放到执行上下文executionContext中
                         handleFetchingException(executionContext, parameters, fetchingEnv, exception);
@@ -327,15 +346,14 @@ public abstract class ExecutionStrategy {
     FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
                                                 ExecutionStrategyParameters parameters,
                                                 Object result) {
-
         /**
          * 如果是DataFetcherResult：data、errors、localContext、mapRelativeErrors
          */
         if (result instanceof DataFetcherResult) {
-            //noinspection unchecked
+            /**
+             * 根据参数决定是否对错误进行映射转换：补全字段路径、在查询中的位置等；然后将错误放到执行上下文中
+             */
             DataFetcherResult<?> dataFetcherResult = (DataFetcherResult) result;
-
-            //是否做错误映射：mapRelativeErrors
             if (dataFetcherResult.isMapRelativeErrors()) {
                 dataFetcherResult.getErrors().stream()
                         .map(relError -> new AbsoluteGraphQLError(parameters, relError))
@@ -344,13 +362,16 @@ public abstract class ExecutionStrategy {
                 dataFetcherResult.getErrors().forEach(executionContext::addError);
             }
 
-            //如果这个字段没有设置localContext，则获取其父亲的localContext传递给孩子
+            /**
+             * localContext可保留父字段的执行上下文信息。<p></p>
+             *
+             * 如果这个字段没有设置localContext，则获取其父亲的localContext传递给子实体。
+             */
             Object localContext = dataFetcherResult.getLocalContext();
             if (localContext == null) {
                 // if the field returns nothing then they get the context of their parent field
                 localContext = parameters.getLocalContext();
             }
-
             return FetchedValue.newFetchedValue()
                     //拆箱后的值
                     .fetchedValue(executionContext.getValueUnboxer().unbox(dataFetcherResult.getData()))
@@ -370,19 +391,30 @@ public abstract class ExecutionStrategy {
         }
     }
 
+    /**
+     * dataFetcher抛异常时、将异常信息放到执行上下文中
+     * @param executionContext 执行上下文
+     * @param parameters 执行策略参数
+     * @param environment dataFetcher参数
+     * @param e dataFetcher异常信息
+     */
     private void handleFetchingException(ExecutionContext executionContext,
                                          ExecutionStrategyParameters parameters,
                                          DataFetchingEnvironment environment,
                                          Throwable e) {
+        //构造DataFetcher异常处理器的参数，包括dataFetcherEnv参数、异常信息
         DataFetcherExceptionHandlerParameters handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
                 .dataFetchingEnvironment(environment)
                 .exception(e)
                 .build();
 
+        //处理异常信息并返回结果
         DataFetcherExceptionHandlerResult handlerResult = dataFetcherExceptionHandler.onException(handlerParameters);
+        //fixme 将异常信息放到执行上下文中
         handlerResult.getErrors().forEach(executionContext::addError);
 
-        parameters.deferredErrorSupport().onFetchingException(parameters, e);
+        //将异常信息放到parameters对象的参数deferredErrorSupport中。？？
+        parameters.getDeferredErrorSupport().onFetchingException(parameters, e);
     }
 
     /**
@@ -520,7 +552,7 @@ public abstract class ExecutionStrategy {
         logNotSafe.warn(error.getMessage(), e);
         context.addError(error);
 
-        parameters.deferredErrorSupport().onError(error);
+        parameters.getDeferredErrorSupport().onError(error);
     }
 
     private CompletableFuture<ExecutionResult> completeValueForNull(ExecutionStrategyParameters parameters) {
@@ -746,7 +778,7 @@ public abstract class ExecutionStrategy {
         logNotSafe.warn(error.getMessage(), e);
         context.addError(error);
 
-        parameters.deferredErrorSupport().onError(error);
+        parameters.getDeferredErrorSupport().onError(error);
 
         return null;
     }
@@ -798,7 +830,7 @@ public abstract class ExecutionStrategy {
         //CopyOnWriteArrayList的add加锁了
         context.addError(error);
 
-        parameters.deferredErrorSupport().onError(error);
+        parameters.getDeferredErrorSupport().onError(error);
     }
 
 

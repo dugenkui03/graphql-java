@@ -97,7 +97,7 @@ public class ExecutionStrategyParameters {
         return parent;
     }
 
-    public DeferredErrorSupport deferredErrorSupport() {
+    public DeferredErrorSupport getDeferredErrorSupport() {
         return deferredErrorSupport;
     }
 

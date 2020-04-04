@@ -15,10 +15,12 @@ import graphql.execution.instrumentation.parameters.InstrumentationValidationPar
 import graphql.language.Document;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.PropertyDataFetcher;
 import graphql.validation.ValidationError;
+import org.omg.CORBA.TIMEOUT;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 
 import static graphql.execution.instrumentation.SimpleInstrumentationContext.noOp;
 
@@ -219,7 +221,17 @@ public interface Instrumentation {
      * @return a non null instrumented DataFetcher, the default is to return to the same object
      */
     default DataFetcher<?> instrumentDataFetcher(DataFetcher<?> dataFetcher, InstrumentationFieldFetchParameters parameters) {
-        return dataFetcher;
+//        return dataFetcher;
+
+        //有超时的fetcher
+        if(parameters.isTrivialDataFetcher()){
+            return dataFetcher;
+        }else{
+           return fetchingEnvironment->{
+               Callable task=()-> dataFetcher.get(parameters.getEnvironment());
+                   return ForkJoinPool.commonPool().submit(task).get(200,TimeUnit.MILLISECONDS);
+           };
+        }
     }
 
     /**

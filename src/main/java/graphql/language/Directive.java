@@ -17,6 +17,7 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.argumentsByName;
 import static java.util.Collections.emptyMap;
 
+//https://www.apollographql.com/docs/graphql-tools/schema-directives/
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
     //指令名称、参数
