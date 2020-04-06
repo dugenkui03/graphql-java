@@ -9,6 +9,9 @@ import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
 
+/**
+ * 保存dsl及本次请求的变量
+ */
 @PublicApi
 public class DocumentAndVariables {
     private final Document document;

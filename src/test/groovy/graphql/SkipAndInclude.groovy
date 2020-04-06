@@ -8,6 +8,10 @@ class SkipAndInclude extends Specification {
             type Query {
                 field: Int
                 fieldX: Int
+                fieldY(x: Int): Int
+                #todo 还真没有
+                fieldZ(x: Float): Int
+                fieldA(if: Float): Int
             }
         """).build()
 
@@ -17,7 +21,7 @@ class SkipAndInclude extends Specification {
                 .query('''
                     query QueryWithSkipAndInclude($skip: Boolean!, $include: Boolean!) {
                         field @skip(if: $skip) @include(if: $include)
-                        fieldX
+                        fieldY(x:1,x:2)
                     }   
                     ''')
                 .variables([skip: skip, include: include])

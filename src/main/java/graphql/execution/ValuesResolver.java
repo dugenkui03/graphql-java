@@ -124,9 +124,11 @@ public class ValuesResolver {
         Map<String, Object> result = new LinkedHashMap<>();
 
         //遍历参数，并将<参数名称,参数信息：名称，值>放到LinkedHashMap中
-        Map<String, Argument> argumentMap = arguments.stream().collect(Collectors.toMap(Argument::getName, x -> x, (k, v) -> {//mergeFunction
-            throw new IllegalStateException(String.format("Duplicate key %s", k));
-        }, LinkedHashMap::new));
+        Map<String, Argument> argumentMap = argumentMap(arguments);
+        //fixme 此处抛出的异常：参数的唯一验证不应该在这里
+//        Map<String, Argument> argumentMap = arguments.stream().collect(Collectors.toMap(Argument::getName, x -> x, (k, v) -> {//mergeFunction
+//            throw new IllegalStateException(String.format("Duplicate key %s", k));
+//        }, LinkedHashMap::new));
 
         //遍历参数"类型"
         for (GraphQLArgument fieldArgument : argumentTypes) {

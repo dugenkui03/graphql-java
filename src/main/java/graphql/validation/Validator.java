@@ -36,7 +36,7 @@ import java.util.List;
 
 @Internal
 public class Validator {
-
+    //只验证查询在schema上下文的合法性，fixme 还没有关于变量信息的验证
     public List<ValidationError> validateDocument(GraphQLSchema schema, Document document) {
         ValidationContext validationContext = new ValidationContext(schema, document);
 

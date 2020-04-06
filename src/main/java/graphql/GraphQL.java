@@ -462,6 +462,8 @@ public class GraphQL {
      */
     public ExecutionResult execute(ExecutionInput executionInput) {
         try {
+            //join和get的不同：join抛出的是运行时异常，get抛出的的是检查异常
+            // :https://stackoverflow.com/questions/45490316/completablefuture-join-vs-get
             return executeAsync(executionInput).join();
         } catch (CompletionException e) {
             if (e.getCause() instanceof RuntimeException) {
@@ -520,18 +522,18 @@ public class GraphQL {
     public CompletableFuture<ExecutionResult> executeAsync(ExecutionInput executionInput) {
         try {
             logNotSafe.debug("Executing request. operation name: '{}'. query: '{}'. variables '{}'", executionInput.getOperationName(), executionInput.getQuery(), executionInput.getVariables());
-            executionInput = ensureInputHasId(executionInput);
-
+            executionInput = ensureInputHasId(executionInput);//如果入参没有executionId，则生成
+            //生成使用的Instruemnt的 状态类
             InstrumentationState instrumentationState = instrumentation.createState(new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput));
-
+            //instrument的入参
             InstrumentationExecutionParameters inputInstrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
-            executionInput = instrumentation.instrumentExecutionInput(executionInput, inputInstrumentationParameters);
+            executionInput = instrumentation.instrumentExecutionInput(executionInput, inputInstrumentationParameters);//构造输入 fixme：对入参的处理可以放到这里
 
             InstrumentationExecutionParameters instrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
             InstrumentationContext<ExecutionResult> executionInstrumentation = instrumentation.beginExecution(instrumentationParameters);
-
+            //对schema进行修改
             GraphQLSchema graphQLSchema = instrumentation.instrumentSchema(this.graphQLSchema, instrumentationParameters);
-
+            //注意，入参是instrument状态持有器对象，因为全局变量instrumentation在那里都能调用
             CompletableFuture<ExecutionResult> executionResult = parseValidateAndExecute(executionInput, graphQLSchema, instrumentationState);
             //
             // finish up instrumentation
@@ -560,10 +562,10 @@ public class GraphQL {
         AtomicReference<ExecutionInput> executionInputRef = new AtomicReference<>(executionInput);
         Function<ExecutionInput, PreparsedDocumentEntry> computeFunction = transformedInput -> {
             // if they change the original query in the pre-parser, then we want to see it downstream from then on
-            executionInputRef.set(transformedInput);
+            executionInputRef.set(transformedInput);//为executionInput设置新的引用：
             return parseAndValidate(executionInputRef, graphQLSchema, instrumentationState);
         };
-        PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);
+        PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);//调用函数computeFunction，函数入参是executionInput
         if (preparsedDoc.hasErrors()) {
             return CompletableFuture.completedFuture(new ExecutionResultImpl(preparsedDoc.getErrors()));
         }
@@ -577,16 +579,16 @@ public class GraphQL {
         String query = executionInput.getQuery();
 
         logNotSafe.debug("Parsing query: '{}'...", query);
-        ParseResult parseResult = parse(executionInput, graphQLSchema, instrumentationState);
-        if (parseResult.isFailure()) {
+        ParseResult parseResult = parse(executionInput, graphQLSchema, instrumentationState);//返回结果包含文档和变量
+        if (parseResult.isFailure()) {//如果解析失败
             logNotSafe.warn("Query failed to parse : '{}'", executionInput.getQuery());
             return new PreparsedDocumentEntry(parseResult.getException().toInvalidSyntaxError());
-        } else {
+        } else {//如果解析成功，获取文档和变量，然后将executionInput的新的引用指向修改修改后的引用
             final Document document = parseResult.getDocument();
             // they may have changed the document and the variables via instrumentation so update the reference to it
             executionInput = executionInput.transform(builder -> builder.variables(parseResult.getVariables()));
             executionInputRef.set(executionInput);
-
+            //开始验证
             logNotSafe.debug("Validating query: '{}'", query);
             final List<ValidationError> errors = validate(executionInput, document, graphQLSchema, instrumentationState);
             if (!errors.isEmpty()) {
@@ -597,10 +599,10 @@ public class GraphQL {
             return new PreparsedDocumentEntry(document);
         }
     }
-
+    //解析
     private ParseResult parse(ExecutionInput executionInput, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
         InstrumentationExecutionParameters parameters = new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
-        InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);
+        InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);//开始解析前，对输入
 
         Parser parser = new Parser();
         Document document;
@@ -620,8 +622,8 @@ public class GraphQL {
     }
 
     private List<ValidationError> validate(ExecutionInput executionInput, Document document, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
-        InstrumentationContext<List<ValidationError>> validationCtx = instrumentation.beginValidation(new InstrumentationValidationParameters(executionInput, document, graphQLSchema, instrumentationState));
-
+        InstrumentationContext<List<ValidationError>> validationCtx = instrumentation.beginValidation(new InstrumentationValidationParameters(executionInput, document, graphQLSchema, instrumentationState));//验证instrument
+        //todo 此处的验证并没有变量信息
         Validator validator = new Validator();
         List<ValidationError> validationErrors = validator.validateDocument(graphQLSchema, document);
 

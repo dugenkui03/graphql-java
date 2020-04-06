@@ -55,6 +55,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
+ * todo 重要：检查类型系统的合法性、是的schema可执行
  * This helps pre check the state of the type system to ensure it can be made into an executable schema.
  * <p>
  * It looks for missing types and ensure certain invariants are true before a schema can be made.
@@ -327,6 +328,7 @@ public class SchemaTypeChecker {
     }
 
     /**
+     * todo 肯定有bug，没有检查出参数的唯一性
      * A simple function that takes a list of things, asks for their names and checks that the
      * names are unique within that list.  If not it calls the error handler function
      *

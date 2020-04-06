@@ -62,6 +62,7 @@ public interface Instrumentation {
     }
 
     /**
+     * 在查询执行前
      * This is called right at the start of query execution and its the first step in the instrumentation chain.
      *
      * @param parameters the parameters to this step
@@ -158,6 +159,8 @@ public interface Instrumentation {
     }
 
     /**
+     * 在入参进行解析、验证和执行前，对其进行调整并返回：上下文包含schema和InstrumentationState
+     *
      * This is called to instrument a {@link graphql.ExecutionInput} before it is used to parse, validate
      * and execute a query, allowing you to adjust what query input parameters are used
      *
@@ -171,6 +174,8 @@ public interface Instrumentation {
     }
 
     /**
+     * 在使用Document对象和变量之前、允许你对他们进行调整
+     *
      * This is called to instrument a {@link graphql.language.Document} and variables before it is used allowing you to adjust the query AST if you so desire
      *
      * @param documentAndVariables the document and variables to be used
@@ -183,8 +188,15 @@ public interface Instrumentation {
     }
 
     /**
+     * 在schema进行解析、验证和查询前进行instrument。schema对象主要包括 代码生成器、自定义类型、schema定义和扩展定义等
      * This is called to instrument a {@link graphql.schema.GraphQLSchema} before it is used to parse, validate
      * and execute a query, allowing you to adjust what types are used.
+     *
+     *         private GraphQLObjectType queryType;  mutationType;  subscriptionType;
+     *         private GraphQLCodeRegistry codeRegistry = GraphQLCodeRegistry.newCodeRegistry().build();
+     *         private Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
+     *         private SchemaDefinition definition;
+     *         private List<SchemaExtensionDefinition> extensionDefinitions;
      *
      * @param schema     the schema to be used
      * @param parameters the parameters describing the field to be fetched
