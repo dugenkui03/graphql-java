@@ -16,21 +16,47 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * fixme 这个是实体定义中字段的定义，不同于query中的字段{@link graphql.language.Field}
+ */
+
 @PublicApi
 public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> implements DirectivesContainer<FieldDefinition>, NamedNode<FieldDefinition> {
-    //名称、类型
+    /**
+     * 字段名称
+     */
     private final String name;
-    //非空、list和自定义TypeName
+
+    /**
+     * 字段类型：非空、list和自定义TypeName
+     */
     private final Type type;
-    //输入
+
+    /**
+     * 字段参数集合
+     */
     private final List<InputValueDefinition> inputValueDefinitions;
-    //指令
+
+    /**
+     * fixme 作用于该字段的指令集合
+     */
     private final List<Directive> directives;
 
     public static final String CHILD_TYPE = "type";
     public static final String CHILD_INPUT_VALUE_DEFINITION = "inputValueDefinition";
     public static final String CHILD_DIRECTIVES = "directives";
 
+    /**
+     * @param name 字段名称
+     * @param type 字段类型：非空、list和自定义TypeName
+     * @param inputValueDefinitions 入参
+     * @param directives  fixme 作用于该字段的指令集合
+     * @param description 字段描述
+     * @param sourceLocation 字段在实体中定义位置
+     * @param comments  字段注释
+     * @param ignoredChars  忽略的字符
+     * @param additionalData  额外数据
+     */
     @Internal
     protected FieldDefinition(String name,
                               Type type,
@@ -144,6 +170,10 @@ public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> impl
         return new Builder();
     }
 
+    /**
+     * 对该字段进行改变
+     * @param builderConsumer void accept(T t)
+     */
     public FieldDefinition transform(Consumer<Builder> builderConsumer) {
         Builder builder = new Builder(this);
         builderConsumer.accept(builder);

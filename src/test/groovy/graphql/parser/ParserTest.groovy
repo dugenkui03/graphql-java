@@ -243,6 +243,7 @@ class ParserTest extends Specification {
 
     }
 
+    //fixme skip命令示例
     def "parse directives"() {
         given:
         def input = """

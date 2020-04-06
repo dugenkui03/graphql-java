@@ -59,17 +59,24 @@ import static java.util.Collections.unmodifiableList;
  */
 @PublicApi
 public class MergedField {
-
+    //一个不可修改的List
     private final List<Field> fields;
+    //list第一个元素和元素名称
     private final Field singleField;
     private final String name;
+    //字段查询返回名称：别名有限
     private final String resultKey;
 
     private MergedField(List<Field> fields) {
+        //判定list是否为空
         assertNotEmpty(fields);
+        //不可修改的List
         this.fields = unmodifiableList(new ArrayList<>(fields));
+        //第一个Field元素
         this.singleField = fields.get(0);
+        //入参字段名字
         this.name = singleField.getName();
+
         this.resultKey = singleField.getAlias() != null ? singleField.getAlias() : name;
     }
 

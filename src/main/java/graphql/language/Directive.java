@@ -17,15 +17,25 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.argumentsByName;
 import static java.util.Collections.emptyMap;
 
+
 //https://www.apollographql.com/docs/graphql-tools/schema-directives/
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
-    //指令名称、参数
+    //指令名称
     private final String name;
+    //参数
     private final List<Argument> arguments = new ArrayList<>();
-
+    //子实体/字段 指令？
     public static final String CHILD_ARGUMENTS = "arguments";
 
+    /**
+     * @param name 指令名称
+     * @param arguments 指令参数
+     * @param sourceLocation  位置：line、column、sourceName
+     * @param comments 注释
+     * @param ignoredChars 包含两个List<IgnoredChar>，IgnoredChar：对被忽略数据的位置、sourceName的描述
+     * @param additionalData Map<String,Strign> 额外的数据
+     */
     @Internal
     protected Directive(String name, List<Argument> arguments, SourceLocation sourceLocation, List<Comment> comments, IgnoredChars ignoredChars, Map<String, String> additionalData) {
         super(sourceLocation, comments, ignoredChars, additionalData);
@@ -34,6 +44,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
     }
 
     /**
+     * 使用名称和参数、构造一个指令对象
      * alternative to using a Builder for convenience
      *
      * @param name      of the directive
@@ -53,15 +64,18 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
         this(name, new ArrayList<>(), null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
     }
 
+    //获取指令参数
     public List<Argument> getArguments() {
         return new ArrayList<>(arguments);
     }
 
+    //获取一个LinkedHashMap<argumentName,argument>
     public Map<String, Argument> getArgumentsByName() {
         // the spec says that args MUST be unique within context
         return argumentsByName(arguments);
     }
 
+    //根据参数名称获取该指令下的参数
     public Argument getArgument(String argumentName) {
         return getArgumentsByName().get(argumentName);
     }

@@ -21,9 +21,10 @@ import static graphql.Assert.assertValidName;
 /**
  * This defines an argument that can be supplied to a graphql field (via {@link graphql.schema.GraphQLFieldDefinition}.
  *
+ * fixme 字段可以被认为是 接受参数、返回值的函数: Out func(In in)
  * Fields can be thought of as "functions" that take arguments and return a value.
  *
- * See http://graphql.org/learn/queries/#arguments for more details on the concept.
+ * See http://graphql.org/learn/queries/#arguments for more details on the concept. 查询参数
  *
  * {@link graphql.schema.GraphQLArgument} is used in two contexts, one context is graphql queries where it represents the arguments that can be
  * set on a field and the other is in Schema Definition Language (SDL) where it can be used to represent the argument value instances
@@ -39,13 +40,16 @@ import static graphql.Assert.assertValidName;
  */
 @PublicApi
 public class GraphQLArgument implements GraphQLNamedSchemaElement, GraphQLInputValueDefinition {
-
+    //名称
     private final String name;
+    //描述
     private final String description;
+    //类型：是否是非空的、list、包装的类型(scalar、自定义)是什么
     private final GraphQLInputType originalType;
     private final Object value;
     private final Object defaultValue;
     private final InputValueDefinition definition;
+    //该类型指令集合
     private final List<GraphQLDirective> directives;
 
     private GraphQLInputType replacedType;

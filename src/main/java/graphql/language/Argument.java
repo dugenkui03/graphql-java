@@ -16,6 +16,17 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 查询中的参数定义，对比参考 {@link graphql.language.InputValueDefinition}
+ *
+ * {
+ *   user(id: 4) {
+ *     id
+ *     name
+ *     profilePic(size: 100)
+ *   }
+ * }
+ */
 @PublicApi
 public class Argument extends AbstractNode<Argument> implements NamedNode<Argument> {
     //参数名称、参数值

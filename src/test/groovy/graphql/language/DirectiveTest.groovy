@@ -5,6 +5,11 @@ import spock.lang.Specification
 class DirectiveTest extends Specification {
 
     def "can get arguments correctly"() {
+        /**
+         * 初始化指令：
+         *      指令名称 d1；
+         *      指令参数(参数名称、参数值)：a1、v1
+         */
         Directive d1 = new Directive("d1",
                 [
                         new Argument("a1", new StringValue("v1")),
@@ -28,12 +33,16 @@ class DirectiveTest extends Specification {
         d1.getArgumentsByName().get("repeated").getValue().isEqualTo(new StringValue("r1"))
     }
 
+    /**
+     * 获取指令的map方法测试。fixme 已经有的话、则不会更新
+     */
     def "list of directives can be turned into a map"() {
         def d1 = new Directive("d1")
         List<Directive> directives = [
                 d1,
                 new Directive("d2"),
                 new Directive("repeated", [new Argument("a1", new StringValue("v1"))]),
+                //directivesByName()方法肯定不会重复放入同名指令、先到先得
                 new Directive("repeated", [new Argument("a1", new StringValue("v2"))]),
         ]
         def directivesMap = NodeUtil.directivesByName(directives)

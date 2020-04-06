@@ -16,6 +16,8 @@ public class DataLoaderDispatcherInstrumentationOptions {
     }
 
     /**
+     * 控制是否在扩展中输出dataLoader的统计信息，默认false
+     *
      * This will toggle the ability to include java-dataloader statistics into the extensions
      * output of your query
      *

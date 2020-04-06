@@ -15,7 +15,7 @@ import java.util.Map;
  * with times frames that cross graphql-java versions.  While we don't change things unnecessarily,  we may inadvertently break
  * the serialised compatibility across versions.
  *
- * @see <a href="https://facebook.github.io/graphql/#sec-Errors">GraphQL Spec - 7.2.2 Errors</a>
+ * @see <a href="http://spec.graphql.org/June2018/#sec-Errors">规范描述</a>
  */
 @PublicApi
 public interface GraphQLError extends Serializable {

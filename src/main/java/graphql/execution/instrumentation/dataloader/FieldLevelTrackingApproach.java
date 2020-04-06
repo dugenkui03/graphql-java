@@ -27,6 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
+ * 通过"字段层级跟踪"使得数据加载器更加高效
+ *
  * This approach uses field level tracking to achieve its aims of making the data loader more efficient
  */
 @Internal

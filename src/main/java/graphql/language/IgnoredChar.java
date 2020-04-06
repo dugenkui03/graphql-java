@@ -5,15 +5,22 @@ import graphql.PublicApi;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * 对被忽略数据的描述：具体值、值类型、位置
+ */
 @PublicApi
 public class IgnoredChar implements Serializable {
 
+    // 空格、逗号、制表符、回车、换行符、其他
     public enum IgnoredCharKind {
         SPACE, COMMA, TAB, CR, LF, OTHER
     }
 
+    //被忽略的数据
     private final String value;
+    //被忽略数据的类型
     private final IgnoredCharKind kind;
+    //被忽略数据的位置
     private final SourceLocation sourceLocation;
 
 
@@ -55,6 +62,7 @@ public class IgnoredChar implements Serializable {
         IgnoredChar that = (IgnoredChar) o;
         return Objects.equals(value, that.value) &&
                 kind == that.kind &&
+                //有调用了sourceLocation类型的equals方法
                 Objects.equals(sourceLocation, that.sourceLocation);
     }
 

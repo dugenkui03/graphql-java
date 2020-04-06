@@ -17,9 +17,24 @@ import static java.util.Collections.unmodifiableMap;
 @PublicApi
 public abstract class AbstractNode<T extends Node> implements Node<T> {
 
+    /**
+     * 元素位置：行、列、名称
+     */
     private final SourceLocation sourceLocation;
+
+    /**
+     * 元素注释和注释的位置
+     */
     private final List<Comment> comments;
+
+    /**
+     * 该元素忽视的字符
+     */
     private final IgnoredChars ignoredChars;
+
+    /**
+     * 该元素额外的数据
+     */
     private final Map<String, String> additionalData;
 
     public AbstractNode(SourceLocation sourceLocation, List<Comment> comments, IgnoredChars ignoredChars) {

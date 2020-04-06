@@ -7,15 +7,13 @@ import graphql.language.Field;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLSchema;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Collections.emptyList;
 
 /**
+ * fixme 这个对象在MergedField的上下文中。lazily计算这些值。
+ *
  * These objects are ALWAYS in the context of a single MergedField
  *
  * Also note we compute these values lazily
@@ -23,12 +21,22 @@ import static java.util.Collections.emptyList;
 @Internal
 public class QueryDirectivesImpl implements QueryDirectives {
 
+    //将抽象语法树指令转换成带有解析的类型的运行时指令
     private final DirectivesResolver directivesResolver = new DirectivesResolver();
+
+    //相同定义的查询字段
     private final MergedField mergedField;
+
+    //schema
     private final GraphQLSchema schema;
+
+    //变量
     private final Map<String, Object> variables;
+
+    //查询字段及其上边的指令
     private volatile Map<Field, List<GraphQLDirective>> fieldDirectivesByField;
     private volatile Map<String, List<GraphQLDirective>> fieldDirectivesByName;
+
 
     public QueryDirectivesImpl(MergedField mergedField, GraphQLSchema schema, Map<String, Object> variables) {
         this.mergedField = mergedField;
@@ -45,11 +53,9 @@ public class QueryDirectivesImpl implements QueryDirectives {
             final Map<Field, List<GraphQLDirective>> byField = new LinkedHashMap<>();
             mergedField.getFields().forEach(field -> {
                 List<Directive> directives = field.getDirectives();
-                List<GraphQLDirective> resolvedDirectives = new ArrayList<>(
-                        directivesResolver
-                                .resolveDirectives(directives, schema, variables)
-                                .values()
-                );
+                Collection<GraphQLDirective> graphQLDirectives =
+                        directivesResolver.resolveDirectives(directives, schema, variables).values();
+                List<GraphQLDirective> resolvedDirectives = new ArrayList<>(graphQLDirectives);
                 byField.put(field, Collections.unmodifiableList(resolvedDirectives));
             });
 

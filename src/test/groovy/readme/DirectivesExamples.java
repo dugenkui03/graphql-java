@@ -152,7 +152,7 @@ public class DirectivesExamples {
         GraphQL graphql = GraphQL.newGraphQL(schema).build();
 
         Map<String, Object> root = new HashMap<>();
-        root.put("dateField", LocalDateTime.of(1969, 10, 8, 0, 0));
+//        root.put("dateField", LocalDateTime.of(1969, 10, 8, 0, 0));
 
         String query = "" +
                 "query {\n" +

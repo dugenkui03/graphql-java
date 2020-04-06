@@ -17,7 +17,8 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 
 
 /**
- * Graphql代码注册器持有graphql类型关联的执行代码，及field关联的DataFetcher。TypeResolver关联抽象的类型和GraphqlFieldVisibility
+ * fixme Graphql代码注册器持有graphql类型关联的执行代码，及field关联的DataFetcher。TypeResolver关联抽象的类型和GraphqlFieldVisibility
+ *
  * The {@link graphql.schema.GraphQLCodeRegistry} holds that execution code that is associated with graphql types, namely
  * the {@link graphql.schema.DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
  * abstract types and the {@link graphql.schema.visibility.GraphqlFieldVisibility}

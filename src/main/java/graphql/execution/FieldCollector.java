@@ -22,6 +22,8 @@ import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
 import static graphql.execution.TypeFromAST.getTypeFromAST;
 
 /**
+ * 字段收集器可以遍历 fieldSelection，构建(build out)选择的子字段，扩展命名和内联的片段。
+ *
  * A field collector can iterate over field selection sets and build out the sub fields that have been selected,
  * expanding named and inline fragments as it goes.s
  */

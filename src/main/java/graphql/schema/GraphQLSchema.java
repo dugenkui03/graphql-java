@@ -227,8 +227,9 @@ public class GraphQLSchema {
     }
 
     /**
-     * This returns the list of directives that are associated with this schema object including
-     * built in ones.
+     * fixme 返回此schema相关的指令列表、包括内置指令。
+     *
+     * This returns the list of directives that are associated with this schema object including built in ones.
      *
      * @return a list of directives
      */
@@ -246,6 +247,9 @@ public class GraphQLSchema {
         return directivesByName(getDirectives());
     }
 
+    /**
+     * 返回该指令指定名称的指令
+     */
     public GraphQLDirective getDirective(String name) {
         for (GraphQLDirective directive : getDirectives()) {
             if (directive.getName().equals(name)) {
@@ -362,7 +366,7 @@ public class GraphQLSchema {
         private SchemaDefinition definition;
         private List<SchemaExtensionDefinition> extensionDefinitions;
 
-        // we default these in
+        // we default these in 默认将指令IncludeDirective、SkipDirective包含进去
         private Set<GraphQLDirective> additionalDirectives = new LinkedHashSet<>(
                 asList(Directives.IncludeDirective, Directives.SkipDirective)
         );

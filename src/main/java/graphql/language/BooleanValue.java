@@ -17,6 +17,7 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.assertNewChildrenAreEmpty;
 
+
 @PublicApi
 public class BooleanValue extends AbstractNode<BooleanValue> implements ScalarValue<BooleanValue> {
 

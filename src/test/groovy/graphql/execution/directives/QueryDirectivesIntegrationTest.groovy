@@ -7,8 +7,9 @@ import graphql.schema.GraphQLDirective
 import spock.lang.Specification
 
 /**
- * This test currently has way more directives than can be handled today but in the spirit of TDD
- * I am going to leave the parent node directives there so we can expand the directives capabilities
+ * TODO 重要，查询指令
+ * This test currently has way more directives than can be handled today but in the spirit of
+ * TDD(测试驱动开发Test Driven Development) I am going to leave the parent node directives there so we can expand the directives capabilities
  * into the future
  */
 class QueryDirectivesIntegrationTest extends Specification {

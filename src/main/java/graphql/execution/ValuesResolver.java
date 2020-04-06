@@ -41,6 +41,7 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 public class ValuesResolver {
 
     /**
+     * 此方法将变量值  强转后
      * This method coerces the "raw" variables values provided to the engine. The coerced values will be used to
      * provide arguments to {@link graphql.schema.DataFetchingEnvironment}
      * The coercing is ultimately done via {@link Coercing}.
@@ -84,18 +85,33 @@ public class ValuesResolver {
         return coerceValue(fieldVisibility, variableDefinition, variableDefinition.getName(), variableType, value);
     }
 
+    /**
+     *
+     * @param argumentTypes 从ConditionalNodes过来就是指指令参数，例如 skip的if
+     * @param arguments 参数信息：来自哪个指令、参数位置
+     * @param variables 查询入参数变量
+     * @return
+     */
     public Map<String, Object> getArgumentValues(List<GraphQLArgument> argumentTypes, List<Argument> arguments, Map<String, Object> variables) {
-        GraphQLCodeRegistry codeRegistry = GraphQLCodeRegistry.newCodeRegistry().fieldVisibility(DEFAULT_FIELD_VISIBILITY).build();
+        GraphQLCodeRegistry codeRegistry = GraphQLCodeRegistry.newCodeRegistry().fieldVisibility(DEFAULT_FIELD_VISIBILITY).build();//具有默认可见性的code注册器
         return getArgumentValuesImpl(codeRegistry, argumentTypes, arguments, variables);
     }
 
+    /**
+     *
+     * @param codeRegistry
+     * @param argumentTypes
+     * @param arguments
+     * @param variables
+     * @return
+     */
     public Map<String, Object> getArgumentValues(GraphQLCodeRegistry codeRegistry, List<GraphQLArgument> argumentTypes, List<Argument> arguments, Map<String, Object> variables) {
         return getArgumentValuesImpl(codeRegistry, argumentTypes, arguments, variables);
     }
 
     /**
      * 获取参数值
-     * @param codeRegistry 保存有 field关联的DataFetcher
+     * @param codeRegistry 保存有field关联的DataFetcher等信息，也可能就是个啥也没有的空对象
      * @param argumentTypes 参数类型？
      * @param arguments 参数？
      * @param variables 变量
@@ -107,12 +123,12 @@ public class ValuesResolver {
         }
         Map<String, Object> result = new LinkedHashMap<>();
 
-        //遍历参数，并将<参数名称,参数信息：名称，值>放到map中
-        Map<String, Argument> argumentMap = arguments.stream().collect(Collectors.toMap(Argument::getName, x -> x, (k, v) -> {
+        //遍历参数，并将<参数名称,参数信息：名称，值>放到LinkedHashMap中
+        Map<String, Argument> argumentMap = arguments.stream().collect(Collectors.toMap(Argument::getName, x -> x, (k, v) -> {//mergeFunction
             throw new IllegalStateException(String.format("Duplicate key %s", k));
         }, LinkedHashMap::new));
 
-        //遍历参数类型
+        //遍历参数"类型"
         for (GraphQLArgument fieldArgument : argumentTypes) {
             //获取参数名称
             String argName = fieldArgument.getName();
@@ -242,20 +258,23 @@ public class ValuesResolver {
      *
      * @param fieldVisibility 字段的可见性
      * @param type  字段参数的类型
-     * @param inputValue  输入值：例如$userId:userId等等等等
+     * @param inputValue  输入值：参数信息，比如对某个变量的引用
      * @param variables 变量map
      * @return
      */
     private Object coerceValueAst(GraphqlFieldVisibility fieldVisibility, GraphQLType type, Value inputValue, Map<String, Object> variables) {
-        //如果是变量引用，即最常规的输入方式: query($userId:long) ...... userId:$userId
-        //则在对应的map中取值就行
+        //如果是变量引用，则在对应的map中取值就行：最常规的输入方式: query($userId:long) ...... userId:$userId
         if (inputValue instanceof VariableReference) {
-            return variables.get(((VariableReference) inputValue).getName());
+            //获取该实体字段的 入参/指令参数 引用的变量名称
+            String variableName = ((VariableReference) inputValue).getName();
+            return variables.get(variableName);
         }
+
         //如果是个NullValue，则返回null
         if (inputValue instanceof NullValue) {
             return null;
         }
+
         //如果字段参数类型是标量
         if (type instanceof GraphQLScalarType) {
             //获取该标量的"强制转换辅助类"
@@ -263,22 +282,27 @@ public class ValuesResolver {
             //返回inputValue强转后的值
             return parseLiteral(inputValue, scalarCoercing, variables);
         }
+
 //        如果是非空类型
         if (isNonNull(type)) {
             return coerceValueAst(fieldVisibility, unwrapOne(type), inputValue, variables);
         }
+
         //如果是输入类型
         if (type instanceof GraphQLInputObjectType) {
             return coerceValueAstForInputObject(fieldVisibility, (GraphQLInputObjectType) type, (ObjectValue) inputValue, variables);
         }
+
         //如果是枚举类型
         if (type instanceof GraphQLEnumType) {
             return ((GraphQLEnumType) type).parseLiteral(inputValue);
         }
+
         //如果是list
         if (isList(type)) {
             return coerceValueAstForList(fieldVisibility, (GraphQLList) type, inputValue, variables);
         }
+
         return null;
     }
 

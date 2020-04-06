@@ -7,6 +7,7 @@ class SkipAndInclude extends Specification {
     private def graphQL = TestUtil.graphQL("""
             type Query {
                 field: Int
+                fieldX: Int
             }
         """).build()
 
@@ -16,6 +17,7 @@ class SkipAndInclude extends Specification {
                 .query('''
                     query QueryWithSkipAndInclude($skip: Boolean!, $include: Boolean!) {
                         field @skip(if: $skip) @include(if: $include)
+                        fieldX
                     }   
                     ''')
                 .variables([skip: skip, include: include])
@@ -41,6 +43,7 @@ class SkipAndInclude extends Specification {
                 .query('''
                     query QueryWithSkip($skip: Boolean!) {
                         field @skip(if: $skip)
+                        fieldX
                     }   
                     ''')
                 .variables([skip: skip])
@@ -63,6 +66,7 @@ class SkipAndInclude extends Specification {
                 .query('''
                     query QueryWithInclude($include: Boolean!) {
                         field @include(if: $include)
+                        fieldX
                     }   
                     ''')
                 .variables([include: include])

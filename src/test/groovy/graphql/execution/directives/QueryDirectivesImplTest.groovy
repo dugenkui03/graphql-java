@@ -10,8 +10,10 @@ import spock.lang.Specification
 class QueryDirectivesImplTest extends Specification {
 
     def sdl = '''
+        # 指令名称是timeout；指令参数是afterMillis、指令参数类型是Int；指令定义在查询字段上
         directive @timeout(afterMillis : Int) on FIELD
         
+        # 缓存时间
         directive @cached(forMillis : Int = 99) on FIELD | QUERY
         
         directive @upper(place : String) on FIELD
@@ -31,6 +33,7 @@ class QueryDirectivesImplTest extends Specification {
 
         def mergedField = MergedField.newMergedField([f1, f2]).build()
 
+        //[var: 10]定义了一个Map对象
         def impl = new QueryDirectivesImpl(mergedField, schema, [var: 10])
 
         when:

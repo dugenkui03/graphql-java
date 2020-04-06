@@ -1,6 +1,7 @@
 package graphql;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 
@@ -8,6 +9,9 @@ import static java.lang.String.format;
 @Internal
 public class Assert {
 
+    /**
+     * 对象不为null 或者 为null
+     */
     public static <T> T assertNotNull(T object, String format, Object... args) {
         if (object != null) {
             return object;
@@ -43,6 +47,10 @@ public class Assert {
         throw new AssertException("Object required to be null");
     }
 
+
+    /**
+     * 只要调用就抛异常
+     */
     public static <T> T assertNeverCalled() {
         throw new AssertException("Should never been called");
     }
@@ -55,6 +63,9 @@ public class Assert {
         throw new AssertException("Internal error: should never happen");
     }
 
+    /**
+     * 对象不为空、元素是期望值
+     */
     public static <T> Collection<T> assertNotEmpty(Collection<T> collection) {
         if (collection == null || collection.isEmpty()) {
             throw new AssertException("collection must be not null and not empty");
@@ -92,7 +103,10 @@ public class Assert {
 
     private static final String invalidNameErrorMessage = "Name must be non-null, non-empty and match [_A-Za-z][_0-9A-Za-z]* - was '%s'";
 
+    private static final Pattern pattern = Pattern.compile("[_A-Za-z][_0-9A-Za-z]*");
+
     /**
+     * fixme
      * Validates that the Lexical token name matches the current spec.
      * currently non null, non empty,
      *
@@ -101,7 +115,7 @@ public class Assert {
      * @return the name if valid, or AssertException if invalid.
      */
     public static String assertValidName(String name) {
-        if (name != null && !name.isEmpty() && name.matches("[_A-Za-z][_0-9A-Za-z]*")) {
+        if (name != null && !name.isEmpty() && pattern.matcher(name).matches()) {
             return name;
         }
         throw new AssertException(String.format(invalidNameErrorMessage, name));

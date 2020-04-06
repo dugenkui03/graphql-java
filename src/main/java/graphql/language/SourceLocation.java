@@ -5,6 +5,9 @@ import graphql.PublicApi;
 
 import java.io.Serializable;
 
+/**
+ * fixme: 可以对很多数据类型进行描述，SourceLocation的子类
+ */
 @PublicApi
 public class SourceLocation implements Serializable {
 

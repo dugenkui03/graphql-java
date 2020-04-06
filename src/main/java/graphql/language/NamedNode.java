@@ -4,6 +4,7 @@ package graphql.language;
 import graphql.PublicApi;
 
 /**
+ * 保存有名字信息的Node
  * Represents a language node that has a name
  */
 @PublicApi

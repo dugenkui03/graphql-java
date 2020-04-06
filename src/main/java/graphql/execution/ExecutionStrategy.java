@@ -262,6 +262,7 @@ public abstract class ExecutionStrategy {
         //todo 获取变量值：映射入参或者写死的，也有校验的逻辑
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());
 
+        //fixme 构造字段相关指令信息
         QueryDirectivesImpl queryDirectives = new QueryDirectivesImpl(field, executionContext.getGraphQLSchema(), executionContext.getVariables());
 
         GraphQLOutputType fieldType = fieldDef.getType();
@@ -695,7 +696,7 @@ public abstract class ExecutionStrategy {
         }
 
         // TODO: fix that: this should not be handled here
-        //6.6.1 http://facebook.github.io/graphql/#sec-Field-entries
+        //6.6.1 http://spec.graphql.org/April2016/#sec-Field-entries
         if (serialized instanceof Double && ((Double) serialized).isNaN()) {
             serialized = null;
         }

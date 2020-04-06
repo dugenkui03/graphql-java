@@ -96,15 +96,20 @@ public class GraphQL {
     private static final Logger log = LoggerFactory.getLogger(GraphQL.class);
     private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(GraphQL.class);
 
-    private final static Instrumentation DEFAULT_INSTRUMENTATION = new DataLoaderDispatcherInstrumentation();
-
     private final GraphQLSchema graphQLSchema;
     private final ExecutionStrategy queryStrategy;
     private final ExecutionStrategy mutationStrategy;
     private final ExecutionStrategy subscriptionStrategy;
     private final ExecutionIdProvider idProvider;
+
+    //默认使用dataLoaderInstrumentation
+    private final static Instrumentation DEFAULT_INSTRUMENTATION = new DataLoaderDispatcherInstrumentation();
     private final Instrumentation instrumentation;
+
+    //预解析文档生成器
     private final PreparsedDocumentProvider preparsedDocumentProvider;
+
+    //data
     private final ValueUnboxer valueUnboxer;
 
 
@@ -226,14 +231,22 @@ public class GraphQL {
 
     @PublicApi
     public static class Builder {
+        //schema
         private GraphQLSchema graphQLSchema;
+        //执行策略：无builder
         private ExecutionStrategy queryExecutionStrategy = new AsyncExecutionStrategy();
         private ExecutionStrategy mutationExecutionStrategy = new AsyncSerialExecutionStrategy();
         private ExecutionStrategy subscriptionExecutionStrategy = new SubscriptionExecutionStrategy();
+
+        //fixme 执行id生成器->可以作为某次执行的标志，可包含 查询dsl、查询名称和上下文信息等，比如在tracing中用到
         private ExecutionIdProvider idProvider = DEFAULT_EXECUTION_ID_PROVIDER;
-        private Instrumentation instrumentation = null; // deliberate default here
+        private Instrumentation instrumentation = null; // 默认使用
         private PreparsedDocumentProvider preparsedDocumentProvider = NoOpPreparsedDocumentProvider.INSTANCE;
+
+        //是否不实用默认的Instrumentation
         private boolean doNotAddDefaultInstrumentations = false;
+
+        //值解析器，不set则使用默认的值解析器
         private ValueUnboxer valueUnboxer = ValueUnboxer.DEFAULT;
 
 
@@ -277,10 +290,12 @@ public class GraphQL {
         }
 
         /**
-         * For performance reasons you can opt into situation where the default instrumentations (such
+         * 出于性能的考虑，你不选择将 dataLoaderInstrumentation 放进graphql-instance；
+         * For performance reasons you can 选择(opt into) situation where the default instrumentations (such
          * as {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation} will not be
          * automatically added into the graphql instance.
          * <p>
+         *     大多数情况都不需要"不实用默认的Instrumentation"，除非你真正的突破了性能极限。
          * For most situations this is not needed unless you are really pushing the boundaries of performance
          * <p>
          * By default a certain graphql instrumentations will be added to the mix to more easily enable certain functionality.  This
@@ -615,7 +630,7 @@ public class GraphQL {
     }
 
     private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput, Document document, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
-
+        //TODO 重要：根据策略，instrument和valueUnboxer执行查询
         Execution execution = new Execution(queryStrategy, mutationStrategy, subscriptionStrategy, instrumentation, valueUnboxer);
         ExecutionId executionId = executionInput.getExecutionId();
 

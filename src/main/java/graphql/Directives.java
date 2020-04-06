@@ -14,6 +14,7 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLNonNull.nonNull;
 
 /**
+ * graphql-java自定义的指令
  * The directives that are understood by graphql-java
  */
 public class Directives {

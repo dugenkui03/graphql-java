@@ -187,6 +187,7 @@ public interface DataFetchingEnvironment {
     DataFetchingFieldSelectionSet getSelectionSet();
 
     /**
+     * fixme 获取该查询字段相关的指令
      * This gives you access to the directives related to this field
      *
      * @return the {@link graphql.execution.directives.QueryDirectives} for the currently executing field

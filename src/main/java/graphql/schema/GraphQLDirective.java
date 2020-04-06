@@ -21,6 +21,8 @@ import static graphql.introspection.Introspection.DirectiveLocation;
 import static graphql.util.FpKit.getByName;
 
 /**
+ * fixme 指令可用来修改查询字段或者实体字段的行为。
+ *
  * A directive can be used to modify the behavior of a graphql field or type.
  *
  * See http://graphql.org/learn/queries/#directives for more details on the concept.
@@ -28,14 +30,25 @@ import static graphql.util.FpKit.getByName;
 @SuppressWarnings("DeprecatedIsStillUsed") // because the graphql spec still has some of these deprecated fields
 @PublicApi
 public class GraphQLDirective implements GraphQLNamedSchemaElement {
-
+    //指令名称
     private final String name;
+    //描述
     private final String description;
+    //指令位置枚举-具体在哪儿定义
     private final EnumSet<DirectiveLocation> locations;
+    //指令参数
     private final List<GraphQLArgument> arguments = new ArrayList<>();
+
+    /**
+     * 是否是操作、是否是在fragment、是否在查询字段上
+     */
     private final boolean onOperation;
     private final boolean onFragment;
     private final boolean onField;
+
+    /**
+     * fixme 指令定义
+     */
     private final DirectiveDefinition definition;
 
 
@@ -84,6 +97,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
         return new ArrayList<>(arguments);
     }
 
+    //根据参数名称获取指令参数
     public GraphQLArgument getArgument(String name) {
         for (GraphQLArgument argument : arguments) {
             if (argument.getName().equals(name)) {
@@ -93,12 +107,13 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
         return null;
     }
 
+    //指令位置
     public EnumSet<DirectiveLocation> validLocations() {
         return locations;
     }
 
     /**
-     * @return onOperation
+     * @return onOperation 是否在操作上
      *
      * @deprecated Use {@link #validLocations()}
      */

@@ -7,11 +7,11 @@ import graphql.schema.GraphQLInputObjectField;
 
 import java.util.List;
 
-/**
+/**所有字段都是可见的
  * The default field visibility of graphql-java is that everything is visible
  */
 public class DefaultGraphqlFieldVisibility implements GraphqlFieldVisibility {
-
+    //默认的参数字段可见性：所有字段都是可见的
     public static final DefaultGraphqlFieldVisibility DEFAULT_FIELD_VISIBILITY = new DefaultGraphqlFieldVisibility();
 
     @Override

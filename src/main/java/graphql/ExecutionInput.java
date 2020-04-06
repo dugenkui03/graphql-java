@@ -21,6 +21,7 @@ public class ExecutionInput {
     private final String query;
     private final String operationName;
     private final Object context;
+    //todo：很重要啊，开始取值的root类
     private final Object root;
     private final Map<String, Object> variables;
     private final DataLoaderRegistry dataLoaderRegistry;

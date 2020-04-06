@@ -17,7 +17,12 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
 /**
- * 输入值定义
+ * 实体字段上的参数定义，对比参考 {@link graphql.language.Argument}
+ *
+ * type Person {
+ *   name: String
+ *   picture(size: Int): Url
+ * }
  */
 @PublicApi
 public class InputValueDefinition extends AbstractDescribedNode<InputValueDefinition> implements DirectivesContainer<InputValueDefinition>, NamedNode<InputValueDefinition>{

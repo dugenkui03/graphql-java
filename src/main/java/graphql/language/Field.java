@@ -17,13 +17,12 @@ import static graphql.Assert.assertNotNull;
 import static java.util.Collections.emptyMap;
 
 /*
- * fixme query文档对象
- * This is provided to a DataFetcher, therefore it is a public API.
- * This might change in the future.
+ * fixme：这个对应query中的字段，实体字段的定义是
+ *
+ * This is provided to a DataFetcher, therefore it is a public API.This might change in the future.
  */
 @PublicApi
 public class Field extends AbstractNode<Field> implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
-
     //字段名称
     private final String name;
     //别名

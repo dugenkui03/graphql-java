@@ -29,6 +29,9 @@ public class NodeUtil {
     }
 
 
+    /**
+     * 使用该指令的名称对指令进行分组
+     */
     public static Map<String, Directive> directivesByName(List<Directive> directives) {
         return FpKit.getByName(directives, Directive::getName, mergeFirst());
     }
