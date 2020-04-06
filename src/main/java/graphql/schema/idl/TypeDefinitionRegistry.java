@@ -292,7 +292,8 @@ public class TypeDefinitionRegistry {
 
         T olderEntry = source.get(name);
         if (olderEntry != null) {
-            return Optional.of(handleReDefinition(olderEntry, newEntry));
+//            return Optional.of(handleReDefinition(olderEntry, newEntry));
+            target.put(name, newEntry);
         } else {
             target.put(name, newEntry);
         }

@@ -19,7 +19,13 @@ class QueryDirectivesImplTest extends Specification {
         directive @upper(place : String) on FIELD
  
         type Query {
-            f : String
+            books(searchString : String) : [Book]
+        }
+        
+        type Book {
+         id :  ID
+         title : String
+         __review : String
         }
     '''
 
