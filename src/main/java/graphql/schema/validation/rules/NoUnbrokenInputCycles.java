@@ -36,6 +36,11 @@ public class NoUnbrokenInputCycles implements SchemaValidationRule {
     }
 
     @Override
+    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
+    @Override
     public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
         for (GraphQLArgument argument : fieldDef.getArguments()) {
             GraphQLInputType argumentType = argument.getType();

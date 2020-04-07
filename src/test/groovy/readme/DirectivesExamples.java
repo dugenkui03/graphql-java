@@ -168,6 +168,7 @@ public class DirectivesExamples {
         ExecutionResult executionResult = graphql.execute(executionInput);
         Map<String, Object> data = executionResult.getData();
 
+        System.out.println(data);
         // data['default'] == '08-10-1969'
         // data['usa'] == '10-08-1969'
     }

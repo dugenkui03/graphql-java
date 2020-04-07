@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * 1. All types within a GraphQL schema must have unique names. No two provided types may have the same name.
  * No provided type may have a name which conflicts with any built in types (including Scalar and Introspection types).
- * fixme schame中所有的类型必须是全局唯一的，包括不能和标量、Introspection类型冲突。
+ * fixme schame中所有的类型名称必须是全局唯一的，包括不能和标量、Introspection类型冲突。
  *
  * 2. All directives within a GraphQL schema must have unique names.
  * fixme schema中的指令必须拥有全局唯一的名字，包括内置指令。
@@ -62,7 +62,7 @@ public class SchemaValidator {
         /**
          * 检查字段定义
          */
-//        checkFieldDefinitions(schema.getQueryType(),validationErrorCollector);
+        checkFieldDefinitions(schema.getQueryType(),validationErrorCollector);
 
         /**
          * 检查指令
@@ -78,17 +78,17 @@ public class SchemaValidator {
         return validationErrorCollector.getErrors();
     }
 
+    /**
+     * 检查所有的类型(不包含层级结构)：名称全局唯一且不以 "__" 开始
+     */
     private void checkTypes(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
-        List<GraphQLNamedType> types = schema.getAllTypesAsList();
-        for (GraphQLNamedType type : types) {
-            for (SchemaValidationRule rule : rules) {
-                rule.check(type, validationErrorCollector);
-            }
+        for (SchemaValidationRule rule : rules) {
+            rule.check(schema, validationErrorCollector);
         }
     }
 
     /**
-     * 检查字段名称是否是以"__"开始的
+     * 检查字段名称是否是以"__"开始的，名称是全局唯一的 fixme 没有这个要求
      */
     private void checkFieldDefinitions(GraphQLObjectType queryType, SchemaValidationErrorCollector validationErrorCollector) {
         GraphQLObjectType thisQueryType=queryType;
@@ -98,7 +98,7 @@ public class SchemaValidator {
     }
 
     /**
-     *  检查指令名称是否是以"__"开始的
+     *  检查指令名称是否是以"__"开始的，名称是全局唯一的
      */
     private void checkDirectives(List<GraphQLDirective> schemaDirectives, SchemaValidationErrorCollector validationErrorCollector) {
         List<GraphQLDirective> thisDirectives=schemaDirectives;

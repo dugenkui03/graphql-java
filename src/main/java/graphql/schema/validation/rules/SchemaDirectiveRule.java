@@ -1,9 +1,6 @@
 package graphql.schema.validation.rules;
 
-import graphql.schema.GraphQLDirective;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLType;
+import graphql.schema.*;
 import graphql.schema.validation.SchemaValidationError;
 import graphql.schema.validation.SchemaValidationErrorCollector;
 import graphql.schema.validation.SchemaValidationErrorType;
@@ -51,6 +48,11 @@ public class SchemaDirectiveRule implements SchemaValidationRule {
 
     @Override
     public void check(GraphQLObjectType rootType, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
+    @Override
+    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
 
     }
 }

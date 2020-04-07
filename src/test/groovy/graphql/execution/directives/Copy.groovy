@@ -28,19 +28,19 @@ class Copy extends Specification {
         type Book {
          id :  ID
          title : String
-         __review : String
+         review : String
         }
     '''
 
     def pathologicalQuery = '''
         fragment Details on Book @timeout(afterMillis: 25) @cached(forMillis : 25) @importance(place:"FragDef") {
             title
-            __review @timeout(afterMillis: 5) @cached(forMillis : 5)
+            review @timeout(afterMillis: 5) @cached(forMillis : 5)
             ...InnerDetails @timeout(afterMillis: 26) 
         }
         
         fragment InnerDetails on Book  @timeout(afterMillis: 27) {
-            __review @timeout(afterMillis: 28)
+            review @timeout(afterMillis: 28)
         }
         
         query Books @timeout(afterMillis: 30) @importance(place:"Operation") {
@@ -48,92 +48,103 @@ class Copy extends Specification {
                 id
                  ...Details @timeout(afterMillis: 20)
                  ...on Book @timeout(afterMillis: 15) {
-                    __review @timeout(afterMillis: 10) @cached(forMillis : 10)
+                    review @timeout(afterMillis: 10) @cached(forMillis : 10)
                 }
             }
         }
     '''
+//
+//    Map<String, QueryDirectives> capturedDirectives
+//
+//    DataFetcher reviewDF = { env ->
+//        capturedDirectives.put(env.getMergedField().getName(), env.getQueryDirectives())
+//        "review"
+//    }
+//
+//    DataFetcher titleDF = { env ->
+//        capturedDirectives.put(env.getMergedField().getName(), env.getQueryDirectives())
+//        "title"
+//    }
 
-    Map<String, QueryDirectives> capturedDirectives
+//    def schema = TestUtil.schema(sdl, [Book: [review: reviewDF, title: titleDF]])
 
-    DataFetcher __reviewDF = { env ->
-        capturedDirectives.put(env.getMergedField().getName(), env.getQueryDirectives())
-        "__review"
-    }
+//    def graphql = GraphQL.newGraphQL(schema).build()
 
-    DataFetcher titleDF = { env ->
-        capturedDirectives.put(env.getMergedField().getName(), env.getQueryDirectives())
-        "title"
-    }
 
-    def schema = TestUtil.schema(sdl, [Book: [__review: __reviewDF, title: titleDF]])
-
-    def graphql = GraphQL.newGraphQL(schema).build()
-
-    def execute(String query) {
-        def root = [books: [[__review: "Text"]]]
-        graphql.execute({ input -> input.query(query).root(root) })
-    }
-
-    def joinArgs(List<GraphQLDirective> timeoutDirectives) {
-        timeoutDirectives.collect({
-            def s = it.getName() + "("
-            it.arguments.forEach({
-                s += it.getName() + ":" + it.getValue()
-            })
-            s += ")"
-            s
-        }).join(",")
-    }
-
-    void setup() {
-        capturedDirectives = [:]
-    }
-
-    def "can collector directives as expected"() {
+    def "test"(){
         when:
-        def er = execute(pathologicalQuery)
+        TestUtil.schema(sdl)
+        print(11)
+
         then:
-        er.errors.isEmpty()
-
-        Map<String, List<GraphQLDirective>> immediateMap = capturedDirectives["__review"].getImmediateDirectivesByName()
-        def entries = immediateMap.entrySet().collectEntries({
-            [(it.getKey()): joinArgs(it.getValue())]
-        })
-        entries == [cached : "cached(forMillis:5),cached(forMillis:10)",
-                    timeout: "timeout(afterMillis:5),timeout(afterMillis:28),timeout(afterMillis:10)"
-        ]
-
-        def immediate = capturedDirectives["__review"].getImmediateDirective("cached")
-        joinArgs(immediate) == "cached(forMillis:5),cached(forMillis:10)"
+        print(11)
     }
 
-    def "wont create directives for peer fields accidentally"() {
-        def query = '''query Books {
-            books(searchString: "monkey") {
-                id
-                 ...on Book {
-                    __review @timeout(afterMillis: 10) @cached(forMillis : 10)
-                    title @timeout(afterMillis: 99) @cached(forMillis : 99)
-                }
-            }
-        }
-'''
-        when:
-        def er = execute(query)
-        then:
-        er.errors.isEmpty()
-
-        Map<String, List<GraphQLDirective>> immediateMap = capturedDirectives["title"].getImmediateDirectivesByName()
-        def entries = immediateMap.entrySet().collectEntries({
-            [(it.getKey()): joinArgs(it.getValue())]
-        })
-        entries == [cached : "cached(forMillis:99)",
-                    timeout: "timeout(afterMillis:99)"
-        ]
-
-        def immediate = capturedDirectives["__review"].getImmediateDirective("cached")
-        joinArgs(immediate) == "cached(forMillis:10)"
-    }
+//
+//    def execute(String query) {
+//        def root = [books: [[review: "Text"]]]
+//        graphql.execute({ input -> input.query(query).root(root) })
+//    }
+//
+//    def joinArgs(List<GraphQLDirective> timeoutDirectives) {
+//        timeoutDirectives.collect({
+//            def s = it.getName() + "("
+//            it.arguments.forEach({
+//                s += it.getName() + ":" + it.getValue()
+//            })
+//            s += ")"
+//            s
+//        }).join(",")
+//    }
+//
+//    void setup() {
+//        capturedDirectives = [:]
+//    }
+//
+//    def "can collector directives as expected"() {
+//        when:
+//        def er = execute(pathologicalQuery)
+//        then:
+//        er.errors.isEmpty()
+//
+//        Map<String, List<GraphQLDirective>> immediateMap = capturedDirectives["review"].getImmediateDirectivesByName()
+//        def entries = immediateMap.entrySet().collectEntries({
+//            [(it.getKey()): joinArgs(it.getValue())]
+//        })
+//        entries == [cached : "cached(forMillis:5),cached(forMillis:10)",
+//                    timeout: "timeout(afterMillis:5),timeout(afterMillis:28),timeout(afterMillis:10)"
+//        ]
+//
+//        def immediate = capturedDirectives["review"].getImmediateDirective("cached")
+//        joinArgs(immediate) == "cached(forMillis:5),cached(forMillis:10)"
+//    }
+//
+//    def "wont create directives for peer fields accidentally"() {
+//        def query = '''query Books {
+//            books(searchString: "monkey") {
+//                id
+//                 ...on Book {
+//                    review @timeout(afterMillis: 10) @cached(forMillis : 10)
+//                    title @timeout(afterMillis: 99) @cached(forMillis : 99)
+//                }
+//            }
+//        }
+//'''
+//        when:
+//        def er = execute(query)
+//        then:
+//        er.errors.isEmpty()
+//
+//        Map<String, List<GraphQLDirective>> immediateMap = capturedDirectives["title"].getImmediateDirectivesByName()
+//        def entries = immediateMap.entrySet().collectEntries({
+//            [(it.getKey()): joinArgs(it.getValue())]
+//        })
+//        entries == [cached : "cached(forMillis:99)",
+//                    timeout: "timeout(afterMillis:99)"
+//        ]
+//
+//        def immediate = capturedDirectives["review"].getImmediateDirective("cached")
+//        joinArgs(immediate) == "cached(forMillis:10)"
+//    }
 
 }

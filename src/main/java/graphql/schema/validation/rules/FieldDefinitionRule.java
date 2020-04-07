@@ -42,6 +42,11 @@ public class FieldDefinitionRule implements SchemaValidationRule{
         travalGraphQLFieldDefinition(fieldDefinitions,validationErrorCollector);
     }
 
+    @Override
+    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
     private void travalGraphQLFieldDefinition(List<GraphQLFieldDefinition> fieldDefinitions, SchemaValidationErrorCollector validationErrorCollector) {
         if(fieldDefinitions==null||fieldDefinitions.isEmpty()){
             return;

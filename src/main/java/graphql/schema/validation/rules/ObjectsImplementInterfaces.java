@@ -41,6 +41,11 @@ public class ObjectsImplementInterfaces implements SchemaValidationRule {
 
     }
 
+    @Override
+    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
     private void checkGraphQLObjectType(GraphQLObjectType objectType, SchemaValidationErrorCollector validationErrorCollector) {
         List<GraphQLNamedOutputType> interfaces = objectType.getInterfaces();
         interfaces.forEach(interfaceType -> {

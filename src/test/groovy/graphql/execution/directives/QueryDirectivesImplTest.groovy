@@ -25,7 +25,7 @@ class QueryDirectivesImplTest extends Specification {
         type Book {
          id :  ID
          title : String
-         __review : String
+         review : String
         }
     '''
 
