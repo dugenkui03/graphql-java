@@ -2,6 +2,8 @@ package graphql.schema.validation;
 
 import graphql.Internal;
 import graphql.schema.*;
+import graphql.schema.validation.exception.SchemaValidationError;
+import graphql.schema.validation.exception.SchemaValidationErrorCollector;
 import graphql.schema.validation.rules.*;
 
 import java.util.ArrayList;
@@ -33,8 +35,8 @@ public class SchemaValidator {
     public SchemaValidator() {
         rules.add(new NoUnbrokenInputCycles());
         rules.add(new ObjectsImplementInterfaces());
-        rules.add(new SchemaDirectiveRule());
-        rules.add(new FieldDefinitionRule());
+        rules.add(new DirectiveRuler());
+        rules.add(new FieldDefinitionRuler());
     }
 
     //构造函数
@@ -54,57 +56,21 @@ public class SchemaValidator {
         //错误收集器
         SchemaValidationErrorCollector validationErrorCollector = new SchemaValidationErrorCollector();
 
-        /**
-         * 检查类型
-         */
-        checkTypes(schema, validationErrorCollector);
-
-        /**
-         * 检查字段定义
-         */
-        checkFieldDefinitions(schema.getQueryType(),validationErrorCollector);
-
-        /**
-         * 检查指令
-         */
-        checkDirectives(schema.getDirectives(),validationErrorCollector);
-
-        /**
-         * fixme 遍历检查
-         */
-        traverseCheck(schema, validationErrorCollector);
+        visit(schema,validationErrorCollector);
 
         //返回所有错误
         return validationErrorCollector.getErrors();
     }
 
-    /**
-     * 检查所有的类型(不包含层级结构)：名称全局唯一且不以 "__" 开始
-     */
-    private void checkTypes(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+    private void visit(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
         for (SchemaValidationRule rule : rules) {
-            rule.check(schema, validationErrorCollector);
+            rule.check(schema,validationErrorCollector);
         }
-    }
 
-    /**
-     * 检查字段名称是否是以"__"开始的，名称是全局唯一的 fixme 没有这个要求
-     */
-    private void checkFieldDefinitions(GraphQLObjectType queryType, SchemaValidationErrorCollector validationErrorCollector) {
-        GraphQLObjectType thisQueryType=queryType;
-        for (SchemaValidationRule rule : rules) {
-            rule.check(thisQueryType,validationErrorCollector);
-        }
-    }
-
-    /**
-     *  检查指令名称是否是以"__"开始的，名称是全局唯一的
-     */
-    private void checkDirectives(List<GraphQLDirective> schemaDirectives, SchemaValidationErrorCollector validationErrorCollector) {
-        List<GraphQLDirective> thisDirectives=schemaDirectives;
-        for (SchemaValidationRule rule : rules) {
-            rule.check(thisDirectives,validationErrorCollector);
-        }
+//        /**
+//         * fixme 遍历检查
+//         */
+        traverseCheck(schema, validationErrorCollector);
     }
 
     private void traverseCheck(GraphQLSchema schema,SchemaValidationErrorCollector validationErrorCollector){
@@ -128,7 +94,6 @@ public class SchemaValidator {
     private final Set<GraphQLOutputType> processed = new LinkedHashSet<>();
 
     private void traverse(GraphQLOutputType root, SchemaValidationErrorCollector validationErrorCollector) {
-        //todo 这里用的哪个equals方法
         if (processed.contains(root)) {
             return;
         }

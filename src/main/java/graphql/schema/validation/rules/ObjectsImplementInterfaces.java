@@ -1,8 +1,8 @@
 package graphql.schema.validation.rules;
 
 import graphql.schema.*;
-import graphql.schema.validation.SchemaValidationError;
-import graphql.schema.validation.SchemaValidationErrorCollector;
+import graphql.schema.validation.exception.SchemaValidationError;
+import graphql.schema.validation.exception.SchemaValidationErrorCollector;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,7 +11,7 @@ import static graphql.schema.GraphQLTypeUtil.isList;
 import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.simplePrint;
 import static graphql.schema.GraphQLTypeUtil.unwrapOne;
-import static graphql.schema.validation.SchemaValidationErrorType.ObjectDoesNotImplementItsInterfaces;
+import static graphql.schema.validation.exception.SchemaValidationErrorType.ObjectDoesNotImplementItsInterfaces;
 import static java.lang.String.format;
 
 /**
@@ -20,9 +20,6 @@ import static java.lang.String.format;
  */
 public class ObjectsImplementInterfaces implements SchemaValidationRule {
 
-    @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-    }
 
     @Override
     public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
@@ -32,14 +29,10 @@ public class ObjectsImplementInterfaces implements SchemaValidationRule {
     }
 
     @Override
-    public void check(List<GraphQLDirective> directives, SchemaValidationErrorCollector validationErrorCollector) {
+    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
 
     }
 
-    @Override
-    public void check(GraphQLObjectType rootType, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
 
     @Override
     public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {

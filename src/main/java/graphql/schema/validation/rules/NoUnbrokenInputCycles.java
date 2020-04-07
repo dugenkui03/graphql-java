@@ -1,10 +1,9 @@
 package graphql.schema.validation.rules;
 
 import graphql.schema.*;
-import graphql.schema.validation.SchemaValidationError;
-import graphql.schema.validation.SchemaValidationErrorCollector;
-import graphql.schema.validation.SchemaValidationErrorType;
-import graphql.schema.validation.rules.SchemaValidationRule;
+import graphql.schema.validation.exception.SchemaValidationError;
+import graphql.schema.validation.exception.SchemaValidationErrorCollector;
+import graphql.schema.validation.exception.SchemaValidationErrorType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -16,27 +15,20 @@ import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.unwrapAll;
 
 /**
+ * fixme "却把输入类型不形成不为空的递归"
+ *
  * Schema validation rule ensuring no input type forms an unbroken non-nullable recursion,
  * as such a type would be impossible to satisfy
  */
 public class NoUnbrokenInputCycles implements SchemaValidationRule {
 
     @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
-    }
-
-    @Override
-    public void check(List<GraphQLDirective> directives, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(GraphQLObjectType rootType, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
     public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
+    @Override
+    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
 
     }
 
@@ -46,26 +38,40 @@ public class NoUnbrokenInputCycles implements SchemaValidationRule {
             GraphQLInputType argumentType = argument.getType();
             if (argumentType instanceof GraphQLInputObjectType) {
                 List<String> path = new ArrayList<>();
-//                path.add(argumentType.getName());
-                check((GraphQLInputObjectType) argumentType, new LinkedHashSet<>(), path, validationErrorCollector);
+                traverseType((GraphQLInputObjectType) argumentType, new LinkedHashSet<>(), path, validationErrorCollector);
             }
         }
     }
 
-    private void check(GraphQLInputObjectType type, Set<GraphQLType> seen, List<String> path, SchemaValidationErrorCollector validationErrorCollector) {
-        if (seen.contains(type)) {
+    /**
+     * @param type 当前要遍历的type
+     * @param traversedType 已经遍历过的type
+     * @param path 构造遍历路径用的，错误时打印环
+     * @param validationErrorCollector 错误信息持有器
+     */
+    private void traverseType(GraphQLInputObjectType type, Set<GraphQLType> traversedType, List<String> path, SchemaValidationErrorCollector validationErrorCollector) {
+        /**
+         * 如果已经包含，则说明有环，则构造错误信息
+         */
+        if (traversedType.contains(type)) {
             validationErrorCollector.addError(new SchemaValidationError(SchemaValidationErrorType.UnbrokenInputCycle, getErrorMessage(path)));
             return;
         }
-        seen.add(type);
+
+        /**
+         * 入栈
+         */
+        traversedType.add(type);
 
         for (GraphQLInputObjectField field : type.getFieldDefinitions()) {
             if (isNonNull(field.getType())) {
-                GraphQLType unwrapped = unwrapNonNull((GraphQLNonNull) field.getType());
-                if (unwrapped instanceof GraphQLInputObjectType) {
+                GraphQLType unwrappedType = unwrapNonNull((GraphQLNonNull) field.getType());
+                //如果是输入类型
+                if (unwrappedType instanceof GraphQLInputObjectType) {
                     path = new ArrayList<>(path);
                     path.add(field.getName() + "!");
-                    check((GraphQLInputObjectType) unwrapped, new LinkedHashSet<>(seen), path, validationErrorCollector);
+                    //fixme new LinkedHashSet<>(traversedType) 包含了出栈逻辑，因为是一个新的链表指向遍历过的元素
+                    traverseType((GraphQLInputObjectType) unwrappedType, new LinkedHashSet<>(traversedType), path, validationErrorCollector);
                 }
             }
         }
@@ -73,7 +79,10 @@ public class NoUnbrokenInputCycles implements SchemaValidationRule {
 
     private GraphQLType unwrapNonNull(GraphQLNonNull type) {
         if (isList(type.getWrappedType())) {
-            //we only care about [type!]! i.e. non-null lists of non-nulls
+            /**
+             * 只关心[type!]!，例如非空list包含非空元素
+             * we only care about [type!]! i.e. non-null lists of non-nulls
+             */
             GraphQLList listType = (GraphQLList) type.getWrappedType();
             if (isNonNull(listType.getWrappedType())) {
                 return unwrapAll(listType.getWrappedType());

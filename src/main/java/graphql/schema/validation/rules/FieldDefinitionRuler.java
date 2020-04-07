@@ -1,15 +1,15 @@
 package graphql.schema.validation.rules;
 
 import graphql.schema.*;
-import graphql.schema.validation.SchemaValidationError;
-import graphql.schema.validation.SchemaValidationErrorCollector;
-import graphql.schema.validation.SchemaValidationErrorType;
+import graphql.schema.validation.exception.SchemaValidationError;
+import graphql.schema.validation.exception.SchemaValidationErrorCollector;
+import graphql.schema.validation.exception.SchemaValidationErrorType;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FieldDefinitionRule implements SchemaValidationRule{
+public class FieldDefinitionRuler implements SchemaValidationRule{
 
     //后期不使用白名单，而是直接判断是否是内省查询
     private static final Set<String> instrospectionQuery=new HashSet<>();
@@ -18,22 +18,8 @@ public class FieldDefinitionRule implements SchemaValidationRule{
     }
 
     @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(List<GraphQLDirective> directives, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(GraphQLObjectType rootType, SchemaValidationErrorCollector validationErrorCollector) {
+    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+        GraphQLObjectType rootType = schema.getQueryType();
         if(instrospectionQuery.contains(rootType.getName())){
             return;
         }
@@ -43,9 +29,15 @@ public class FieldDefinitionRule implements SchemaValidationRule{
     }
 
     @Override
-    public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
+    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
 
     }
+
+    @Override
+    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
+
+    }
+
 
     private void travalGraphQLFieldDefinition(List<GraphQLFieldDefinition> fieldDefinitions, SchemaValidationErrorCollector validationErrorCollector) {
         if(fieldDefinitions==null||fieldDefinitions.isEmpty()){
