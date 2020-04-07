@@ -1,18 +1,14 @@
-package graphql.execution.directives
+package graphql.schema.validation
 
+import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.TestUtil
+import graphql.execution.directives.QueryDirectives
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLDirective
 import spock.lang.Specification
 
-/**
- * TODO 重要，查询指令
- * This test currently has way more directives than can be handled today but in the spirit of
- * TDD(测试驱动开发Test Driven Development) I am going to leave the parent node directives there so we can expand the directives capabilities
- * into the future
- */
-class QueryDirectivesIntegrationTest extends Specification {
+class TestForSchemaInvalid extends Specification {
 
     def sdl = '''
         directive @timeout(afterMillis : Int) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
@@ -20,15 +16,15 @@ class QueryDirectivesIntegrationTest extends Specification {
         directive @cached(forMillis : Int) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
         
         directive @importance(place : String) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
- 
-        type Query {
-            books(searchString : String) : [Book]
+    
+        type Book {
+         __id :  ID
+         title : String
+         __review : String
         }
         
-        type Book {
-         id :  ID
-         title : String
-         review : String
+        type Query {
+            books(searchString : String) : [Book]
         }
     '''
 
