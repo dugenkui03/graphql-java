@@ -55,9 +55,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * todo 重要：检查类型系统的合法性、是的schema可执行
+ * todo 重要：检查类型系统的合法性、使得schema是可执行的
+ *
  * This helps pre check the state of the type system to ensure it can be made into an executable schema.
  * <p>
+ *     他会寻找missing type，在schema创建前确保 不变量 为真。
  * It looks for missing types and ensure certain invariants are true before a schema can be made.
  */
 @Internal

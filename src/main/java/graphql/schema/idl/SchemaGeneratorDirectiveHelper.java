@@ -29,6 +29,8 @@ import static graphql.Assert.assertNotNull;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * 包含辅助SchemaGeneration的代码。
+ *
  * This contains the helper code that allows {@link graphql.schema.idl.SchemaDirectiveWiring} implementations
  * to be invoked during schema generation.
  */
@@ -261,20 +263,33 @@ public class SchemaGeneratorDirectiveHelper {
     }
 
 
-    //
-    // builds a type safe SchemaDirectiveWiringEnvironment
-    //
+    /**
+     * 创建一个类型安全的SchemaDirectiveWiringEnvironment
+     * builds a type safe SchemaDirectiveWiringEnvironment
+     */
     interface EnvBuilder<T extends GraphQLDirectiveContainer> {
         SchemaDirectiveWiringEnvironment<T> apply(T outputElement, List<GraphQLDirective> allDirectives, GraphQLDirective registeredDirective);
     }
 
-    //
-    // invokes the SchemaDirectiveWiring with the provided environment
-    //
+    /**
+     * 携带enviroment调用SchemaDirectiveWiring
+     *
+     * invokes the SchemaDirectiveWiring with the provided environment
+     */
     interface EnvInvoker<T extends GraphQLDirectiveContainer> {
         T apply(SchemaDirectiveWiring schemaDirectiveWiring, SchemaDirectiveWiringEnvironment<T> env);
     }
 
+    /**
+     * 绑定指令？
+     * @param parameters
+     * @param element
+     * @param allDirectives
+     * @param envBuilder
+     * @param invoker
+     * @param <T>
+     * @return
+     */
     private <T extends GraphQLDirectiveContainer> T wireDirectives(
             Parameters parameters, T element,
             List<GraphQLDirective> allDirectives,

@@ -43,6 +43,7 @@ import static graphql.schema.idl.SchemaExtensionsChecker.gatherOperationDefs;
 import static java.util.Optional.ofNullable;
 
 /**
+ * TypeDefinitionRegistry包含一组类型定义，TODO
  *
  * A {@link TypeDefinitionRegistry} contains the set of type definitions that come from compiling
  * a graphql schema definition file via {@link SchemaParser#parse(String)}
@@ -50,17 +51,28 @@ import static java.util.Optional.ofNullable;
 @PublicApi
 public class TypeDefinitionRegistry {
 
+    //对象类型扩展定义
     private final Map<String, List<ObjectTypeExtensionDefinition>> objectTypeExtensions = new LinkedHashMap<>();
+    //接口类型扩展定义
     private final Map<String, List<InterfaceTypeExtensionDefinition>> interfaceTypeExtensions = new LinkedHashMap<>();
+    //联合类型扩展定义
     private final Map<String, List<UnionTypeExtensionDefinition>> unionTypeExtensions = new LinkedHashMap<>();
+    //枚举类型扩展定义
     private final Map<String, List<EnumTypeExtensionDefinition>> enumTypeExtensions = new LinkedHashMap<>();
+    //变量类型扩展定义
     private final Map<String, List<ScalarTypeExtensionDefinition>> scalarTypeExtensions = new LinkedHashMap<>();
+    //输入类型扩展定义
     private final Map<String, List<InputObjectTypeExtensionDefinition>> inputObjectTypeExtensions = new LinkedHashMap<>();
 
+    //类型定义
     private final Map<String, TypeDefinition> types = new LinkedHashMap<>();
+    //标量类型定义
     private final Map<String, ScalarTypeDefinition> scalarTypes = new LinkedHashMap<>();
+    //指令定义
     private final Map<String, DirectiveDefinition> directiveDefinitions = new LinkedHashMap<>();
+    //schema定义
     private SchemaDefinition schema;
+    //shcema扩展定义
     private final List<SchemaExtensionDefinition> schemaExtensionDefinitions = new ArrayList<>();
 
     /**
