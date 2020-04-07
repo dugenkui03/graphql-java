@@ -357,6 +357,10 @@ public class GraphQLSchema {
                 .toArray(new GraphQLDirective[0]);
     }
 
+    public boolean isSupportingQuery() {
+        return queryType!=null;
+    }
+
     public static class Builder {
         private GraphQLObjectType queryType;
         private GraphQLObjectType mutationType;
