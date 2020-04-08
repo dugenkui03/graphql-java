@@ -16,13 +16,15 @@ import static graphql.Assert.assertValidName;
 public class GraphQLTypeReference implements GraphQLNamedOutputType, GraphQLNamedInputType {
 
     /**
+     * fixme 创建类型类型引用过的工厂方法。
+     *
      * A factory method for creating type references so that when used with static imports allows
      * more readable code such as
      * {@code .type(typeRef(GraphQLString)) }
      *
-     * @param typeName the name of the type to reference
+     * @param typeName the name of the type to reference 要创建引用的类型名称
      *
-     * @return a GraphQLTypeReference of that named type
+     * @return a GraphQLTypeReference of that named type 指定名称的类型引用
      */
     public static GraphQLTypeReference typeRef(String typeName) {
         return new GraphQLTypeReference(typeName);

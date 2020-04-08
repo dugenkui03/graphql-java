@@ -22,8 +22,45 @@ import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;
 
 /**
- * graphql clearly delineates between the types of objects that represent the output of a query and input objects that
- * can be fed into a graphql mutation.  You can define objects as input to graphql via this class
+ * 输入对象，更新操作用，定义的关键字是input而非type：
+ *
+ * 定义：
+ * input ReviewInput {
+ *   stars: Int!
+ *   commentary: String
+ * }
+ *
+ * 查询使用：
+ * mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+ *   createReview(episode: $ep, review: $review) {
+ *     stars
+ *     commentary
+ *   }
+ * }
+ *
+ * 查询中具体值：
+ * {
+ *   "ep": "JEDI",
+ *   "review": {
+ *     "stars": 5,
+ *     "commentary": "This is a great movie!"
+ *   }
+ * }
+ *
+ * 查询返回结果：
+ * {
+ *   "data": {
+ *     "createReview": {
+ *       "stars": 5,
+ *       "commentary": "This is a great movie!"
+ *     }
+ *   }
+ * }
+ *
+ * <p></p>
+ * So far, we've only talked about passing scalar values, like enums or strings, as arguments into a field. But you can also easily pass complex objects.
+ * This is particularly valuable in the case of mutations, where you might want to pass in a whole object to be created. In the GraphQL schema language,
+ * input types look exactly the same as regular object types, but with the keyword input instead of type
  *
  * See http://graphql.org/learn/schema/#input-types for more details on the concept
  */

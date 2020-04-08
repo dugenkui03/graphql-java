@@ -33,7 +33,7 @@ public class SchemaValidator {
      */
     private List<SchemaValidationRule> rules = new ArrayList<>();
     public SchemaValidator() {
-        rules.add(new NoUnbrokenInputCycles());
+        rules.add(new NonNullInputObjectCyclesRuler());
         rules.add(new ObjectsImplementInterfaces());
         rules.add(new DirectiveRuler());
         rules.add(new FieldDefinitionRuler());
