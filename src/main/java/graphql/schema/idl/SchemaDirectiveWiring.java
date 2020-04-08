@@ -13,7 +13,8 @@ import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLUnionType;
 
 /**
- * 该类基于定义在SDL元素上的指令、增强该元素的运行时行为。
+ * fixme 注意、修改的是类的运行时行为，所以是和查询、dsl息息相关的。
+ * fixme 该类基于定义在SDL元素上的指令、增强该元素的运行时行为。
  *
  * A SchemaDirectiveWiring is responsible for enhancing a runtime element based on directives placed on that
  * element in the Schema Definition Language (SDL).

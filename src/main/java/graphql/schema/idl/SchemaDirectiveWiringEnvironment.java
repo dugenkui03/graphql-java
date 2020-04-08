@@ -23,6 +23,7 @@ import java.util.Map;
 public interface SchemaDirectiveWiringEnvironment<T extends GraphQLDirectiveContainer> {
 
     /**
+     * fixme 获取运行时元素
      * @return the runtime element in play
      */
     T getElement();
@@ -42,11 +43,14 @@ public interface SchemaDirectiveWiringEnvironment<T extends GraphQLDirectiveCont
     GraphQLDirective getDirective();
 
     /**
+     * 元素<T extends GraphQLDirectiveContainer>上定义的所有的指令
+     *
      * @return all of the directives that are on the runtime element
      */
     Map<String, GraphQLDirective> getDirectives();
 
     /**
+     * 获取指定名称的指令
      * Returns a named directive or null
      *
      * @param directiveName the name of the directive
