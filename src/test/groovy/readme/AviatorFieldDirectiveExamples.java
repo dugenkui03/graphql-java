@@ -18,7 +18,7 @@ import java.util.Map;
 /**fixme
  *      1. 定义指令：
  *                "directive @aviator on FIELD_DEFINITION \n"
- *      2. 将指令用在目标字段
+ *      2. 将指令用在目标字段: 非常重要：能够增强某个元素，但不能同层元素计算。而且牢记他是自顶向下的计算、可以通过父亲指令改变孩子值。
  *               dateField : String @aviator\n"
  *      3. 具体实现
  *               AviatorExecutor implements SchemaDirectiveWiring
