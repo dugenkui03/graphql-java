@@ -24,10 +24,11 @@ import graphql.language.TypeName;
 import graphql.language.Value;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.GraphQLScalarType;
+import graphql.schema.idl.RuntimeWiring;
+import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.errors.DirectiveIllegalArgumentTypeError;
 import graphql.util.LogKit;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
