@@ -5,7 +5,7 @@ import spock.lang.Specification
 class SkipAndInclude extends Specification {
 
     private def graphQL = TestUtil.graphQL("""
-            type Query {
+            type _Query {
                 field: Int
                 fieldX: Int
                 fieldY(x: Int): Int

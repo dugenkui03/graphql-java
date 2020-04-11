@@ -1,6 +1,5 @@
 package graphql.schema.validation
 
-import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.TestUtil
 import graphql.execution.directives.QueryDirectives
@@ -18,9 +17,9 @@ class TestForSchemaInvalid extends Specification {
         directive @importance(place : String) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
     
         type Book {
-         __id :  ID
+         id :  ID
          title : String
-         __review : String
+         review : String
         }
         
         type Query {
