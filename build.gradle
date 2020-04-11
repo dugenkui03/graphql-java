@@ -42,6 +42,7 @@ repositories {
 
 apply plugin: 'groovy'
 
+//fixme 词法文件
 jar {
     from "LICENSE.md"
     from "src/main/antlr/Graphql.g4"
@@ -87,6 +88,7 @@ check.dependsOn testng
 
 compileJava.source file("build/generated-src"), sourceSets.main.java
 
+//生成词法分析器文件
 generateGrammarSource {
     includes = ['Graphql.g4']
     maxHeapSize = "64m"

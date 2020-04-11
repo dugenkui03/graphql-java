@@ -21,6 +21,7 @@ objectFieldWithVariable : name ':' valueWithVariable;
 
 directives : directive+;
 
+//指令定义
 directive :'@' name arguments?;
 
 
@@ -32,6 +33,8 @@ baseName: NAME | FRAGMENT | QUERY | MUTATION | SUBSCRIPTION | SCHEMA | SCALAR | 
 fragmentName: baseName | BooleanValue | NullValue;
 enumValueName: baseName | ON_KEYWORD;
 
+
+// 名称：基本名称或者 布尔值|空值|on关键字
 name: baseName | BooleanValue | NullValue | ON_KEYWORD;
 
 value :
@@ -57,6 +60,7 @@ arrayValueWithVariable |
 objectValueWithVariable;
 
 
+//变量定义： $和名称
 variable : '$' name;
 
 defaultValue : '=' value;
@@ -72,6 +76,7 @@ listType : '[' type ']';
 nonNullType: typeName '!' | listType '!';
 
 
+//最基本的词法元素：布尔值、空值、片段、query|更新|订阅、schema、标量、类型、接口、实现、枚举、输入、拓展、指令、on关键字、名称正则表达式
 BooleanValue: 'true' | 'false';
 
 NullValue: 'null';
@@ -94,18 +99,24 @@ ON_KEYWORD: 'on';
 NAME: [_A-Za-z][_0-9A-Za-z]*;
 
 
+//整数定义：optional的符号和整数
 IntValue : Sign? IntegerPart;
 
+//浮点数定义
 FloatValue : Sign? IntegerPart ('.' Digit+)? ExponentPart?;
 
 Sign : '-';
 
+
+//整数定义：0；1到9的数；超过9的数字
 IntegerPart : '0' | NonZeroDigit | NonZeroDigit Digit+;
 
+//1到9
 NonZeroDigit: '1'.. '9';
 
 ExponentPart : ('e'|'E') ('+'|'-')? Digit+;
 
+//0到9
 Digit : '0'..'9';
 
 
