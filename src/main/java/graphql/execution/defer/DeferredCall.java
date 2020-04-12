@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
+ * 这代表延迟调用来获取结果、通常在普通的请求返回之后。
+ *
  * This represents a deferred call (aka @defer) to get an execution result sometime after
  * the initial query has returned
  */

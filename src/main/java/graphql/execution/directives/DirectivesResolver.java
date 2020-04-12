@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 将抽象语法树指令转换成带有解析的类型的运行时指令。
+ * fixme 将抽象语法树指令转换成运行时指令。
  *
  * This turns AST directives into runtime directives with resolved types and so on
  */
@@ -26,10 +26,10 @@ public class DirectivesResolver {
     }
 
     /**
-     * @param directives 指令集合
-     * @param schema schema
-     * @param variables 变量
-     * @return 运行时指令？
+     * fixme 抽象语法树指令Directive之于运行时指令GraphQLDirective，同抽象语法树参数Argument之于运行时参数GraphQLArgument
+     *
+     * @param directives fixme 抽象语法树指令：有名称、参数等信息；
+     * @return fixme 运行时指令：名称、描述、参数、位置等
      */
     public Map<String, GraphQLDirective> resolveDirectives(List<Directive> directives, GraphQLSchema schema, Map<String, Object> variables) {
         //代码注册器包含 field关联的DataFetcher等信息
@@ -39,7 +39,9 @@ public class DirectivesResolver {
         for (Directive directive : directives) {
             GraphQLDirective protoType = schema.getDirective(directive.getName());
             if (protoType != null) {
-                //transform中会调用builder的build方法
+                /**
+                 * 使用代码注册器、抽象语法树指令、变量，构造运行时指令
+                 */
                 GraphQLDirective newDirective = protoType.transform(builder -> buildArguments(builder, codeRegistry, protoType, directive, variables));
                 directiveMap.put(newDirective.getName(), newDirective);
             }
@@ -48,8 +50,10 @@ public class DirectivesResolver {
         return directiveMap;
     }
 
+
     /**
-     * @param directiveBuilder 最后结果保存的位置 directiveBuilder.argument(GraphQLArgument)
+     * 最后结果保存的位置 directiveBuilder.argument(GraphQLArgument)
+     * @param directiveBuilder
      * @param codeRegistry
      * @param protoType
      * @param fieldDirective

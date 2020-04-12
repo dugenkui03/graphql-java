@@ -21,7 +21,7 @@ import static graphql.Assert.assertValidName;
 /**
  * This defines an argument that can be supplied to a graphql field (via {@link graphql.schema.GraphQLFieldDefinition}.
  *
- * fixme 字段可以被认为是 接受参数、返回值的函数: Out func(In in)
+ * fixme 字段可以被认为是 接受参数、返回值的函数/接口: Out func(In in)
  * Fields can be thought of as "functions" that take arguments and return a value.
  *
  * See http://graphql.org/learn/queries/#arguments for more details on the concept. 查询参数

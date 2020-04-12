@@ -362,7 +362,7 @@ public class Introspection {
 
 
     public enum DirectiveLocation {
-        //查询、更新、订阅
+        //fixme 定义在查询上 查询、更新、订阅
         QUERY,
         MUTATION,
         SUBSCRIPTION,
@@ -372,7 +372,7 @@ public class Introspection {
         FRAGMENT_SPREAD,
         INLINE_FRAGMENT,
 
-        //schema SDL places(system describe language SDL 系统定义语言)
+        //fixme 定义在类型系统上 schema SDL places(system describe language SDL 系统定义语言)
         //模式、标量、实体类型、实体字段定义、实体字段参数定义、
         //接口、联合类型、枚举、枚举值、输入对象、输入变量定义
         SCHEMA,

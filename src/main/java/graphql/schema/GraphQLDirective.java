@@ -36,7 +36,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
     private final String description;
     //指令位置枚举-具体在哪儿定义
     private final EnumSet<DirectiveLocation> locations;
-    //指令参数
+    //运行时指令的运行时参数
     private final List<GraphQLArgument> arguments = new ArrayList<>();
 
     /**
@@ -308,6 +308,8 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
         }
 
         /**
+         * 清除运行时指令上所有的运行时参数
+         *
          * This is used to clear all the arguments in the builder so far.
          *
          * @return the builder

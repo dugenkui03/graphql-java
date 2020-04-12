@@ -19,9 +19,10 @@ objectField : name ':' value;
 objectFieldWithVariable : name ':' valueWithVariable;
 
 
+//指令集合
 directives : directive+;
 
-//指令定义
+//指令定义：https://spec.graphql.org/June2018/#sec-Type-System.Directives；?在正则里边表示0次或者一次
 directive :'@' name arguments?;
 
 
