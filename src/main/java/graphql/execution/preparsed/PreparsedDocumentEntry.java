@@ -11,6 +11,7 @@ import static graphql.Assert.assertNotNull;
 import static java.util.Collections.singletonList;
 
 /**
+ * fixme 预解析文档"容器"：文档和错误
  * An instance of a preparsed document entry represents the result of a query parse and validation, like
  * an either implementation it contains either the correct result in th document property or the errors.
  *

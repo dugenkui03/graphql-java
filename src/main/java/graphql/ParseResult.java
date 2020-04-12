@@ -8,7 +8,9 @@ import java.util.Map;
 
 @Internal
 public class ParseResult {
+    //解析的文档和变量
     private final DocumentAndVariables documentAndVariables;
+    //解析的异常-fixme 语法异常
     private final InvalidSyntaxException exception;
 
     public ParseResult(DocumentAndVariables documentAndVariables, InvalidSyntaxException exception) {

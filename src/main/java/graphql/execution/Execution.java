@@ -41,8 +41,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Internal
 public class Execution {
-    private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(Execution.class);
-
     private final FieldCollector fieldCollector = new FieldCollector();
     private final ValuesResolver valuesResolver = new ValuesResolver();
     private final ExecutionStrategy queryStrategy;
@@ -161,7 +159,6 @@ public class Execution {
             } else {
                 executionStrategy = executionContext.getQueryStrategy();
             }
-            logNotSafe.debug("Executing '{}' query operation: '{}' using '{}' execution strategy", executionContext.getExecutionId(), operation, executionStrategy.getClass().getName());
             result = executionStrategy.execute(executionContext, parameters);
         } catch (NonNullableFieldWasNullException e) {
             // this means it was non null types all the way from an offending non null type

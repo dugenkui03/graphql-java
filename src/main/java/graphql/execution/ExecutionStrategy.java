@@ -142,15 +142,16 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * fixme:执行策略的全局入口：执行字段的取值和转换
+     * fixme:   执行策略的全局入口，传递要查询的字段，并且获取其值
+     *
      * This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
      *
      * @param executionContext contains the top level execution parameters  执行上下文
-     * @param parameters       contains the parameters holding the fields to be executed and source object
+     * @param parameters       contains the parameters holding the fields to be executed and source object 所查询的字段和 sourceObject
      *
-     * @return a promise to an {@link ExecutionResult}
+     * @return a promise to an {@link ExecutionResult} 包含执行结果的CompletableFuture
      *
-     * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value
+     * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value 如果一个非空字段的解析值为空
      */
     public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
 

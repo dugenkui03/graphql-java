@@ -26,10 +26,12 @@ public class ExecutionResultImpl implements ExecutionResult {
         this(false, null, errors, null);
     }
 
+    //结果包含data对象、即使是null、则dataPresent返回true
     public ExecutionResultImpl(Object data, List<? extends GraphQLError> errors) {
         this(true, data, errors, null);
     }
 
+    //结果包含data对象、即使是null、则dataPresent返回true
     public ExecutionResultImpl(Object data, List<? extends GraphQLError> errors, Map<Object, Object> extensions) {
         this(true, data, errors, extensions);
     }
@@ -125,6 +127,7 @@ public class ExecutionResultImpl implements ExecutionResult {
             return this;
         }
 
+        //结果包含data对象、即使是null、则dataPresent返回true
         public Builder data(Object data) {
             dataPresent = true;
             this.data = data;

@@ -39,7 +39,6 @@ import static java.util.Arrays.asList;
 @PublicApi
 public class GraphQLSchema {
 
-
     private final GraphQLObjectType queryType;
     private final GraphQLObjectType mutationType;
     private final GraphQLObjectType subscriptionType;

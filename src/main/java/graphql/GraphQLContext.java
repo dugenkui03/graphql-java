@@ -31,7 +31,7 @@ import static graphql.Assert.assertNotNull;
 @ThreadSafe
 @SuppressWarnings("unchecked")
 public class GraphQLContext {
-
+    //TODO 为什么不使用TheadLocal，这似乎是个更好的选择，因为会相互印象
     private final ConcurrentMap<Object, Object> map;
 
     private GraphQLContext(ConcurrentMap<Object, Object> map) {

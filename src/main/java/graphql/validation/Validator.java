@@ -36,12 +36,12 @@ import java.util.List;
 
 @Internal
 public class Validator {
-    //只验证查询在schema上下文的合法性，fixme 还没有关于变量信息的验证
+    //只验证查询在schema上下文的合法性，变量的合法性验证在ValuesResolver.coerceVariableValues中
     public List<ValidationError> validateDocument(GraphQLSchema schema, Document document) {
         ValidationContext validationContext = new ValidationContext(schema, document);
 
-
         ValidationErrorCollector validationErrorCollector = new ValidationErrorCollector();
+
         List<AbstractRule> rules = createRules(validationContext, validationErrorCollector);
         LanguageTraversal languageTraversal = new LanguageTraversal();
         languageTraversal.traverse(document, new RulesVisitor(validationContext, rules));
@@ -49,6 +49,7 @@ public class Validator {
         return validationErrorCollector.getErrors();
     }
 
+    //验证首先是串性执行、而且有些规则还持有状态
     private List<AbstractRule> createRules(ValidationContext validationContext, ValidationErrorCollector validationErrorCollector) {
         List<AbstractRule> rules = new ArrayList<>();
 

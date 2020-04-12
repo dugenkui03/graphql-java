@@ -39,12 +39,6 @@ public class Parser {
         return parseDocument(multiSourceReader);
     }
 
-    /**
-     * 
-     * @param reader
-     * @return
-     * @throws InvalidSyntaxException
-     */
     public Document parseDocument(Reader reader) throws InvalidSyntaxException {
         MultiSourceReader multiSourceReader;
         if (reader instanceof MultiSourceReader) {
