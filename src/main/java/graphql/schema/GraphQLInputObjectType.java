@@ -66,12 +66,17 @@ import static java.util.Collections.emptyList;
  */
 @PublicApi
 public class GraphQLInputObjectType implements GraphQLNamedInputType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLInputFieldsContainer, GraphQLDirectiveContainer {
-
+    //输入对象名称
     private final String name;
+    //输入对象描述
     private final String description;
+    //到输入对象字段的映射
     private final Map<String, GraphQLInputObjectField> fieldMap = new LinkedHashMap<>();
+    //输入对象定义
     private final InputObjectTypeDefinition definition;
+    //输入类型扩展定义
     private final List<InputObjectTypeExtensionDefinition> extensionDefinitions;
+    //该输入类型上的(运行时)指令定义
     private final List<GraphQLDirective> directives;
 
     public static final String CHILD_FIELD_DEFINITIONS = "fieldDefinitions";
@@ -121,6 +126,7 @@ public class GraphQLInputObjectType implements GraphQLNamedInputType, GraphQLUnm
     private void buildMap(List<GraphQLInputObjectField> fields) {
         for (GraphQLInputObjectField field : fields) {
             String name = field.getName();
+            //是否有同名字段、有则抛异常
             if (fieldMap.containsKey(name)) {
                 throw new AssertException("field " + name + " redefined");
             }

@@ -7,17 +7,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * 遍历上下文
+ *
  * Traversal context.
  *
+ * <p></p>用于提供遍历的上下文，也返回可累加的值，参考 setAccumulate
  * It is used as providing context for traversing, but also for returning an accumulate value. ({@link #setAccumulate(Object)}
  *
+ * <p></p>这里总会返回一个没有节点、父亲、位置的 假根，参考 isRootContext
  * There is always a "fake" root context with null node, null parent, null position. See {@link #isRootContext()}
  *
- * @param <T> type of tree node
+ * @param <T> type of tree node 树节点的类型
  */
 @PublicApi
 public interface TraverserContext<T> {
 
+    //遍历的各个阶段：离开、进入、backref
     enum Phase {
         LEAVE,
         ENTER,
@@ -158,6 +163,9 @@ public interface TraverserContext<T> {
 
 
     /**
+     * 设置新的累加的值，可通过getNewAccumulate检索
+     *
+     * <p></p>
      * Sets the new accumulate value.
      *
      * Can be retrieved by {@link #getNewAccumulate()}
@@ -167,6 +175,9 @@ public interface TraverserContext<T> {
     void setAccumulate(Object accumulate);
 
     /**
+     * 新的累加值：之前通过setAccumulate设置的值。如果setAccumulate没有被调用过，则调用getCurrentAccumulate
+     *
+     * <p></p>
      * The new accumulate value, previously set by {@link #setAccumulate(Object)}
      * or {@link #getCurrentAccumulate()} if {@link #setAccumulate(Object)} not invoked.
      *
@@ -195,9 +206,11 @@ public interface TraverserContext<T> {
     <U> U getSharedContextData();
 
     /**
+     *如果是根则返回true：没有节点或者位置。
+     *
      * Returns true for the root context, which doesn't have a node or a position.
      *
-     * @return true for the root context, otherwise false
+     * @return true for the root context, otherwise false：如果是根的上下文、则返回true，否则返回false；
      */
     boolean isRootContext();
 

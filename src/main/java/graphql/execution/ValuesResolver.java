@@ -396,7 +396,9 @@ public class ValuesResolver {
         return result;
     }
 
-    //如果是非空类型，则抛异常
+    /**
+     * 如果该输入对象字段是非空类型，则抛异常
+     */
     private void assertNonNullInputField(GraphQLInputObjectField inputTypeField) {
         if (isNonNull(inputTypeField.getType())) {
             throw new NonNullableValueCoercedAsNullException(inputTypeField);
