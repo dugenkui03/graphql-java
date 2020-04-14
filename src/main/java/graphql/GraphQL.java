@@ -19,11 +19,8 @@ import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.validation.exception.InvalidSchemaException;
-import graphql.util.LogKit;
 import graphql.validation.ValidationError;
 import graphql.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +38,10 @@ import static graphql.execution.instrumentation.DocumentAndVariables.newDocument
 
 /**
  * fixme:
- *      查询开始的位置。
+ *      查询开始的位置
+ *
+ * fixme:
+ *      graphql类
  *
  * This class is where all graphql-java query execution begins.  It combines the objects that are needed
  * to make a successful graphql query, with the most important being the {@link graphql.schema.GraphQLSchema schema}
@@ -94,10 +94,6 @@ public class GraphQL {
      * When @defer directives are used, this is the extension key name used to contain the {@link org.reactivestreams.Publisher} of deferred results
      */
     public static final String DEFERRED_RESULTS = "deferredResults";
-
-    //静态日志对象：debug使用
-    private static final Logger log = LoggerFactory.getLogger(GraphQL.class);
-    private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(GraphQL.class);
 
     //构建的schema对象
     private final GraphQLSchema graphQLSchema;
@@ -252,7 +248,7 @@ public class GraphQL {
 
         //fixme 执行id生成器->可以作为某次执行的标志，可包含 查询dsl、查询名称和上下文信息等，比如在tracing中用到
         private ExecutionIdProvider idProvider = DEFAULT_EXECUTION_ID_PROVIDER;
-        private Instrumentation instrumentation = null; // 默认使用
+        private Instrumentation instrumentation = null;
         private PreparsedDocumentProvider preparsedDocumentProvider = NoOpPreparsedDocumentProvider.INSTANCE;
 
         //是否不实用默认的Instrumentation
@@ -445,7 +441,6 @@ public class GraphQL {
      */
     public CompletableFuture<ExecutionResult> executeAsync(ExecutionInput executionInput) {
         try {
-            logNotSafe.debug("Executing request. operation name: '{}'. query: '{}'. variables '{}'", executionInput.getOperationName(), executionInput.getQuery(), executionInput.getVariables());
             //如果入参没有executionId，则生成
             executionInput = ensureInputHasId(executionInput);
 
@@ -538,7 +533,6 @@ public class GraphQL {
         ParseResult parseResult = parse(executionInput, graphQLSchema, instrumentationState);
         //如果解析失败，则返回解析异常
         if (parseResult.isFailure()) {
-            logNotSafe.warn("Query failed to parse : '{}'", executionInput.getQuery());
             return new PreparsedDocumentEntry(parseResult.getException().toInvalidSyntaxError());
         } else {
             /**

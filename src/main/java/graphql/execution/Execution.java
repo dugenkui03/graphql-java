@@ -41,12 +41,26 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Internal
 public class Execution {
+
+    /**
+     * fixme:
+     *      字段收集器和值解析器
+     */
     private final FieldCollector fieldCollector = new FieldCollector();
     private final ValuesResolver valuesResolver = new ValuesResolver();
+    /**
+     * 执行策略
+     */
     private final ExecutionStrategy queryStrategy;
     private final ExecutionStrategy mutationStrategy;
     private final ExecutionStrategy subscriptionStrategy;
+    /**
+     * 自定义Instrumentation
+     */
     private final Instrumentation instrumentation;
+    /**
+     * 拆箱器
+     */
     private ValueUnboxer valueUnboxer;
 
     public Execution(ExecutionStrategy queryStrategy, ExecutionStrategy mutationStrategy, ExecutionStrategy subscriptionStrategy, Instrumentation instrumentation, ValueUnboxer valueUnboxer) {
@@ -180,6 +194,7 @@ public class Execution {
     }
 
     /*
+     * 如果查询定义了延迟操作、则在此处为查询添加延迟结果发布器——这也是执行延迟代码的最佳时机。
      * Adds the deferred publisher if its needed at the end of the query.  This is also a good time for the deferred code to start running
      */
     private CompletableFuture<ExecutionResult> deferSupport(ExecutionContext executionContext, CompletableFuture<ExecutionResult> result) {

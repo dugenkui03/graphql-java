@@ -40,10 +40,13 @@ public class Validator {
     public List<ValidationError> validateDocument(GraphQLSchema schema, Document document) {
         ValidationContext validationContext = new ValidationContext(schema, document);
 
+        //验证结果：List<ValidationError> errors
         ValidationErrorCollector validationErrorCollector = new ValidationErrorCollector();
 
-        List<AbstractRule> rules = createRules(validationContext, validationErrorCollector);
+        //语言遍历类
         LanguageTraversal languageTraversal = new LanguageTraversal();
+        //上下文包含要验证的内容、rules包含进行验证动作的规则
+        List<AbstractRule> rules = createRules(validationContext, validationErrorCollector);
         languageTraversal.traverse(document, new RulesVisitor(validationContext, rules));
 
         return validationErrorCollector.getErrors();
