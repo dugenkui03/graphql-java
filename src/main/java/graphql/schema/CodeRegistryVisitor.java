@@ -9,6 +9,7 @@ import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.util.TraversalControl.CONTINUE;
 
 /**
+ * 这个类用来确定所有的字段都有dataFetcher、所有的接口或者联合类型都有类型解析器
  * This ensure that all fields have data fetchers and that unions and interfaces have type resolvers
  */
 @Internal

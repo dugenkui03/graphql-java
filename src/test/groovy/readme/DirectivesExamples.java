@@ -163,7 +163,7 @@ public class DirectivesExamples {
 
         //fixme 一个字段定义上的指令
         String sdlSpec = "" +
-                "directive @dateFormat on FIELD_DEFINITION \n" +
+                "directive @dateFormat(arg: Int) on FIELD_DEFINITION \n" +
                 "" +
                 "type Query {\n" +
                 "    dateField : String @dateFormat \n" +
@@ -196,7 +196,7 @@ public class DirectivesExamples {
         String query = "" +
                 "query {\n" +
                 "    default : dateField \n" +
-                "    usa : dateField(format : \"MM-dd-YYYY\") \n" +
+                "    usa : dateField(format : \"MM-dd-YYYY\") @dateFormat(arg : 111) \n" +
                 "}";
 
         //intput: 1. root object; 2. query dsl;

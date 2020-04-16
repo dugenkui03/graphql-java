@@ -86,7 +86,7 @@ import static graphql.schema.GraphQLTypeReference.typeRef;
 import static java.util.Collections.emptyList;
 
 /**
- * 从类型注册表和运行时链接生成运行时schema。
+ * fixme 使用TypeDefinitionRegistry和RuntimeWiring生成运行时schema。
  *
  * This can generate a working runtime schema from a type registry and runtime wiring
  */

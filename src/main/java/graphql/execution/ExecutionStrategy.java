@@ -85,6 +85,13 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * fields such as 'id','name' and other complex fields such as 'friends' and 'allies', by recursively calling to itself to execute these lower
  * field layers
  * <p>
+ *     <p>
+ *         fixme 字段的获取氛围两个阶段：
+ *               1. 首先通过DataFetcher获取raw Value-在GraphQLFieldDefinition中可以看到字段对应的DataFetcher；
+ *               2. completed 阶段：
+ *                    a)如果字段是scalar/enum，则通过强转取值；
+ *                    b)如果类型是对象，则通过递归调用执行策略获取低层字段。
+ *     </p>
  * The execution of a field has two phases, first a raw object must be fetched for a field via a {@link DataFetcher} which
  * is defined on the {@link GraphQLFieldDefinition}.  This object must then be 'completed' into a suitable value, either as a scalar/enum type via
  * coercion or if its a complex object type by recursively calling the execution strategy for the lower level fields.
@@ -112,9 +119,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 @PublicSpi
 @SuppressWarnings("FutureReturnValueIgnored")
 public abstract class ExecutionStrategy {
-
-    private static final Logger log = LoggerFactory.getLogger(ExecutionStrategy.class);
-    private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(ExecutionStrategy.class);
 
     protected final ValuesResolver valuesResolver = new ValuesResolver();
     protected final FieldCollector fieldCollector = new FieldCollector();
@@ -164,6 +168,7 @@ public abstract class ExecutionStrategy {
      * Graphql fragments mean that for any give logical field can have one or more {@link Field} values associated with it
      * in the query, hence the fieldList.  However the first entry is representative of the field for most purposes.
      *
+
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
      *
@@ -305,13 +310,10 @@ public abstract class ExecutionStrategy {
         dataFetcher = instrumentation.instrumentDataFetcher(dataFetcher, instrumentationFieldFetchParams);
         ExecutionId executionId = executionContext.getExecutionId();
         try {
-            log.debug("'{}' fetching field '{}' using data fetcher '{}'...", executionId, executionStepInfo.getPath(), dataFetcher.getClass().getName());
             Object fetchedValueRaw = dataFetcher.get(fetchingEnv);
-            logNotSafe.debug("'{}' field '{}' fetch returned '{}'", executionId, executionStepInfo.getPath(), fetchedValueRaw == null ? "null" : fetchedValueRaw.getClass().getName());
 
             fetchedValue = Async.toCompletableFuture(fetchedValueRaw);
         } catch (Exception e) {
-            logNotSafe.debug(String.format("'%s', field '%s' fetch threw exception", executionId, executionStepInfo.getPath()), e);
 
             fetchedValue = new CompletableFuture<>();
             fetchedValue.completeExceptionally(e);
@@ -475,7 +477,6 @@ public abstract class ExecutionStrategy {
                         .nonNullFieldValidator(nonNullableFieldValidator)
         );
 
-        log.debug("'{}' completing field '{}'...", executionContext.getExecutionId(), executionStepInfo.getPath());
 
         FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
 
@@ -551,7 +552,6 @@ public abstract class ExecutionStrategy {
 
     private void handleUnresolvedTypeProblem(ExecutionContext context, ExecutionStrategyParameters parameters, UnresolvedTypeException e) {
         UnresolvedTypeError error = new UnresolvedTypeError(parameters.getPath(), parameters.getExecutionStepInfo(), e);
-        logNotSafe.warn(error.getMessage(), e);
         context.addError(error);
 
         parameters.getDeferredErrorSupport().onError(error);
@@ -777,7 +777,6 @@ public abstract class ExecutionStrategy {
     @SuppressWarnings("SameReturnValue")
     private Object handleCoercionProblem(ExecutionContext context, ExecutionStrategyParameters parameters, CoercingSerializeException e) {
         SerializationError error = new SerializationError(parameters.getPath(), e);
-        logNotSafe.warn(error.getMessage(), e);
         context.addError(error);
 
         parameters.getDeferredErrorSupport().onError(error);
@@ -828,7 +827,6 @@ public abstract class ExecutionStrategy {
     private void handleTypeMismatchProblem(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
 
         TypeMismatchError error = new TypeMismatchError(parameters.getPath(), parameters.getExecutionStepInfo().getUnwrappedNonNullType());
-        logNotSafe.warn("{} got {}", error.getMessage(), result.getClass());
         //CopyOnWriteArrayList的add加锁了
         context.addError(error);
 
