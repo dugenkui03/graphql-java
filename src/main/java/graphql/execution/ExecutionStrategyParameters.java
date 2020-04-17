@@ -10,8 +10,7 @@ import java.util.function.Consumer;
 import static graphql.Assert.assertNotNull;
 
 /**
- * fixme 重要：传递个执行策略的参数
- * The parameters that are passed to execution strategies
+ * fixme 重要：传递给执行策略的参数
  */
 @PublicApi
 public class ExecutionStrategyParameters {

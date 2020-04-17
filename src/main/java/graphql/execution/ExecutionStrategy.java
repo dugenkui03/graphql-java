@@ -120,44 +120,34 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 @SuppressWarnings("FutureReturnValueIgnored")
 public abstract class ExecutionStrategy {
 
+    //值解析器、获取参数用的
     protected final ValuesResolver valuesResolver = new ValuesResolver();
+    //字段收集器
     protected final FieldCollector fieldCollector = new FieldCollector();
     private final ExecutionStepInfoFactory executionStepInfoFactory = new ExecutionStepInfoFactory();
     private final ResolveType resolvedType = new ResolveType();
 
     protected final DataFetcherExceptionHandler dataFetcherExceptionHandler;
 
-    /**
-     * The default execution strategy constructor uses the {@link SimpleDataFetcherExceptionHandler}
-     * for data fetching errors.
-     */
+    //uses the {@link SimpleDataFetcherExceptionHandler}
     protected ExecutionStrategy() {
         dataFetcherExceptionHandler = new SimpleDataFetcherExceptionHandler();
     }
 
-    /**
-     * The consumers of the execution strategy can pass in a {@link DataFetcherExceptionHandler} to better
-     * decide what do when a data fetching error happens
-     *
-     * @param dataFetcherExceptionHandler the callback invoked if an exception happens during data fetching
-     */
+    //自定义异常处理器、处理dataFetcher抛出来的异常：@link DataFetcherExceptionHandler}
     protected ExecutionStrategy(DataFetcherExceptionHandler dataFetcherExceptionHandler) {
         this.dataFetcherExceptionHandler = dataFetcherExceptionHandler;
     }
 
     /**
-     * fixme:   执行策略的全局入口，传递要查询的字段，并且获取其值
+     * fixme:   执行策略的全局入口，传递要查询的字段(fields, not field definetion)，并且获取其值
      *
-     * This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
+     * @param executionContext 执行上下文
+     * @param strategyParameters 传递给执行策略的参数
      *
-     * @param executionContext contains the top level execution parameters  执行上下文
-     * @param parameters       contains the parameters holding the fields to be executed and source object 所查询的字段和 sourceObject
-     *
-     * @return a promise to an {@link ExecutionResult} 包含执行结果的CompletableFuture
-     *
-     * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value 如果一个非空字段的解析值为空
+     * @throws NonNullableFieldWasNullException 如果有non-null字段解析为null，则跑异常、data返回null
      */
-    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
+    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException;
 
     /**
      * Called to fetch a value for a field and resolve it further in terms of the graphql query.  This will call
@@ -328,7 +318,7 @@ public abstract class ExecutionStrategy {
 
                     /**
                      * 执行 codeToRunOnComplete.accept(result, t)
-                     * fixme：只记录dataFetcher返回值后的时间，不记录对dataFetcher值解析的时间
+                     * 这里可以对结果和异常进行记录
                      */
                     fetchCtx.onCompleted(result, exception);
 
@@ -491,11 +481,8 @@ public abstract class ExecutionStrategy {
      * fixme
      *      基于此字段的类型，解析此字段值；
      *      如果是标量，则返回，如果是对象，则递归解析；
-     *
-     *todo:
      *      根据规范，要包括四要素：CompleteValue(fieldType, fields, result, variableValues)
      *
-     * Called to complete a value for a field based on the type of the field.
      * <p>
      * If the field is a scalar type, then it will be coerced  and returned.  However if the field type is an complex object type, then
      * the execution strategy will be called recursively again to execute the fields of that type before returning.
@@ -735,7 +722,7 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * Called to turn an java object value into an graphql object value
+     * fixme 调用此方法、见java对象值转换为graphql对象值
      *
      * @param executionContext   contains the top level execution parameters
      * @param parameters         contains the parameters holding the fields to be executed and source object

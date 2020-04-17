@@ -79,6 +79,7 @@ public class ExecutionInput {
     }
 
     /**
+     * 与此执行相关的 "数据加载器执行器"
      * @return the data loader registry associated with this execution
      */
     public DataLoaderRegistry getDataLoaderRegistry() {

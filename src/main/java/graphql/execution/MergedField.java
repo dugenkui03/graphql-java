@@ -55,83 +55,61 @@ import static java.util.Collections.unmodifiableList;
  * </pre>
  * These examples make clear that you need to consider all merged fields together to have the full picture.
  *
- * The actual logic when fields can successfully merged together is implemented in {#graphql.validation.rules.OverlappingFieldsCanBeMerged}
+ * The actual logic when fields can successfully merged together is implemented in {@link graphql.validation.rules.OverlappingFieldsCanBeMerged}
  */
 @PublicApi
 public class MergedField {
-    //一个不可修改的List
+    /**
+     * 包含mergedField中每个字段详情：别名、参数、指令、selectionSet
+     */
     private final List<Field> fields;
-    //list第一个元素和元素名称
+    /**
+     * list第一个字段、字段名称、字段别名(无则字段名称)
+     */
     private final Field singleField;
     private final String name;
-    //字段查询返回名称：别名有限
     private final String resultKey;
 
     private MergedField(List<Field> fields) {
-        //判定list是否为空
         assertNotEmpty(fields);
-        //不可修改的List
         this.fields = unmodifiableList(new ArrayList<>(fields));
-        //第一个Field元素
         this.singleField = fields.get(0);
-        //入参字段名字
         this.name = singleField.getName();
-
         this.resultKey = singleField.getAlias() != null ? singleField.getAlias() : name;
     }
 
-    /**
-     * All merged fields have the same name.
-     *
-     * WARNING: This is not always the key in the execution result, because of possible aliases. See {@link #getResultKey()}
-     *
-     * @return the name of of the merged fields.
-     */
+    //All merged fields have the same name.
     public String getName() {
         return name;
     }
 
-    /**
-     * Returns the key of this MergedField for the overall result.
-     * This is either an alias or the field name.
-     *
-     * @return the key for this MergedField.
-     */
+    //Returns the key of this MergedField for the overall result. This is either an alias or the field name.
     public String getResultKey() {
         return resultKey;
     }
 
     /**
-     * The first of the merged fields.
-     *
-     * Because all fields are almost identically
-     * often only one of the merged fields are used.
-     *
-     * @return the fist of the merged Fields
+     * 第一个合并的字段、因为所有的字段基本相同、所以用第一个字段：
+     * TODO 如果参数不同呢、请求下游的时候请求两次吧
      */
     public Field getSingleField() {
         return singleField;
     }
 
-    /**
-     * All merged fields share the same arguments.
-     *
-     * @return the list of arguments
-     */
+    // TODO 所有的字段共享一份参数定义列表？为啥啊，可能参数值不同啊
     public List<Argument> getArguments() {
         return singleField.getArguments();
     }
 
-
-    /**
-     * All merged fields
-     *
-     * @return all merged fields
-     */
+    //合并的字段列表
     public List<Field> getFields() {
         return fields;
     }
 
+
+    /**
+     * ============================= builder 模式 ===========================================================
+     */
     public static Builder newMergedField() {
         return new Builder();
     }

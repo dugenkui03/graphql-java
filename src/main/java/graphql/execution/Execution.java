@@ -43,8 +43,9 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class Execution {
 
     /**
-     * fixme:
-     *      字段收集器和值解析器
+     * fixme: 字段收集器和值解析器
+     *        1. FieldCollector.ConditionalNodes 字段包含了对skip和include的实现;
+     *        2. ValuesResolver 变量到参数的强转
      */
     private final FieldCollector fieldCollector = new FieldCollector();
     private final ValuesResolver valuesResolver = new ValuesResolver();
@@ -63,6 +64,7 @@ public class Execution {
      */
     private ValueUnboxer valueUnboxer;
 
+    //执行策略、拆箱器、instrumentation等对象
     public Execution(ExecutionStrategy queryStrategy, ExecutionStrategy mutationStrategy, ExecutionStrategy subscriptionStrategy, Instrumentation instrumentation, ValueUnboxer valueUnboxer) {
         this.queryStrategy = queryStrategy != null ? queryStrategy : new AsyncExecutionStrategy();
         this.mutationStrategy = mutationStrategy != null ? mutationStrategy : new AsyncSerialExecutionStrategy();
@@ -71,15 +73,56 @@ public class Execution {
         this.valueUnboxer = valueUnboxer;
     }
 
+    /**
+     * @param document 校验通过的查询文档
+     * @param graphQLSchema 类型系统模式
+     * @param executionInput 输入：包括变量
+     * @param instrumentationState instrument
+     * @return 执行查询并返回结果
+     */
     public CompletableFuture<ExecutionResult> execute(Document document, GraphQLSchema graphQLSchema, ExecutionId executionId, ExecutionInput executionInput, InstrumentationState instrumentationState) {
 
+        /**
+         * fixme
+         *      step1: GetOperationResult：操作定义和片段
+         */
         NodeUtil.GetOperationResult getOperationResult = NodeUtil.getOperation(document, executionInput.getOperationName());
+        //获取片段定义：名称、类型、指令集合、字段集合(SelectionSet)
         Map<String, FragmentDefinition> fragmentsByName = getOperationResult.fragmentsByName;
+        //操作定义：名称、类型、指令集合、字段集合(SelectionSet)和变量
         OperationDefinition operationDefinition = getOperationResult.operationDefinition;
 
-        Map<String, Object> inputVariables = executionInput.getVariables();
-        List<VariableDefinition> variableDefinitions = operationDefinition.getVariableDefinitions();
 
+        /**
+         * fixme
+         *      step-2：从变量中获取参数参数的具体值；
+         *          1. 获取查询变量，既入参map；
+         *          2.  获取document中的变量定义：名称、类型、默认值，既 query ($phone: String = "15901331549")；
+         *          3. 使用valuesResolver.coerceVariableValues进行强转，获取 <参数名称,参数值>map；
+         *     示例：
+         *        比如我们输入包含<"mobilePhone","15901331549">的map键值对；
+         *        比如我们有查询
+         *              query($mobilePhone:String = "110"){
+         *                  user(phone:$mobilePhone){
+         *                      name
+         *                  }
+         *              }
+         *              首先会根据query后的变量集合key、获取键值对中对应key的数据、如果有必填参数不存在则抛异常；$mobilePhone
+         *              进行查询的时候，会将phone的key替换成对应的值，程序可能如下:
+         *                     Map<String,Object> arguemnts=new HashMap();
+         *                     for(Entry entry : typeArgument){
+         *                          String argName=entry.getValue();
+         *                          Object value=coercedVariables.get(argName);
+         *                          arguments.put(entry.getKey,value);
+         *                     }
+         *
+         */
+
+        //获取查询变量，既入参map
+        Map<String, Object> inputVariables = executionInput.getVariables();
+        //获取document中的变量定义：名称、类型、默认值- query ($phone: String = "15901331549")
+        List<VariableDefinition> variableDefinitions = operationDefinition.getVariableDefinitions();
+        //进行强转
         Map<String, Object> coercedVariables;
         try {
             coercedVariables = valuesResolver.coerceVariableValues(graphQLSchema, variableDefinitions, inputVariables);
@@ -90,44 +133,77 @@ public class Execution {
             throw rte;
         }
 
+        /**
+         * fixme
+         *      1. 定义操作操作上下文，包含操作流程中所有重要的东西；
+         *      2. 修改操作上下文：
+         *              b. schema
+         *              c. 执行策略
+         *              d. 值解析器
+         *              e. 文档；
+         *              d. 强转后的值和输入等信息
+         *
+         */
         ExecutionContext executionContext = newExecutionContextBuilder()
+                //instrument
                 .instrumentation(instrumentation)
                 .instrumentationState(instrumentationState)
                 .executionId(executionId)
+                //schema
                 .graphQLSchema(graphQLSchema)
+                //执行策略：并行、串行等
                 .queryStrategy(queryStrategy)
                 .mutationStrategy(mutationStrategy)
                 .subscriptionStrategy(subscriptionStrategy)
-                .context(executionInput.getContext())
-                .root(executionInput.getRoot())
-                .fragmentsByName(fragmentsByName)
-                .variables(coercedVariables)
-                .document(document)
-                .operationDefinition(operationDefinition)
-                .dataLoaderRegistry(executionInput.getDataLoaderRegistry())
-                .cacheControl(executionInput.getCacheControl())
-                .locale(executionInput.getLocale())
+                //值解析器
                 .valueUnboxer(valueUnboxer)
+                /**
+                 * 查询输入：上下文、root对象、解析文档、变量等
+                 */
+                //执行上下文
+                .context(executionInput.getContext())
+                //root对象
+                .root(executionInput.getRoot())
+                //包含的片段
+                .fragmentsByName(fragmentsByName)
+                //强转后的变量值：变量名称是typeArgument的value： <a,b>、<b,c> -> <a,c>
+                .variables(coercedVariables)
+                //查询文档
+                .document(document)
+                //操作定义：名称、类型、指令集合、字段集合(SelectionSet)和变量
+                .operationDefinition(operationDefinition)
+                //与执行相关的 DataLoaderRegistry
+                .dataLoaderRegistry(executionInput.getDataLoaderRegistry())
+                //缓存Control
+                .cacheControl(executionInput.getCacheControl())
+                //local
+                .locale(executionInput.getLocale())
                 .build();
+        //执行instrument：可以修改执行上下文
+        InstrumentationExecutionParameters executionParameters = new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
+        executionContext = instrumentation.instrumentExecutionContext(executionContext, executionParameters);
 
-
-        InstrumentationExecutionParameters parameters = new InstrumentationExecutionParameters(
-                executionInput, graphQLSchema, instrumentationState
-        );
-        executionContext = instrumentation.instrumentExecutionContext(executionContext, parameters);
-        return executeOperation(executionContext, parameters, executionInput.getRoot(), executionContext.getOperationDefinition());
+        return executeOperation(executionContext, executionInput.getRoot(), executionContext.getOperationDefinition());
     }
 
 
-    private CompletableFuture<ExecutionResult> executeOperation(ExecutionContext executionContext, InstrumentationExecutionParameters instrumentationExecutionParameters, Object root, OperationDefinition operationDefinition) {
+    /**
+     * @param executionContext 执行上下文
+     * @param root root对象、如果有的话、就是数据来源之一；
+     * @param operationDefinition 操作定义
+     * @return 查询执行结果
+     */
+    private CompletableFuture<ExecutionResult> executeOperation(ExecutionContext executionContext,Object root, OperationDefinition operationDefinition) {
 
-        InstrumentationExecuteOperationParameters instrumentationParams = new InstrumentationExecuteOperationParameters(executionContext);
-        InstrumentationContext<ExecutionResult> executeOperationCtx = instrumentation.beginExecuteOperation(instrumentationParams);
+        /**
+         * 使用执行上下文instrument结果
+         */
+        InstrumentationExecuteOperationParameters executeOperationParameters = new InstrumentationExecuteOperationParameters(executionContext);
+        InstrumentationContext<ExecutionResult> executeOperationCtx = instrumentation.beginExecuteOperation(executeOperationParameters);
 
-        OperationDefinition.Operation operation = operationDefinition.getOperation();
         GraphQLObjectType operationRootType;
-
         try {
+            //fixme query对象的定义和包含的字段
             operationRootType = getOperationRootType(executionContext.getGraphQLSchema(), operationDefinition);
         } catch (RuntimeException rte) {
             if (rte instanceof GraphQLError) {
@@ -141,55 +217,67 @@ public class Execution {
             throw rte;
         }
 
+        /**
+         * fixme 收集字段
+         *      构造字段收集上下文；
+         *      收集字段，包括include和skip的逻辑。
+         *
+         */
+        //字段收集上下文
         FieldCollectorParameters collectorParameters = FieldCollectorParameters.newParameters()
                 .schema(executionContext.getGraphQLSchema())
                 .objectType(operationRootType)
                 .fragments(executionContext.getFragmentsByName())
                 .variables(executionContext.getVariables())
                 .build();
-
+        //收集本次需要查询的字段，包括include和skip的逻辑
         MergedSelectionSet fields = fieldCollector.collectFields(collectorParameters, operationDefinition.getSelectionSet());
 
-        ExecutionPath path = ExecutionPath.rootPath();
-        ExecutionStepInfo executionStepInfo = newExecutionStepInfo().type(operationRootType).path(path).build();
+
+        //所有的查询都以此路径为起点
+        ExecutionPath rootPath = ExecutionPath.rootPath();
+        ExecutionStepInfo executionStepInfo = newExecutionStepInfo().type(operationRootType).path(rootPath).build();
+        //如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException、并且返回值data是null
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
 
-        ExecutionStrategyParameters parameters = newParameters()
-                .executionStepInfo(executionStepInfo)
-                .source(root)
-                .localContext(null) // this is important to default as this
-                .fields(fields)
-                .nonNullFieldValidator(nonNullableFieldValidator)
-                .path(path)
-                .build();
 
+        //查询最终返回值
         CompletableFuture<ExecutionResult> result;
         try {
-            ExecutionStrategy executionStrategy;
-            if (operation == OperationDefinition.Operation.MUTATION) {
-                executionStrategy = executionContext.getMutationStrategy();
-            } else if (operation == SUBSCRIPTION) {
-                executionStrategy = executionContext.getSubscriptionStrategy();
-            } else {
-                executionStrategy = executionContext.getQueryStrategy();
-            }
-            result = executionStrategy.execute(executionContext, parameters);
+            //去掉了操作类型的判断，毕竟一般用来查询：if(operation == OperationDefinition.Operation.MUTATION)
+            ExecutionStrategy executionStrategy = executionContext.getQueryStrategy();
+            /**
+             * fixme 使用策略执行查询，执行策略包括如下数据：
+             *          ValuesResolver valuesResolver//值强转
+             *          ExecutionStepInfoFactory executionStepInfoFactory; //包含值强转
+             *          FieldCollector fieldCollector//字段收集器
+             *          ResolveType resolvedType; //判断值的类型？
+             *          DataFetcherExceptionHandler dataFetcherExceptionHandler;//dataFetcher异常处理器
+             *
+             *fixme 执行上下文：包含执行的很多东西
+             */
+
+            /**
+             * 构造实行策略参数
+             */
+            ExecutionStrategyParameters strategyParameters = newParameters()
+                    .executionStepInfo(executionStepInfo)
+                    .source(root)
+                    .localContext(null) // this is important to default as this
+                    .fields(fields)
+                    .nonNullFieldValidator(nonNullableFieldValidator)
+                    .path(rootPath)
+                    .build();
+            //todo very import
+            result = executionStrategy.execute(executionContext, strategyParameters);
         } catch (NonNullableFieldWasNullException e) {
-            // this means it was non null types all the way from an offending non null type
-            // up to the root object type and there was a a null value some where.
-            //
-            // The spec says we should return null for the data in this case
-            //
+            // 如果从请求的根源到字段错误的源的所有字段都返回Non-Null类型，则响应中的“数据”条目应为null。
             // http://facebook.github.io/graphql/#sec-Errors-and-Non-Nullability
-            //
             result = completedFuture(new ExecutionResultImpl(null, executionContext.getErrors()));
         }
 
-        // note this happens NOW - not when the result completes
         executeOperationCtx.onDispatched(result);
-
         result = result.whenComplete(executeOperationCtx::onCompleted);
-
         return deferSupport(executionContext, result);
     }
 

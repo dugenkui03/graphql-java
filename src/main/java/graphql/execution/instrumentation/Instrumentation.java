@@ -25,6 +25,11 @@ import java.util.concurrent.*;
 import static graphql.execution.instrumentation.SimpleInstrumentationContext.noOp;
 
 /**
+ * fixme: instrument方法分两种 (前者做记录、后者直接修改值？)TODO 汇总一下
+ *        一种是返回值为InstrumentationContext的，和onDispatched和onComplete一块用，
+ *        这两个方法参数没有上下文，但是生成InstrumentationContext的方法有上下文，因此定义方法时仍然能够使用上下文；非常重要；
+ *        一种是直接修改值，简单粗暴；
+ *
  * Provides the capability to instrument the execution steps of a GraphQL query.
  *
  * For example you might want to track which fields are taking the most time to fetch from the backing database
@@ -90,6 +95,7 @@ public interface Instrumentation {
     InstrumentationContext<List<ValidationError>> beginValidation(InstrumentationValidationParameters parameters);
 
     /**
+     *
      * This is called just before the execution of the query operation is started.
      *
      * @param parameters the parameters to this step
@@ -212,11 +218,11 @@ public interface Instrumentation {
      * allowing you to adjust the base data used.
      *
      * @param executionContext the execution context to be used
-     * @param parameters       the parameters describing the field to be fetched
+     * @param executionParameters       the parameters describing the field to be fetched
      *
      * @return a non null instrumented ExecutionContext, the default is to return to the same object
      */
-    default ExecutionContext instrumentExecutionContext(ExecutionContext executionContext, InstrumentationExecutionParameters parameters) {
+    default ExecutionContext instrumentExecutionContext(ExecutionContext executionContext, InstrumentationExecutionParameters executionParameters) {
         return executionContext;
     }
 

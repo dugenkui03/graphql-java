@@ -608,7 +608,7 @@ public class GraphQL {
      */
     private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput, Document document, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
         /**
-         * 根据执行策略、拆箱器构造 Execution对象
+         * 执行策略、拆箱器构造 Execution对象
          */
         Execution execution = new Execution(queryStrategy, mutationStrategy, subscriptionStrategy, instrumentation, valueUnboxer);
         ExecutionId executionId = executionInput.getExecutionId();

@@ -30,6 +30,9 @@ import static graphql.execution.TypeFromAST.getTypeFromAST;
 @Internal
 public class FieldCollector {
 
+    /**
+     * todo :重要skip和include指令的实现类
+     */
     private final ConditionalNodes conditionalNodes = new ConditionalNodes();
 
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, MergedField mergedField) {
@@ -45,12 +48,13 @@ public class FieldCollector {
     }
 
     /**
+     * 字段收集程序
      * Given a selection set this will collect the sub-field selections and return it as a map
      *
-     * @param parameters   the parameters to this method
-     * @param selectionSet the selection set to collect on
+     * @param parameters   the parameters to this method 方法的参数
+     * @param selectionSet the selection set to collect on fixme query最顶层的字段
      *
-     * @return a map of the sub field selections
+     * @return a map of the sub field selections fixme 信息入参数selectionSet都有，但是返回值是另一种类型
      */
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, SelectionSet selectionSet) {
         Map<String, MergedField> subFields = new LinkedHashMap<>();

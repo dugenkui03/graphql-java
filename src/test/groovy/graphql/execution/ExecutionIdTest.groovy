@@ -13,9 +13,9 @@ class ExecutionIdTest extends Specification {
         ExecutionId executionId = null
 
         @Override
-        CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+        CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters) {
             executionId = executionContext.executionId
-            return super.execute(executionContext, parameters)
+            return super.execute(executionContext, strategyParameters)
         }
     }
 

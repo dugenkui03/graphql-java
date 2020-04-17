@@ -47,49 +47,47 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
     }
 
     /**
-     *fixme:  对每个字段都是异步执行的
-     *        执行策略的全局入口：执行字段的取值和转换
+     * fixme:   执行策略的全局入口，传递要查询的字段(fields, not field definetion)，并且获取其值
      *
-     * @param executionContext contains the top level execution parameters  执行上下文
-     * @param parameters       contains the parameters holding the fields to be executed and source object 持有要解析的字段和父类返回值
+     * @param executionContext 执行上下文
+     * @param strategyParameters 传递给执行策略的参数
      *
-     * @return
-     * @throws NonNullableFieldWasNullException
+     * @throws NonNullableFieldWasNullException 如果有non-null字段解析为null，则跑异常、data返回null
      */
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
-    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
+    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
         /**
-         * 1. instrument记录执行上下文、要解析的字段和父类返回值；
-         * 2. 获取要执行的字段；
-         * 3.
+         * InstrumentationContext，策略参数instrument
          */
-        //instrument
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, parameters);
+        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
-        //获取要解析的field？
-        MergedSelectionSet fields = parameters.getFields();
+        /**
+         * 本次执行查询的字段
+         */
+        MergedSelectionSet fields = strategyParameters.getFields();
 
-        //被解析的字段名称和保存结果的feture
+        /**
+         * 中间对象：被解析的字段名称和保存结果的feture
+         */
         List<String> resolvedFields = new ArrayList<>();
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
 
-        //遍历子实体:subFields.keySet()
+        //遍历每个字段
         for(String fieldName:fields.keySet()){
-            //获取子实体对应的对象<String_fieldName,MergedField_fieldInfo>
+            //获取某个字段集合，所谓的集合就是同一类型的、可以merge的字段集合
             MergedField currentField = fields.getSubField(fieldName);
 
-            //Field field = currentField.get(0);
-            //return field.getAlias() != null ? field.getAlias() : field.getName();
+            //查询字段集中第一个字段的别名
             String nameForCurrentField = mkNameForPath(currentField);
-            ExecutionPath fieldPath = parameters.getPath().segment(nameForCurrentField);
+            ExecutionPath fieldPath = strategyParameters.getPath().segment(nameForCurrentField);
 
             //策略参数
             ExecutionStrategyParameters newParameters =
                     //fxime：我看懂了，将parameters的当前字段、字段路径和参数设置为所求值
-                    parameters.transform(builder -> builder.field(currentField).path(fieldPath).parent(parameters));
+                    strategyParameters.transform(builder -> builder.field(currentField).path(fieldPath).parent(strategyParameters));
 
 
             CompletableFuture<FieldValueInfo> future;

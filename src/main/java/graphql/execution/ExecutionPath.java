@@ -128,14 +128,7 @@ public class ExecutionPath {
         return rootPath;
     }
 
-    /**
-     * fixme 将list对象转换为 ExecutionPath
-     *
-     * This will create an execution path from the list of objects
-     *
-     * @param objects the path objects
-     * @return a new execution path
-     */
+    //fixme 将list对象转换为 ExecutionPath，并返回新的执行路径
     public static ExecutionPath fromList(List<?> objects) {
         assertNotNull(objects);
         ExecutionPath rootPath = ExecutionPath.rootPath();
@@ -154,11 +147,10 @@ public class ExecutionPath {
     }
 
     /**
-     * 获取当前路径、并添加一个新的"片段"进去
-     * Takes the current path and adds a new segment to it, returning a new path
+     * 获取当前路径、并添加一个新的"片段"进去(Takes the current path and adds a new segment to it, returning a new path)
      *
-     * @param segment the string path segment to add 要添加的String segment
-     * @return a new path containing that segment
+     * @param segment 要添加的String segment
+     * @return 返回包含这个片段的路径。
      */
     public ExecutionPath segment(String segment) {
         return new ExecutionPath(this, new StringPathSegment(segment));
@@ -167,18 +159,14 @@ public class ExecutionPath {
     /**
      * Takes the current path and adds a new segment to it, returning a new path
      *
-     * @param segment the int path segment to add
-     * @return a new path containing that segment
+     * @param segment  segment添加的int路径
+     * @return 返回包含该片段的新路径
      */
     public ExecutionPath segment(int segment) {
         return new ExecutionPath(this, new IntPathSegment(segment));
     }
 
-    /**
-     * Drops the last segment off the path
-     *
-     * @return a new path with the last segment dropped off
-     */
+    //去掉最后一个segment @return 删除了最后一段路径的Path
     public ExecutionPath dropSegment() {
         if (this == rootPath()) {
             return null;

@@ -5,6 +5,7 @@ import graphql.Internal;
 
 /**
  * 如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException
+ *
  * This will check that a value is non null when the type definition says it must be and it will throw {@link NonNullableFieldWasNullException}
  * if this is not the case.
  *
