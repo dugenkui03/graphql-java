@@ -115,9 +115,7 @@ public class ExecutionStepInfo {
     }
 
     /**
-     * This returns the type which is unwrapped if it was {@link GraphQLNonNull} wrapped
-     *
-     * @return the graphql type in question
+     * 如果类型用{@link GraphQLNonNull}包装，则获取其被包装的类型，所谓类型即 GraphQLOutputType type 变量
      */
     public GraphQLOutputType getUnwrappedNonNullType() {
         return (GraphQLOutputType) GraphQLTypeUtil.unwrapNonNull(this.type);

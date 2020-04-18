@@ -65,7 +65,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
         /**
-         * 本次执行查询的字段
+         * 本次执行查询的字段 TODO 是所有的字段、还是单层字段
          */
         MergedSelectionSet fields = strategyParameters.getFields();
 
@@ -79,29 +79,27 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         for(String fieldName:fields.keySet()){
             //获取某个字段集合，所谓的集合就是同一类型的、可以merge的字段集合
             MergedField currentField = fields.getSubField(fieldName);
-
             //查询字段集中第一个字段的别名
             String nameForCurrentField = mkNameForPath(currentField);
+            //获取当前路径、并添加一个新的"片段"进去
             ExecutionPath fieldPath = strategyParameters.getPath().segment(nameForCurrentField);
-
             //策略参数
-            ExecutionStrategyParameters newParameters =
-                    //fxime：我看懂了，将parameters的当前字段、字段路径和参数设置为所求值
+            ExecutionStrategyParameters newStrategyParameters =
                     strategyParameters.transform(builder -> builder.field(currentField).path(fieldPath).parent(strategyParameters));
 
 
             CompletableFuture<FieldValueInfo> future;
-
+            //fixme 不是延迟字段：调用dataFetcher和解析字段值，都在resolveFieldWithInfo中
+            if (!isDeferred(executionContext, newStrategyParameters, currentField)) {
+                future = resolveFieldWithInfo(executionContext, newStrategyParameters);
+            }
             // 如果当前字段是延迟字段，获取控制FieldValueInfo
-            if (isDeferred(executionContext, newParameters, currentField)) {
+            else {
                 executionStrategyCtx.onDeferredField(currentField);
                 //获取 ExecutionContext 和 ExecutionStrategyParameters 对应的空值FieldValueInfo
-                future = resolveFieldWithInfoToNull(executionContext, newParameters);
+                future = resolveFieldWithInfoToNull(executionContext, newStrategyParameters);
             }
-            //当前字段不是延迟字段，fixme 调用dataFetcher和解析字段值，都在resolveFieldWithInfo中
-            else {
-                future = resolveFieldWithInfo(executionContext, newParameters);
-            }
+
             //添加被解析的字段名称和保存结果的feture
             resolvedFields.add(fieldName);
             futures.add(future);

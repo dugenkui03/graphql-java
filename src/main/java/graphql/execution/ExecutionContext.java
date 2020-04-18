@@ -42,7 +42,15 @@ public class ExecutionContext {
     private final Object root;
     private final Object context;
     private final Instrumentation instrumentation;
+
+    //===================================start of 返回值上下文=======================================
+    /**
+     * 保存各个dataFetcher返回的GraphQL错误；
+     */
     private final List<GraphQLError> errors = new CopyOnWriteArrayList<>();
+    //===================================end of 返回值上下文=======================================
+
+
     private final Set<ExecutionPath> errorPaths = new HashSet<>();
     private final DataLoaderRegistry dataLoaderRegistry;
     private final CacheControl cacheControl;

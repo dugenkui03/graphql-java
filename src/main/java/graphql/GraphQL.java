@@ -107,7 +107,7 @@ public class GraphQL {
     private final ExecutionIdProvider idProvider;
 
     /**
-     * 默认使用dataLoaderInstrumentation
+     * 默认使用dataLoaderInstrumentation fixme 如果异步执行、则instrument的状态必须是线程安全的
      *
      * 自定义的instrument即使是ChainedInstrumentation的、也要包含dataLoaderInstrumentation。
      * 逻辑在builder中的checkInstrumentationDefaultState()中

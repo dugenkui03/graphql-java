@@ -26,6 +26,7 @@ public class ExecutionStrategyParameters {
     private final MergedField currentField;
     private final int listSize;
     private final int currentListIndex;
+    //todo parent是个什么鬼
     private final ExecutionStrategyParameters parent;
     private final DeferredErrorSupport deferredErrorSupport;
 

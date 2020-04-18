@@ -194,25 +194,38 @@ public abstract class ExecutionStrategy {
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
     protected CompletableFuture<FieldValueInfo> resolveFieldWithInfo(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+        /**
+         * fixme 1. 获取字段对应的字段类型定义：名称、类型、dataFetcher、参数和指令等。
+         */
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext, parameters, parameters.getField().getSingleField());
 
+        /**
+         * fixme 2. instrument fieldFetcher
+         */
+        //获取全局instrument
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationContext<ExecutionResult> fieldCtx = instrumentation.beginField(
-                new InstrumentationFieldParameters(executionContext, fieldDef, createExecutionStepInfo(executionContext, parameters, fieldDef, null))
-        );
+        //构造InstrumentationFieldParameters并返回上下文
+        ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, null);
+        InstrumentationFieldParameters instrumentationFieldParameters = new InstrumentationFieldParameters(executionContext, fieldDef, executionStepInfo);
+        InstrumentationContext<ExecutionResult> fieldCtx = instrumentation.beginField(instrumentationFieldParameters);
 
         /**
-         * 获取解析字段的异步包装
+         * fixme 3. fetchField 获取解析字段的异步包装
          */
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
+
         /**
-         * thenApply将CompletableFuture<T>转换成CompletableFuture<U>，相当于stream的map操作
+         * fixme 4. 根据字段的类型获取
          */
         CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply(fetchedValue ->
-                completeField(executionContext, parameters, fetchedValue));
+                completeField(executionContext, parameters, fetchedValue)
+        );
 
         CompletableFuture<ExecutionResult> executionResultFuture = result.thenCompose(FieldValueInfo::getFieldValue);
 
+        /**
+         * fixme 5. 处理该字段的最终结果
+         */
         fieldCtx.onDispatched(executionResultFuture);
         executionResultFuture.whenComplete(fieldCtx::onCompleted);
         return result;
@@ -229,9 +242,10 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * 调用DataFetcher获取某个字段的值——现在已经解析dsl、入参数、类型转换等；
-     * Called to fetch a value for a field from the {@link DataFetcher} associated with the field
-     * {@link GraphQLFieldDefinition}.
+     * fixme
+     *      1. 调用dataFetcher获取该字段(parameters.getField())对应的值；
+     *      2.
+     *
      * <p>
      *     片段表示任何一个逻辑字段，可以有多个字段值。
      * Graphql fragments mean that for any give logical field can have one or more {@link Field} values associated with it
@@ -313,74 +327,62 @@ public abstract class ExecutionStrategy {
          * 执行 codeToRunOnDispatch.accept(result)
          */
         fetchCtx.onDispatched(fetchedValue);
-        return fetchedValue
-                .handle((result, exception) -> {
-
-                    /**
-                     * 执行 codeToRunOnComplete.accept(result, t)
-                     * 这里可以对结果和异常进行记录
-                     */
+        return fetchedValue.handle((result, exception) -> {
                     fetchCtx.onCompleted(result, exception);
-
-                    /**
-                     * 如果dataFetcher抛异常
-                     */
+                    //如果dataFetcher抛异常，则将异常信息放到执行上下文executionContext中、并返回null
                     if (exception != null) {
-                        //如果是异常，则将异常信息放到执行上下文executionContext中
                         handleFetchingException(executionContext, parameters, fetchingEnv, exception);
                         return null;
-                    } else {
-                        //如果是结果，则直接返回结果、并在thenApply中拆箱
+                    }
+                    //如果dataFetcher正常、则在thenApply中进一步处理
+                    else {
                         return result;
                     }
                 })
                 .thenApply(result -> unboxPossibleDataFetcherResult(executionContext, parameters, result));
     }
 
+
+    /**
+     * fixme: dataFetcher返回结果分为DataFetcherResult和其他，其中DataFetcherResult能够记录父字段执行上下文和错误。
+     *      1. 可以直接在自定义的PropertyProperty中使用表达式获取值；
+     * @param executionContext 执行上下文，此处记录执行过程中dataFetcher的异常信息；
+     * @param strategyParameters 执行策略参数
+     * @param result dataFetcher返回的值
+     * @return 对dataFetcher返回结果的封装，包括：dataFetcher原声返回结果、拆箱值、传递给孩子的上下文、该fetcher的错误信息；
+     */
     FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
-                                                ExecutionStrategyParameters parameters,
+                                                ExecutionStrategyParameters strategyParameters,
                                                 Object result) {
-        /**
-         * 如果是DataFetcherResult：data、errors、localContext、mapRelativeErrors
-         */
         if (result instanceof DataFetcherResult) {
-            /**
-             * 根据参数决定是否对错误进行映射转换：补全字段路径、在查询中的位置等；然后将错误放到执行上下文中
-             */
             DataFetcherResult<?> dataFetcherResult = (DataFetcherResult) result;
+            //fixme isMapRelativeErrors的作用是是否对结果进行封装、默认false：补全字段路径、在查询中的位置等
             if (dataFetcherResult.isMapRelativeErrors()) {
-                dataFetcherResult.getErrors().stream()
-                        .map(relError -> new AbsoluteGraphQLError(parameters, relError))
-                        .forEach(executionContext::addError);
+                dataFetcherResult.getErrors().stream().map(relError -> new AbsoluteGraphQLError(strategyParameters, relError)).forEach(executionContext::addError);
             } else {
                 dataFetcherResult.getErrors().forEach(executionContext::addError);
             }
 
             /**
-             * localContext可保留父字段的执行上下文信息。<p></p>
-             *
+             * 当返回结果是DataFetcherResult时，localContext可保留父字段的执行上下文信息；
              * 如果这个字段没有设置localContext，则获取其父亲的localContext传递给子实体。
              */
             Object localContext = dataFetcherResult.getLocalContext();
             if (localContext == null) {
                 // if the field returns nothing then they get the context of their parent field
-                localContext = parameters.getLocalContext();
+                localContext = strategyParameters.getLocalContext();
             }
             return FetchedValue.newFetchedValue()
-                    //拆箱后的值
                     .fetchedValue(executionContext.getValueUnboxer().unbox(dataFetcherResult.getData()))
-                    //未拆箱的值
                     .rawFetchedValue(dataFetcherResult.getData())
-                    //错误
                     .errors(dataFetcherResult.getErrors())
-                    //localContext上下文
                     .localContext(localContext)
                     .build();
         } else {
             return FetchedValue.newFetchedValue()
                     .fetchedValue(executionContext.getValueUnboxer().unbox(result))
                     .rawFetchedValue(result)
-                    .localContext(parameters.getLocalContext())
+                    .localContext(strategyParameters.getLocalContext())
                     .build();
         }
     }
@@ -822,27 +824,23 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * Called to discover the field definition give the current parameters and the AST {@link Field}
+     * 根据抽象语法树节点{@link Field}、执行策略和执行上下文、获取要查询的字段定义{@link GraphQLFieldDefinition}。TODO 很重要啊、将field对应到field definetion上
      *
-     * @param executionContext contains the top level execution parameters
-     * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param field            the field to find the definition of
-     *
-     * @return a {@link GraphQLFieldDefinition}
+     * @return a field definition：名称、类型、dataFetcher、参数和指令等。
      */
-    protected GraphQLFieldDefinition getFieldDef(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Field field) {
-        GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
+    protected GraphQLFieldDefinition getFieldDef(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters, Field field) {
+        // todo  GraphQLObjectType代表field的父类型？
+        GraphQLObjectType parentType = (GraphQLObjectType) strategyParameters.getExecutionStepInfo().getUnwrappedNonNullType();
         return getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
     }
 
     /**
-     * Called to discover the field definition give the current parameters and the AST {@link Field}
+     * 根据schema、AST节点{@link Field}和 GraphQLObjectType获取字段定义。
      *
-     * @param schema     the schema in play
-     * @param parentType the parent type of the field
+     * @param parentType todo the parent type of the field GraphQLObjectType代表field的父类型？
      * @param field      the field to find the definition of
      *
-     * @return a {@link GraphQLFieldDefinition}
+     * @return a {@link GraphQLFieldDefinition} a field definition：名称、类型、dataFetcher、参数和指令等。
      */
     protected GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLObjectType parentType, Field field) {
         return Introspection.getFieldDef(schema, parentType, field.getName());

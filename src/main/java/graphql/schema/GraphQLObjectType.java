@@ -28,6 +28,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
+ * fixme graphql的主干类型。
  * This is the work horse type and represents an object with one or more field values that can be retrieved
  * by the graphql system.
  *
@@ -39,10 +40,11 @@ import static java.util.Collections.unmodifiableList;
 @PublicApi
 public class GraphQLObjectType implements GraphQLNamedOutputType, GraphQLFieldsContainer, GraphQLCompositeType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLDirectiveContainer {
 
-
+    //类型名称：schema类型定义名称
     private final String name;
     private final String description;
     private final Comparator<? super GraphQLSchemaElement> interfaceComparator;
+    //包含的字段名称到字段类型的定义
     private final Map<String, GraphQLFieldDefinition> fieldDefinitionsByName = new LinkedHashMap<>();
     private final List<GraphQLNamedOutputType> originalInterfaces;
     private final List<GraphQLDirective> directives;

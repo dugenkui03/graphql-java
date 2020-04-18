@@ -561,14 +561,14 @@ public class Introspection {
     }
 
     /**
-     * This will look up a field definition by name, and understand that fields like __typename and __schema are special
-     * and take precedence in field resolution
+     * 获取parentType中名称为fieldName的字段定义。
+     * understand that fields like __typename and __schema are special and take precedence in field resolution
      *
-     * @param schema     the schema to use
-     * @param parentType the type of the parent object
-     * @param fieldName  the field to look up
+     * @param schema     the schema to use ：schema
+     * @param parentType the type of the parent object：该字段所在的类型
+     * @param fieldName  the field to look up 字段名称
      *
-     * @return a field definition otherwise throws an assertion exception if its null
+     * @return a field definition：名称、类型、dataFetcher、参数和指令等。
      */
     public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
 
