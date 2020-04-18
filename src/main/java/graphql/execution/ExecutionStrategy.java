@@ -877,11 +877,16 @@ public abstract class ExecutionStrategy {
     /**
      * 将执行上下文、执行结果和异常信息构造成ExecutionResult——字段为空时？
      */
-    protected ExecutionResult handleNonNullException(
-            ExecutionContext executionContext, CompletableFuture<ExecutionResult> result, Throwable e) {
-        //获取执行上下文的错误信息
-        List<GraphQLError> errors = new ArrayList<>(executionContext.getErrors());
+    protected ExecutionResult handleNonNullException(ExecutionContext executionContext,
+                                                     CompletableFuture<ExecutionResult> result,
+                                                     Throwable e) {
+        //获取执行上下文中已经有的错误信息
+        List<GraphQLError> oldGraphQLErrors = new ArrayList<>(executionContext.getErrors());
+
+        //方法返回值
         ExecutionResult executionResult = null;
+
+        //dataFetcher异常
         Throwable underlyingException = e;
         if (e instanceof CompletionException) {
             underlyingException = e.getCause();
@@ -890,7 +895,7 @@ public abstract class ExecutionStrategy {
         if (underlyingException instanceof NonNullableFieldWasNullException) {
             assertNonNullFieldPrecondition((NonNullableFieldWasNullException) underlyingException, result);
             if (!result.isDone()) {
-                executionResult = new ExecutionResultImpl(null, errors);
+                executionResult = new ExecutionResultImpl(null, oldGraphQLErrors);
                 result.complete(executionResult);
             }
         } else if (underlyingException instanceof AbortExecutionException) {

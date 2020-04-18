@@ -24,8 +24,7 @@ import java.util.stream.Collectors;
 import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
 
 /**
- * fixme: 异步非阻塞 执行策略
- * The standard graphql execution strategy that runs fields asynchronously non-blocking.
+ * fixme: 异步非阻塞执行策略 this extends AbstractAsyncExecutionStrategy extends ExecutionStrategy
  */
 public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
@@ -65,7 +64,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
         /**
-         * 本次执行查询的字段 TODO 是所有的字段、还是单层字段
+         * 本次执行查询的字段 TODO 是单层字段
          */
         MergedSelectionSet fields = strategyParameters.getFields();
 
@@ -109,11 +108,10 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         executionStrategyCtx.onDispatched(overallResult);
 
         Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
-            /**
-             * 构造处理函数
-             */
+
+            //定义结果处理函数
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer =
-                    //执行上下文、解析的属性名称和保存所有结果的CompletableFuture
+                    //fixme handleResults方法定义了一个函数： void accept(T t, U u);
                     handleResults(executionContext, resolvedFields, overallResult);
 
             /**

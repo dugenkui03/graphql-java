@@ -1,5 +1,6 @@
 package graphql
 
+import graphql.parser.Parser
 import spock.lang.Specification
 
 class SkipAndInclude extends Specification {
@@ -17,12 +18,23 @@ class SkipAndInclude extends Specification {
 
     def "@skip and @include"() {
         when:
+            String str=
+                    '''
+                    //夸实体指令的json定义方式
+                    query @spanCal(arg : "{\\"ext1\\":\\"fieldx+fieldy\\"}" ){
+                        fieldx
+                        fieldy
+                    }
+                    '''
+        print(str)
+        def document=new Parser().parseDocument(str);
+
         def executionInput = ExecutionInput.newExecutionInput()
                 .query('''
                     query QueryWithSkipAndInclude($skip: Boolean!, $include: Boolean!,$arg: Int!) {
                         field @skip(if: $skip) @include(if: $include)
                         fieldY(x:$arg)
-                    }   
+                    }@aviator(exp=\"a+b\",valueKey=\"sum\"")   
                     ''')
                 .variables([skip: skip, include: include])
                 .build()

@@ -12,20 +12,27 @@ import java.util.function.BiConsumer;
 
 public abstract class AbstractAsyncExecutionStrategy extends ExecutionStrategy {
 
-    public AbstractAsyncExecutionStrategy() {
-    }
-
     public AbstractAsyncExecutionStrategy(DataFetcherExceptionHandler dataFetcherExceptionHandler) {
         super(dataFetcherExceptionHandler);
     }
 
+
     /**
-     * 处理结果
+     * 定义处理dataFetcher结果的函数：void accept(T t, U u);
+     *
+     * @param executionContext 执行上下文
+     * @param fieldNames 这一层处理的所有字段名称
+     * @param overallResult 刚刚进来的时候是空的，上层定义： CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
+     * @return 定义的BiConsumer函数： void accept(T t, U u);
      */
-    protected BiConsumer<List<ExecutionResult>, Throwable> handleResults(ExecutionContext executionContext, List<String> fieldNames, CompletableFuture<ExecutionResult> overallResult) {
-        //void accept(T t, U u)处理两个参数且不返回数据：参数分别是处理结果和异常信息
+    protected BiConsumer<List<ExecutionResult>, Throwable> handleResults(ExecutionContext executionContext,
+                                                                         List<String> fieldNames,
+                                                                         CompletableFuture<ExecutionResult> overallResult) {
+
         return (List<ExecutionResult> results, Throwable exception) -> {
-            //如果包含异常，则直接处理异常并返回
+            /**
+             * 如果包含异常，则直接处理异常并返回
+             */
             if (exception != null) {
                 handleNonNullException(executionContext, overallResult, exception);
                 return;
