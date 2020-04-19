@@ -41,7 +41,7 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
      * 字段描述，紧跟在字段或者实体定义上，用#描述的注释。必须紧跟着被注释的内容、有一行空格都不行
      */
     private final String description;//
-    //字段原始类型
+    //字段类型
     private final GraphQLOutputType originalType;
     //字段对应的dataFetcher
     private final DataFetcherFactory dataFetcherFactory;
@@ -53,7 +53,7 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
     private final List<GraphQLDirective> directives;
     //字段定义
     private final FieldDefinition definition;
-    //？
+    //字段返回类型?
     private GraphQLOutputType replacedType;
 
     public static final String CHILD_ARGUMENTS = "arguments";

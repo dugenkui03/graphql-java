@@ -11,9 +11,6 @@ import java.util.Set;
 
 public class DirectiveRuler implements SchemaValidationRule {
 
-    /**
-     * 检查指令名称是否是以"__"开始的，名称是全局唯一的
-     */
     @Override
     public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
         List<GraphQLDirective> directives = schema.getDirectives();
@@ -38,15 +35,5 @@ public class DirectiveRuler implements SchemaValidationRule {
             }
             directivesName.add(directiveName);
         }
-    }
-
-    @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-
     }
 }

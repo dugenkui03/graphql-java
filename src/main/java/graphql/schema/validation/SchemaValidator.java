@@ -28,9 +28,6 @@ import java.util.Set;
 @Internal
 public class SchemaValidator {
 
-    /**
-     * 加载所有的类型系统校验规则
-     */
     private List<SchemaValidationRule> rules = new ArrayList<>();
     public SchemaValidator() {
         rules.add(new NonNullInputObjectCyclesRuler());
@@ -39,7 +36,6 @@ public class SchemaValidator {
         rules.add(new FieldDefinitionRuler());
     }
 
-    //构造函数
     SchemaValidator(List<SchemaValidationRule> rules) {
         this.rules = rules;
     }
@@ -49,64 +45,14 @@ public class SchemaValidator {
         return rules;
     }
 
-    /**
-     * fixme：入口：构造GraphQLSchema对象的时候调用，验证此schame的合法性
-     */
     public Set<SchemaValidationError> validateSchema(GraphQLSchema schema) {
-        //错误收集器
         SchemaValidationErrorCollector validationErrorCollector = new SchemaValidationErrorCollector();
 
-        visit(schema,validationErrorCollector);
-
-        //返回所有错误
-        return validationErrorCollector.getErrors();
-    }
-
-    private void visit(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
         for (SchemaValidationRule rule : rules) {
             rule.check(schema,validationErrorCollector);
         }
 
-//        /**
-//         * fixme 遍历检查
-//         */
-        traverseCheck(schema, validationErrorCollector);
+        return validationErrorCollector.getErrors();
     }
 
-    private void traverseCheck(GraphQLSchema schema,SchemaValidationErrorCollector validationErrorCollector){
-        if(schema.isSupportingQuery()){
-            traverse(schema.getQueryType(), validationErrorCollector);
-        }
-        //是否支持更改
-        if (schema.isSupportingMutations()) {
-            traverse(schema.getMutationType(),  validationErrorCollector);
-        }
-        //是否支持订阅
-        if (schema.isSupportingSubscriptions()) {
-            traverse(schema.getSubscriptionType(),validationErrorCollector);
-        }
-    }
-
-
-    /**
-     * 该类型是否已经处理过：TODO 在完全搞清楚这里的代码之前，千万不要动这块逻辑。
-     */
-    private final Set<GraphQLOutputType> processed = new LinkedHashSet<>();
-
-    private void traverse(GraphQLOutputType root, SchemaValidationErrorCollector validationErrorCollector) {
-        if (processed.contains(root)) {
-            return;
-        }
-        processed.add(root);
-        if (root instanceof GraphQLFieldsContainer) {
-            // this deliberately has open field visibility here since its validating the schema
-            // when completely open
-            for (GraphQLFieldDefinition fieldDefinition : ((GraphQLFieldsContainer) root).getFieldDefinitions()) {
-                for (SchemaValidationRule rule : rules) {
-                    rule.check(fieldDefinition, validationErrorCollector);
-                }
-                traverse(fieldDefinition.getType(), validationErrorCollector);
-            }
-        }
-    }
 }

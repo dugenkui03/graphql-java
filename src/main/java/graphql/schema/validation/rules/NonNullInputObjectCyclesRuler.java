@@ -16,35 +16,46 @@ import static graphql.schema.GraphQLTypeUtil.unwrapAll;
 
 /**
  * fixme 确保的是参数对象里边的非空字段不形成递归，可为空的不检测。
- * <p>
- * Schema validation rule ensuring no input type forms an unbroken non-nullable recursion,
- * as such a type would be impossible to satisfy
  */
 public class NonNullInputObjectCyclesRuler implements SchemaValidationRule {
 
     @Override
     public void check(GraphQLSchema schema, SchemaValidationErrorCollector validationErrorCollector) {
-
+        if(schema.isSupportingQuery()){
+            traverse(schema.getQueryType(), validationErrorCollector);
+        }
+        //是否支持更改
+        if (schema.isSupportingMutations()) {
+            traverse(schema.getMutationType(),  validationErrorCollector);
+        }
+        //是否支持订阅
+        if (schema.isSupportingSubscriptions()) {
+            traverse(schema.getSubscriptionType(),validationErrorCollector);
+        }
     }
 
-    @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
+    private final Set<GraphQLOutputType> processed = new LinkedHashSet<>();
 
+    private void traverse(GraphQLOutputType root, SchemaValidationErrorCollector validationErrorCollector) {
+        if (processed.contains(root)) {
+            return;
+        }
+        processed.add(root);
+        if (root instanceof GraphQLFieldsContainer) {
+//            遍历字段定义，然后应用每个规则
+            for (GraphQLFieldDefinition fieldDefinition : ((GraphQLFieldsContainer) root).getFieldDefinitions()) {
+                checkFieldDefinition(fieldDefinition, validationErrorCollector);
+                traverse(fieldDefinition.getType(), validationErrorCollector);
+            }
+        }
     }
 
-    @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-        /**
-         * 获取该类型的参数
-         */
+    public void checkFieldDefinition(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
+
         for (GraphQLArgument argument : fieldDef.getArguments()) {
-            /**
-             * 获取参数类型
-             */
+
             GraphQLInputType argumentType = argument.getType();
-            /**
-             * 如果参数类型是自定义对象——mutation更新时用
-             */
+
             if (argumentType instanceof GraphQLInputObjectType) {
                 GraphQLInputObjectType inputType = (GraphQLInputObjectType) argumentType;
                 List<String> traversedPath = new ArrayList<>();
@@ -54,27 +65,14 @@ public class NonNullInputObjectCyclesRuler implements SchemaValidationRule {
         }
     }
 
-    /**
-     * @param type                     当前要遍历的type
-     * @param traversedType            已经遍历过的type
-     * @param path                     构造遍历路径用的，错误时打印环
-     * @param validationErrorCollector 错误信息持有器
-     */
     private void traverseInputType(GraphQLInputObjectType type, Set<GraphQLType> traversedType, List<String> path, SchemaValidationErrorCollector validationErrorCollector) {
-        /**
-         * 如果已经包含，则说明有环，则构造错误信息
-         */
         if (traversedType.contains(type)) {
             validationErrorCollector.addError(new SchemaValidationError(SchemaValidationErrorType.UnbrokenInputCycle, getErrorMessage(path)));
             return;
         }
 
-        /**
-         * 入栈
-         */
         traversedType.add(type);
         for (GraphQLInputObjectField field : type.getFieldDefinitions()) {
-            //fixme 重点：只遍历"非空参数"
             if (isNonNull(field.getType())) {
                 GraphQLType unwrappedType = unwrapNonNull((GraphQLNonNull) field.getType());
                 //如果是输入类型
@@ -89,10 +87,6 @@ public class NonNullInputObjectCyclesRuler implements SchemaValidationRule {
         traversedType.remove(type);
     }
 
-    /**
-     * 只关心[type!]!，例如非空list包含非空元素
-     * we only care about [type!]! i.e. non-null lists of non-nulls
-     */
     private GraphQLType unwrapNonNull(GraphQLNonNull type) {
         if (isList(type.getWrappedType())) {
             GraphQLList listType = (GraphQLList) type.getWrappedType();

@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FieldDefinitionRuler implements SchemaValidationRule{
+public class FieldDefinitionRuler implements SchemaValidationRule  {
 
     //后期不使用白名单，而是直接判断是否是内省查询
     private static final Set<String> instrospectionQuery=new HashSet<>();
@@ -27,17 +27,6 @@ public class FieldDefinitionRuler implements SchemaValidationRule{
         List<GraphQLFieldDefinition> fieldDefinitions = rootType.getFieldDefinitions();
         travalGraphQLFieldDefinition(fieldDefinitions,validationErrorCollector);
     }
-
-    @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
-    @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
-
 
     private void travalGraphQLFieldDefinition(List<GraphQLFieldDefinition> fieldDefinitions, SchemaValidationErrorCollector validationErrorCollector) {
         if(fieldDefinitions==null||fieldDefinitions.isEmpty()){

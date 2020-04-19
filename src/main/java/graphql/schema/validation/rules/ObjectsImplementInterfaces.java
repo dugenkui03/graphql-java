@@ -18,20 +18,7 @@ import static java.lang.String.format;
  * Schema validation rule ensuring object types have all the fields that they need to implement the interfaces
  * they say they implement
  */
-public class ObjectsImplementInterfaces implements SchemaValidationRule {
-
-
-    @Override
-    public void check(GraphQLType type, SchemaValidationErrorCollector validationErrorCollector) {
-        if (type instanceof GraphQLObjectType) {
-            checkGraphQLObjectType((GraphQLObjectType) type, validationErrorCollector);
-        }
-    }
-
-    @Override
-    public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {
-
-    }
+public class ObjectsImplementInterfaces implements SchemaValidationRule  {
 
 
     @Override
