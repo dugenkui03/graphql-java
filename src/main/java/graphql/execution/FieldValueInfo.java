@@ -12,7 +12,7 @@ import static graphql.Assert.assertNotNull;
 @PublicApi
 public class FieldValueInfo {
 
-    //对象类型
+    //dataFetcher返回值complete后的值类型
     public enum CompleteValueType {
         OBJECT,
         LIST,

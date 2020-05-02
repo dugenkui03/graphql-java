@@ -35,6 +35,7 @@ public class NonNullableFieldValidator {
      * @throws NonNullableFieldWasNullException if the value is null but the type requires it to be non null
      */
     public <T> T validate(ExecutionPath path, T result) throws NonNullableFieldWasNullException {
+        //如果结果为null且当前字段是非null类型
         if (result == null) {
             if (executionStepInfo.isNonNullType()) {
                 // see http://facebook.github.io/graphql/#sec-Errors-and-Non-Nullability
@@ -48,7 +49,7 @@ public class NonNullableFieldValidator {
                 // Other places in the code base use the addError() that does not care about previous errors on that path being there.
                 //
                 // We will do this until the spec makes this more explicit.
-                //
+                //fixme NonNullableFieldWasNullException是运行时异常
                 NonNullableFieldWasNullException nonNullException = new NonNullableFieldWasNullException(executionStepInfo, path);
                 executionContext.addError(new NonNullableFieldWasNullError(nonNullException), path);
                 throw nonNullException;

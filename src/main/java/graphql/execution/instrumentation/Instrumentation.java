@@ -154,11 +154,11 @@ public interface Instrumentation {
     }
 
     /**
-     * This is called just before the complete field list is started.
+     * fixme：在解析dataFetcher集合类型返回值前调用
      *
-     * @param parameters the parameters to this step
+     * @param parameters
      *
-     * @return a non null {@link InstrumentationContext} object that will be called back when the step ends
+     * @return 返回可回调的Context：遍历完后开始解析前、结束解析后；
      */
     default InstrumentationContext<ExecutionResult> beginFieldListComplete(InstrumentationFieldCompleteParameters parameters) {
         return noOp();

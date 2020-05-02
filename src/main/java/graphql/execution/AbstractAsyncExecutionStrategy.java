@@ -25,7 +25,7 @@ public abstract class AbstractAsyncExecutionStrategy extends ExecutionStrategy {
      * @param overallResult 刚刚进来的时候是空的，上层定义： CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
      * @return 定义的BiConsumer函数： void accept(T t, U u);
      */
-    protected BiConsumer<List<ExecutionResult>, Throwable> handleResults(ExecutionContext executionContext,
+    protected BiConsumer<List<ExecutionResult>, Throwable>   handleResults(ExecutionContext executionContext,
                                                                          List<String> fieldNames,
                                                                          CompletableFuture<ExecutionResult> overallResult) {
 

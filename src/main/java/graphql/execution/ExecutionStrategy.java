@@ -18,19 +18,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldParamete
 import graphql.introspection.Introspection;
 import graphql.language.Argument;
 import graphql.language.Field;
-import graphql.schema.CoercingSerializeException;
-import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.DataFetchingFieldSelectionSet;
-import graphql.schema.DataFetchingFieldSelectionSetImpl;
-import graphql.schema.GraphQLCodeRegistry;
-import graphql.schema.GraphQLEnumType;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLOutputType;
-import graphql.schema.GraphQLScalarType;
-import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLType;
+import graphql.schema.*;
 import graphql.util.FpKit;
 import graphql.util.LogKit;
 import org.slf4j.Logger;
@@ -194,38 +182,23 @@ public abstract class ExecutionStrategy {
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
     protected CompletableFuture<FieldValueInfo> resolveFieldWithInfo(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
-        /**
-         * fixme 1. 获取字段对应的字段类型定义：名称、类型、dataFetcher、参数和指令等。
-         */
+        //fixme 1. instrument fieldFetcher
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext, parameters, parameters.getField().getSingleField());
-
-        /**
-         * fixme 2. instrument fieldFetcher
-         */
-        //获取全局instrument
-        Instrumentation instrumentation = executionContext.getInstrumentation();
-        //构造InstrumentationFieldParameters并返回上下文
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, null);
         InstrumentationFieldParameters instrumentationFieldParameters = new InstrumentationFieldParameters(executionContext, fieldDef, executionStepInfo);
+        Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationContext<ExecutionResult> fieldCtx = instrumentation.beginField(instrumentationFieldParameters);
 
-        /**
-         * fixme 3. fetchField 获取解析字段的异步包装
-         */
+        //fixme 2.fetchField：dataFetcher获取解析字段的异步包装
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
 
-        /**
-         * fixme 4. 根据字段的类型获取
-         */
+        //fixme 3. 解析dataFetcher返回值，如果是复杂对象则会调用execute进行进一步的递归解析
         CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply(fetchedValue ->
                 completeField(executionContext, parameters, fetchedValue)
         );
 
+        //for instrument
         CompletableFuture<ExecutionResult> executionResultFuture = result.thenCompose(FieldValueInfo::getFieldValue);
-
-        /**
-         * fixme 5. 处理该字段的最终结果
-         */
         fieldCtx.onDispatched(executionResultFuture);
         executionResultFuture.whenComplete(fieldCtx::onCompleted);
         return result;
@@ -437,39 +410,34 @@ public abstract class ExecutionStrategy {
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
     protected FieldValueInfo completeField(ExecutionContext executionContext, ExecutionStrategyParameters parameters, FetchedValue fetchedValue) {
-        //返回查询中的第一个字段？
+        //fixme instrumentation方法和completeValue方法使用的相关属性
+        //      1. 查询字段定义；
+        //      2. 当前字段在schema中的定义
+        //      3. 字段父亲类型；
+        //      4. 运行时数据结构
         Field field = parameters.getField().getSingleField();
-//        返回字段的类型
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
-//        返回子第一个字段的定义
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
-//        运行时数据结构
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
-        //        构造beginFieldComplete()方法的参数
-        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchedValue);
-
-//        获取Instrumentation并调用beginFieldComplete方法
+        //fixme 获取全局instrumentation、并调用beginFieldComplete方法，在该字段对应的dataFetcher值解析完成前后、执行回调
+        InstrumentationFieldCompleteParameters instrumentationParams =
+                new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchedValue);
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(instrumentationParams);
 
-        /**
-         * GraphQLCodeRegistry保存有 field关联的DataFetcher
-         */
+        //构建ExecutionStrategyParameters，然后 fixme 计算dataFetcher返回值对应的结果
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());
-
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
-
         ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                 builder.executionStepInfo(executionStepInfo)
                         .arguments(argumentValues)
+                        //fixme 将父亲实体请求值当作子实体的source
                         .source(fetchedValue.getFetchedValue())
                         .localContext(fetchedValue.getLocalContext())
                         .nonNullFieldValidator(nonNullableFieldValidator)
         );
-
-
         FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
 
         CompletableFuture<ExecutionResult> executionResultFuture = fieldValueInfo.getFieldValue();
@@ -501,29 +469,34 @@ public abstract class ExecutionStrategy {
      */
     protected FieldValueInfo completeValue(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
-        //元素1：result
+
+        //获取dataFetcher结果
         Object result = executionContext.getValueUnboxer().unbox(parameters.getSource());
-        //元素2：字段类型
+
+        /**
+         * fixme: 获取字段类型、然后根据类型选择合适的completeValueForXXX方法
+         *      1. null：
+         *      2. 标量和枚举类型：
+         *      3. list：递归调用会该方法，即completeValue
+         *      4. 如果是对象字段，则调用execute、进一步fetch该对象下的所有字段
+         */
         GraphQLType fieldType = executionStepInfo.getUnwrappedNonNullType();
-        //元素3：字段值、list of ExecutionResult——最终的结果也是这个类型
         CompletableFuture<ExecutionResult> fieldValue;
         if (result == null) {
             //如果字段的类型为空，则抛出NonNullableFieldWasNullException异常
             fieldValue = completeValueForNull(parameters);
-            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();//fieldValue 是 ExecutionResult
-        } else if (isList(fieldType)) {
-            return completeValueForList(executionContext, parameters, result);
+            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
         } else if (fieldType instanceof GraphQLScalarType) {
             fieldValue = completeValueForScalar(executionContext, parameters, (GraphQLScalarType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(SCALAR).fieldValue(fieldValue).build();
         } else if (fieldType instanceof GraphQLEnumType) {
             fieldValue = completeValueForEnum(executionContext, parameters, (GraphQLEnumType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(ENUM).fieldValue(fieldValue).build();
+        } else if (isList(fieldType)) {
+            return completeValueForList(executionContext, parameters, result);
         }
 
-        // when we are here, we have a complex type: Interface, Union or Object
-        // and we must go deeper
-        //
+        //代码执行到这里的时候，dataFetcher返回的是一个复杂对象：接口、联合类型或者对象，我们必须进一步递归解析
         GraphQLObjectType resolvedObjectType;
         try {
             resolvedObjectType = resolveType(executionContext, parameters, fieldType);
@@ -605,10 +578,9 @@ public abstract class ExecutionStrategy {
         //获取字段类型
         GraphQLObjectType fieldContainer = parameters.getExecutionStepInfo().getFieldContainer();
 
-        //instrument
+        //instrument：在解析dataFetcher集合类型返回值前调用
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, createExecutionStepInfo(executionContext, parameters, fieldDef, fieldContainer), values);
         Instrumentation instrumentation = executionContext.getInstrumentation();
-
         InstrumentationContext<ExecutionResult> completeListCtx = instrumentation.beginFieldListComplete(instrumentationParams);
 
 
@@ -634,7 +606,8 @@ public abstract class ExecutionStrategy {
                             .path(indexedPath)
                             .source(value.getFetchedValue())
             );
-            //fixme 重点：递归计算list元素
+
+            //循环递归调用了completeValue、单独解析每个元素；
             FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
             fieldValueInfos.add(fieldValueInfo);
             index++;
@@ -667,20 +640,22 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * Called to turn an object into a scalar value according to the {@link GraphQLScalarType} by asking that scalar type to coerce the object
-     * into a valid value
-     *
-     * @param executionContext contains the top level execution parameters
-     * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param scalarType       the type of the scalar
-     * @param result           the result to be coerced
+     * fixme 将dataFetcher返回值转换为response值；
+     * @param executionContext 全局的执行上下文
+     * @param parameters      策略参数，包含：当前执行的字段、source-也就是result啊
+     * @param scalarType       the type of the scalar 字段的标量类型
+     * @param result           the result to be coerced 要被强转的类型
      *
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForScalar(ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLScalarType scalarType, Object result) {
+    protected CompletableFuture<ExecutionResult> completeValueForScalar(
+            ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLScalarType scalarType, Object result) {
         Object serialized;
         try {
-            serialized = scalarType.getCoercing().serialize(result);
+            //获取scalar中负责强转值的内部类：
+            //fixme: serialize： 将dataFetcher获取的结果转换为有效的scalar类型的运行时值。
+            Coercing coercing = scalarType.getCoercing();
+            serialized = coercing.serialize(result);
         } catch (CoercingSerializeException e) {
             serialized = handleCoercionProblem(executionContext, parameters, e);
         }
@@ -690,6 +665,7 @@ public abstract class ExecutionStrategy {
         if (serialized instanceof Double && ((Double) serialized).isNaN()) {
             serialized = null;
         }
+
         try {
             serialized = parameters.getNonNullFieldValidator().validate(parameters.getPath(), serialized);
         } catch (NonNullableFieldWasNullException e) {
@@ -699,6 +675,7 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * 将枚举类型的dataFetcher返回值转换为对应的graphql值
      * Called to turn an object into a enum value according to the {@link GraphQLEnumType} by asking that enum type to coerce the object into a valid value
      *
      * @param executionContext contains the top level execution parameters
@@ -708,7 +685,8 @@ public abstract class ExecutionStrategy {
      *
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForEnum(ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLEnumType enumType, Object result) {
+    protected CompletableFuture<ExecutionResult> completeValueForEnum(
+            ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLEnumType enumType, Object result) {
         Object serialized;
         try {
             serialized = enumType.serialize(result);
@@ -726,16 +704,18 @@ public abstract class ExecutionStrategy {
     /**
      * fixme 调用此方法、见java对象值转换为graphql对象值
      *
-     * @param executionContext   contains the top level execution parameters
-     * @param parameters         contains the parameters holding the fields to be executed and source object
-     * @param resolvedObjectType the resolved object type
-     * @param result             the result to be coerced
+     * @param executionContext   即使递归、也不会变的执行上下文
+     * @param resolvedObjectType 要被解析为的graphql结果类型
+     * @param result             被强转的结果
      *
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForObject(ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLObjectType resolvedObjectType, Object result) {
+    protected CompletableFuture<ExecutionResult> completeValueForObject(ExecutionContext executionContext, ExecutionStrategyParameters parameters,
+                                                                        GraphQLObjectType resolvedObjectType, Object result) {
+        //孩子节点到父节点的层级结构
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
 
+        //字段收集参数
         FieldCollectorParameters collectorParameters = newParameters()
                 .schema(executionContext.getGraphQLSchema())
                 .objectType(resolvedObjectType)
@@ -743,20 +723,25 @@ public abstract class ExecutionStrategy {
                 .variables(executionContext.getVariables())
                 .build();
 
+        //当前字段对应的子字段
         MergedSelectionSet subFields = fieldCollector.collectFields(collectorParameters, parameters.getField());
 
+        //创建ExecutionStepInfo对象：如果返回类型必须是非空的，则将此信息放在newExecutionStepInfo中
         ExecutionStepInfo newExecutionStepInfo = executionStepInfo.changeTypeWithPreservedNonNull(resolvedObjectType);
+
+        //创建非空字段结果验证器
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, newExecutionStepInfo);
 
+        //递归调用的execute参数
         ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                 builder.executionStepInfo(newExecutionStepInfo)
-                        .fields(subFields)
+                        .fields(subFields)//fixme 该层的
                         .nonNullFieldValidator(nonNullableFieldValidator)
                         .source(result)
         );
 
         /**
-         * fixme 递归回了execute方法：从执行上下文回掉，已确保将 更新策略 转换成了查询策略
+         * fixme 递归回了execute方法
          *      Calling this from the executionContext to ensure
          *      we shift back from mutation strategy to the query strategy.
          */

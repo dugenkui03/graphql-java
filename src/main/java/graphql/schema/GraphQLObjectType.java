@@ -44,7 +44,8 @@ public class GraphQLObjectType implements GraphQLNamedOutputType, GraphQLFieldsC
     private final String name;
     private final String description;
     private final Comparator<? super GraphQLSchemaElement> interfaceComparator;
-    //包含的字段名称到字段类型的定义
+
+    //包含的字段名称到字段类型的映射
     private final Map<String, GraphQLFieldDefinition> fieldDefinitionsByName = new LinkedHashMap<>();
     private final List<GraphQLNamedOutputType> originalInterfaces;
     private final List<GraphQLDirective> directives;

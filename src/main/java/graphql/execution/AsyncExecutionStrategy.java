@@ -28,53 +28,37 @@ import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
  */
 public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
-    /**
-     * The standard graphql execution strategy that runs fields asynchronously
-     */
     public AsyncExecutionStrategy() {
         super(new SimpleDataFetcherExceptionHandler());
     }
 
-    /**
-     * 使用给定的异常处理器、创建异步策略
-     * Creates a execution strategy that uses the provided exception handler
-     *
-     * @param exceptionHandler the exception handler to use 使用的异常处理器
-     */
+    //指定异常处理器，处理dataFetcher抛异常的情况
     public AsyncExecutionStrategy(DataFetcherExceptionHandler exceptionHandler) {
         super(exceptionHandler);
     }
 
-    /**
-     * fixme:   执行策略的全局入口，传递要查询的字段(fields, not field definetion)，并且获取其值
-     *
-     * @param executionContext 执行上下文
-     * @param strategyParameters 传递给执行策略的参数
-     *
-     * @throws NonNullableFieldWasNullException 如果有non-null字段解析为null，则跑异常、data返回null
-     */
+    // fixme:   执行策略的全局入口，传递要查询的字段(fields, not field definetion)，并且获取其值
+    // @throws NonNullableFieldWasNullException 如果有non-null字段解析为null，则跑异常、data返回null
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
-        /**
-         * InstrumentationContext，策略参数instrument
-         */
+
+        //fixme 1.instrumentation.beginExecutionStrategy在该层字段策略执行前后调用
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
-        /**
-         * 本次执行查询的字段 TODO 是单层字段
-         */
-        MergedSelectionSet fields = strategyParameters.getFields();
 
         /**
-         * 中间对象：被解析的字段名称和保存结果的feture
+         * fixme 2
+         *      三个对象：该层要fetch的字段名称、fetch结果列表、fetch的字段对象列表；
+         *      遍历每个要fetch的字段，在resolveFieldWithInfo中调用dataFetcher.get()、解析结果-结果如果是复杂对象、则递归回该方法；
          */
+        //中间对象：被解析的字段名称和保存结果的feture； //该层执行的字段，注意、单层的
         List<String> resolvedFields = new ArrayList<>();
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
+        MergedSelectionSet fields = strategyParameters.getFields();
 
-        //遍历每个字段
         for(String fieldName:fields.keySet()){
             //获取某个字段集合，所谓的集合就是同一类型的、可以merge的字段集合
             MergedField currentField = fields.getSubField(fieldName);
@@ -106,27 +90,20 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         executionStrategyCtx.onDispatched(overallResult);
-
         Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
-
-            //定义结果处理函数
+            //定义结果处理dataFetcher结果的函数：void accept(T t, U u);
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer =
-                    //fixme handleResults方法定义了一个函数： void accept(T t, U u);
                     handleResults(executionContext, resolvedFields, overallResult);
 
-            /**
-             * 异常信息不为空、则执行处理函数
-             */
+            //如果包含异常信息、则执行dataFetcher结果处理函数并返回当前字段结果的处理
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
                 return;
             }
 
-            /**
-             * fixme 对每个字段的异步任务做转换
-             */
+            //fixme 对每个字段的异步任务做转换
+            //遍历结果，并对之前保存每个字段异步任务的集合做映射：CompletableFuture<FieldValueInfo> ——> CompletableFuture<ExecutionResult>
             List<CompletableFuture<ExecutionResult>> executionResultFuture =
-                    //遍历结果，并对之前保存每个字段异步任务的集合做映射：CompletableFuture<FieldValueInfo> ——> CompletableFuture<ExecutionResult>
                     completeValueInfos.stream().map(FieldValueInfo::getFieldValue).collect(Collectors.toList());
 
             //instrument
@@ -144,11 +121,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         return overallResult;
     }
 
-    /**
-     * 是否是 延迟字段
-     * @param executionContext 执行上下文
-     * @param parameters 执行策略参数
-     */
+    //是否是 延迟字段
     private boolean isDeferred(ExecutionContext executionContext, ExecutionStrategyParameters parameters, MergedField currentField) {
         DeferSupport deferSupport = executionContext.getDeferSupport();
         if (deferSupport.checkForDeferDirective(currentField, executionContext.getVariables())) {

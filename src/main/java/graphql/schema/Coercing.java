@@ -44,6 +44,8 @@ public interface Coercing<I, O> {
      * @return a serialized value which may be null.
      *
      * @throws graphql.schema.CoercingSerializeException if value input can't be serialized
+     *
+     * fixme: 将dataFetcher获取的结果转换为有效的scalar类型的运行时值。
      */
     O serialize(Object dataFetcherResult) throws CoercingSerializeException;
 
@@ -58,6 +60,8 @@ public interface Coercing<I, O> {
      * @return a parsed value which is never null
      *
      * @throws graphql.schema.CoercingParseValueException if value input can't be parsed
+     *
+     * fixme: 将查询变量转换为java对象、该对象要对应的参数类型
      */
     I parseValue(Object input) throws CoercingParseValueException;
 

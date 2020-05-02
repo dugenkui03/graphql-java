@@ -14,38 +14,30 @@ import static graphql.Assert.assertTrue;
 import static java.lang.String.format;
 
 
-/**
- * fixme 当graphql执行的时候，每个field形成一个从父亲到孩子的层级结构，该路径表示为一系列的segments。
- * todo 似乎是孩子指向父亲的结构
- * As a graphql query is executed, each field forms a hierarchical path from parent field to child field and this
- * class represents that path as a series of segments.
+/**孩子到父亲
+ * fixme：当graphql查询的时候，每个字段都形成了一个从父节点到孩子节点的层级结构——该类将这些层级结构中的路径表示为segment.
  */
 @PublicApi
 public class ExecutionPath {
 
-    /**
-     * fixme 重要：静态私有变量，所有的路径都开始于此。
-     */
+
+    // fixme
+    //      静态私有变量、所以所有的查询都开始于此、而非某一个
+    //      所有的路径都开始于此。
     private static final ExecutionPath ROOT_PATH = new ExecutionPath();
 
-    /**
-     * All paths start from here
-     *
-     * @return the root path
-     */
+    //StringPathSegment和IntPathSegment两个实现类
+    private final PathSegment segment;
+    //ArrayList:父亲到孩子的ArrayList，所谓的父到子也是值这个里边的元素顺序
+    private final List<Object> pathList;
+
+    //指向父亲？是的，参考getLevel()方法
+    private final ExecutionPath parent;
+
+
     public static ExecutionPath rootPath() {
         return ROOT_PATH;
     }
-
-    private final PathSegment segment;
-    //ArrayList:父亲到孩子的 segment list
-    private final List<Object> pathList;
-
-    /**
-     * 重要：指向父亲
-     */
-    private final ExecutionPath parent;
-
 
     private ExecutionPath() {
         parent = null;
@@ -104,7 +96,7 @@ public class ExecutionPath {
      * @return a parsed execution path
      */
     public static ExecutionPath parse(String pathString) {
-//        如果是空
+        //如果是空
         pathString = pathString == null ? "" : pathString.trim();
 
         StringTokenizer st = new StringTokenizer(pathString, "/[]", true);
@@ -170,7 +162,8 @@ public class ExecutionPath {
         return new ExecutionPath(this, new IntPathSegment(segment));
     }
 
-    //去掉最后一个segment @return 删除了最后一段路径的Path
+    // 去掉最后一个segment；fixme: 不就是获取父ExecutionPath嘛
+    // @return 删除了最后一段路径的Path
     public ExecutionPath dropSegment() {
         if (this == rootPath()) {
             return null;
@@ -179,8 +172,8 @@ public class ExecutionPath {
     }
 
     /**
-     * Replaces the last segment on the path eg ExecutionPath.parse("/a/b[1]").replaceSegment(9)
-     * equals "/a/b[9]"
+     * fixme 使用新值替换当前ExecutionPath对象路径上的最后一个segment
+     * Replaces the last segment on the path eg ExecutionPath.parse("/a/b[1]").replaceSegment(9) equals "/a/b[9]"
      *
      * @param segment the integer segment to use
      * @return a new path with the last segment replaced
@@ -256,11 +249,10 @@ public class ExecutionPath {
         return new ArrayList<>(pathList);
     }
 
-    /**
-     *
-     * @return
-     */
+
+    //fixme 从最顶层的父亲节点指向当前节点的ArrayList：顺序从父亲节点开始；
     private List<Object> toListImpl() {
+        //如果指向的父亲节点为空，则返回空列表
         if (parent == null) {
             return Collections.emptyList();
         }

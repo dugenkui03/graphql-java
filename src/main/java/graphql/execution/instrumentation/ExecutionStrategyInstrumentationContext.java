@@ -8,11 +8,8 @@ import java.util.List;
 
 public interface ExecutionStrategyInstrumentationContext extends InstrumentationContext<ExecutionResult> {
 
-    default void onFieldValuesInfo(List<FieldValueInfo> fieldValueInfoList) {
+    default void onFieldValuesInfo(List<FieldValueInfo> fieldValueInfoList) { }
 
-    }
-
-    default void onDeferredField(MergedField field) {
-
-    }
+    //deferredField回调函数
+    default void onDeferredField(MergedField field) { }
 }

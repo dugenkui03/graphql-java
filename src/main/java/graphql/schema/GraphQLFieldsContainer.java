@@ -6,7 +6,7 @@ import java.util.List;
 
 
 /**
- * Types that can contain output fields are marked with this interface
+ * 可以包含输出字段的类型、都要用次接口进行标识
  *
  * @see graphql.schema.GraphQLObjectType
  * @see graphql.schema.GraphQLInterfaceType

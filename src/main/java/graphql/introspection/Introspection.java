@@ -561,7 +561,8 @@ public class Introspection {
     }
 
     /**
-     * 获取parentType中名称为fieldName的字段定义。
+     * fixme 获取该schema中parentType中名称为fieldName的字段定义；
+     *
      * understand that fields like __typename and __schema are special and take precedence in field resolution
      *
      * @param schema     the schema to use ：schema
@@ -572,7 +573,12 @@ public class Introspection {
      */
     public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
 
+        /**
+         * 如果是内省类型
+         */
+        //如果schema中的查询类型是parentType
         if (schema.getQueryType() == parentType) {
+            //如果字段名称是__schema或者__type，则返回对应的内省类型
             if (fieldName.equals(SchemaMetaFieldDef.getName())) {
                 return SchemaMetaFieldDef;
             }
@@ -580,12 +586,15 @@ public class Introspection {
                 return TypeMetaFieldDef;
             }
         }
+        //__typename
         if (fieldName.equals(TypeNameMetaFieldDef.getName())) {
             return TypeNameMetaFieldDef;
         }
 
+
         assertTrue(parentType instanceof GraphQLFieldsContainer, "should not happen : parent type must be an object or interface %s", parentType);
         GraphQLFieldsContainer fieldsContainer = (GraphQLFieldsContainer) parentType;
+        //最终使用到了GraphQLObjectType中 fieldName到FieldDefiniiton的映射map
         GraphQLFieldDefinition fieldDefinition = schema.getCodeRegistry().getFieldVisibility().getFieldDefinition(fieldsContainer, fieldName);
         Assert.assertTrue(fieldDefinition != null, "Unknown field '%s'", fieldName);
         return fieldDefinition;

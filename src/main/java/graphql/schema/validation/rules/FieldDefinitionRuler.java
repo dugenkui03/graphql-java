@@ -40,25 +40,25 @@ public class FieldDefinitionRuler implements SchemaValidationRule{
 
 
     private void travalGraphQLFieldDefinition(List<GraphQLFieldDefinition> fieldDefinitions, SchemaValidationErrorCollector validationErrorCollector) {
-        if(fieldDefinitions==null||fieldDefinitions.isEmpty()){
-            return;
-        }
-
-        for (GraphQLFieldDefinition fieldDefinition : fieldDefinitions) {
-            String fieldDefinitionName = fieldDefinition.getName();
-            if(fieldDefinitionName.length()>=2&&fieldDefinitionName.startsWith("__")){
-                SchemaValidationError schemaValidationError= new SchemaValidationError(SchemaValidationErrorType.FieldDefinitionError,
-                        String.format("Field \"%s\" must not begin with \"__\", which is reserved by GraphQL introspection.",fieldDefinitionName));
-                validationErrorCollector.addError(schemaValidationError);
-            }
-
-            GraphQLOutputType type = fieldDefinition.getType();
-            GraphQLUnmodifiedType graphQLUnmodifiedType = GraphQLTypeUtil.unwrapAll(type);
-            if(graphQLUnmodifiedType instanceof GraphQLObjectType){
-                List<GraphQLFieldDefinition> subFieldDefinitions = ((GraphQLObjectType) graphQLUnmodifiedType).getFieldDefinitions();
-                travalGraphQLFieldDefinition(subFieldDefinitions,validationErrorCollector);
-            }
-        }
+//        if(fieldDefinitions==null||fieldDefinitions.isEmpty()){
+//            return;
+//        }
+//
+//        for (GraphQLFieldDefinition fieldDefinition : fieldDefinitions) {
+//            String fieldDefinitionName = fieldDefinition.getName();
+//            if(fieldDefinitionName.length()>=2&&fieldDefinitionName.startsWith("__")){
+//                SchemaValidationError schemaValidationError= new SchemaValidationError(SchemaValidationErrorType.FieldDefinitionError,
+//                        String.format("Field \"%s\" must not begin with \"__\", which is reserved by GraphQL introspection.",fieldDefinitionName));
+//                validationErrorCollector.addError(schemaValidationError);
+//            }
+//
+//            GraphQLOutputType type = fieldDefinition.getType();
+//            GraphQLUnmodifiedType graphQLUnmodifiedType = GraphQLTypeUtil.unwrapAll(type);
+//            if(graphQLUnmodifiedType instanceof GraphQLObjectType){
+//                List<GraphQLFieldDefinition> subFieldDefinitions = ((GraphQLObjectType) graphQLUnmodifiedType).getFieldDefinitions();
+//                travalGraphQLFieldDefinition(subFieldDefinitions,validationErrorCollector);
+//            }
+//        }
 
     }
 }
