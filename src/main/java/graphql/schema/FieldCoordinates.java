@@ -8,6 +8,8 @@ import static graphql.Assert.assertTrue;
 import static graphql.Assert.assertValidName;
 
 /**
+ * 字段坐标：类型.名称：
+ *
  * A field in graphql is uniquely located within a parent type and hence code elements
  * like {@link graphql.schema.DataFetcher} need to be specified using those coordinates.
  */

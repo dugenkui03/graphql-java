@@ -29,20 +29,31 @@ import static graphql.schema.SchemaElementChildrenContainer.newSchemaElementChil
 import static graphql.util.NodeZipper.ModificationType.REPLACE;
 
 /**
+ * 修改schema对象
+ *
  * Transforms a {@link GraphQLSchema} object.
  */
 @PublicApi
 public class SchemaTransformer {
 
-    // artificial schema element which serves as root element for the transformation
+    /**
+     * fixme 手动的schema元素、作为转换操作的根元素
+     *
+     * artificial schema element which serves as root element for the transformation
+     */
     private static class DummyRoot implements GraphQLSchemaElement {
 
+        //查询、更新、订阅
         static final String QUERY = "query";
         static final String MUTATION = "mutation";
         static final String SUBSCRIPTION = "subscription";
+
+        //添加类型、指令、内省
         static final String ADD_TYPES = "addTypes";
         static final String DIRECTIVES = "directives";
         static final String INTROSPECTION = "introspection";
+
+
         GraphQLSchema schema;
 
         GraphQLObjectType query;

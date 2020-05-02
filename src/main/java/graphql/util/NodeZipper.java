@@ -12,10 +12,17 @@ import java.util.function.Function;
 
 import static graphql.Assert.assertNotNull;
 
+/**
+ * Node拉链？
+ * @param <T>
+ */
 @PublicApi
 public class NodeZipper<T> {
 
 
+    /**
+     * 修正类型：替换、删除、后边插入、前边插入；
+     */
     public enum ModificationType {
         REPLACE,
         DELETE,

@@ -14,13 +14,15 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
+ * fixme 允许你遍历一个节点树
  * Lets you traverse a {@link Node} tree.
  */
 @PublicApi
 public class NodeTraverser {
 
-
+    //根变量？
     private final Map<Class<?>, Object> rootVars;
+    //函数：对孩子节点进行操作？
     private final Function<? super Node, ? extends List<Node>> getChildren;
 
     public NodeTraverser(Map<Class<?>, Object> rootVars, Function<? super Node, ? extends List<Node>> getChildren) {
@@ -34,28 +36,33 @@ public class NodeTraverser {
 
 
     /**
+     * 深度优先遍历、进出阶段？
      * depthFirst traversal with a enter/leave phase.
      *
-     * @param nodeVisitor the visitor of the nodes
-     * @param root        the root node
+     * @param nodeVisitor the visitor of the nodes 节点的访问者
+     * @param root        the root node 根节点
      *
-     * @return the accumulation result of this traversal
+     * @return the accumulation result of this traversal 节点访问累计的结果
      */
     public Object depthFirst(NodeVisitor nodeVisitor, Node root) {
+        //Collections.singleton：返回一个不会变的、只有一个节点的Set
         return depthFirst(nodeVisitor, Collections.singleton(root));
     }
 
     /**
      * depthFirst traversal with a enter/leave phase.
      *
-     * @param nodeVisitor the visitor of the nodes
-     * @param roots       the root nodes
+     * @param nodeVisitor the visitor of the nodes 节点访问者
+     * @param roots       the root nodes 根节点
      *
      * @return the accumulation result of this traversal
      */
     public Object depthFirst(NodeVisitor nodeVisitor, Collection<? extends Node> roots) {
-        TraverserVisitor<Node> nodeTraverserVisitor = new TraverserVisitor<Node>() {
 
+        /**
+         * fixme 定义进出该节点的回调方法
+         */
+        TraverserVisitor<Node> nodeTraverserVisitor = new TraverserVisitor<Node>() {
             @Override
             public TraversalControl enter(TraverserContext<Node> context) {
                 return context.thisNode().accept(context, nodeVisitor);
@@ -143,7 +150,11 @@ public class NodeTraverser {
         return doTraverse(roots, nodeTraverserVisitor);
     }
 
+    /**
+     * depthFirst -> doTraverse:
+     */
     private Object doTraverse(Collection<? extends Node> roots, TraverserVisitor traverserVisitor) {
+
         Traverser<Node> nodeTraverser = Traverser.depthFirst(this.getChildren);
         nodeTraverser.rootVars(rootVars);
         return nodeTraverser.traverse(roots, traverserVisitor).getAccumulatedResult();

@@ -59,10 +59,14 @@ public class ExecutionPath {
         pathList = toListImpl();
     }
 
+    /**
+     * 当前字段的层级：自顶乡下
+     */
     public int getLevel() {
         int counter = 0;
         ExecutionPath currentPath = this;
         while (currentPath != null) {
+            //todo 为啥只有StringPathSegment才可以counter++
             if (currentPath.segment instanceof StringPathSegment) {
                 counter++;
             }

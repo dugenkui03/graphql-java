@@ -5,6 +5,7 @@ package graphql.execution.instrumentation.dataloader;
  */
 public class DataLoaderDispatcherInstrumentationOptions {
 
+    //是否包含统计信息
     private final boolean includeStatistics;
 
     private DataLoaderDispatcherInstrumentationOptions(boolean includeStatistics) {

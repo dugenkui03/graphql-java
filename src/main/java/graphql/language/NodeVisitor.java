@@ -5,6 +5,7 @@ import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 /**
+ * fixme：在NodeTraverse中被用来 访问节点
  * Used by {@link NodeTraverser} to visit {@link Node}.
  */
 @PublicApi

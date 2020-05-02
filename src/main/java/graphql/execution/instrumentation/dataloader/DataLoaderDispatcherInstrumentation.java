@@ -31,13 +31,20 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * fixme
+ *      当每一个级别的查询执行时、该Instrumentation将会派遣所有的DataLoader
+ *
  * This graphql {@link graphql.execution.instrumentation.Instrumentation} will dispatch
  * all the contained {@link org.dataloader.DataLoader}s when each level of the graphql
  * query is executed.
  * <p>
+ *
+ * fixme 允许你在dataLoader中使用dataload来优化数据的加载
+ *
  * This allows you to use {@link org.dataloader.DataLoader}s in your {@link graphql.schema.DataFetcher}s
  * to optimal loading of data.
  * <p>
+ *     fixme 该instrument是GrapQL的默认instrument；
  * A DataLoaderDispatcherInstrumentation will be automatically added to the {@link graphql.GraphQL}
  * instrumentation list if one is not present.
  *
@@ -51,22 +58,20 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
     private final DataLoaderDispatcherInstrumentationOptions options;
 
     /**
+     *  //默认不包含统计信息
      * Creates a DataLoaderDispatcherInstrumentation with the default options
      */
     public DataLoaderDispatcherInstrumentation() {
         this(DataLoaderDispatcherInstrumentationOptions.newOptions());
     }
 
-    /**
-     * Creates a DataLoaderDispatcherInstrumentation with the specified options
-     *
-     * @param options the options to control the behaviour
-     */
+    //使用指定的选项创建Instrumentation
     public DataLoaderDispatcherInstrumentation(DataLoaderDispatcherInstrumentationOptions options) {
         this.options = options;
     }
 
 
+    //fixme InstrumentationCreateStateParameters：包含schema和输入信息
     @Override
     public InstrumentationState createState(InstrumentationCreateStateParameters parameters) {
         return new DataLoaderDispatcherInstrumentationState(log, parameters.getExecutionInput().getDataLoaderRegistry());
@@ -75,6 +80,7 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
     @Override
     public DataFetcher<?> instrumentDataFetcher(DataFetcher<?> dataFetcher, InstrumentationFieldFetchParameters parameters) {
         DataLoaderDispatcherInstrumentationState state = parameters.getInstrumentationState();
+        //默认值为true，所以在这里返回
         if (state.isAggressivelyBatching()) {
             return dataFetcher;
         }
@@ -89,6 +95,9 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
         };
     }
 
+    /**
+     * 立即派遣
+     */
     private void immediatelyDispatch(DataLoaderDispatcherInstrumentationState state) {
         state.getApproach().dispatch();
     }
@@ -167,12 +176,11 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
     @Override
     public InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters) {
         DataLoaderDispatcherInstrumentationState state = parameters.getInstrumentationState();
-        //
-        // if there are no data loaders, there is nothing to do
-        //
+        //如果没有dataloader、则直接返回、什么都不用做
         if (state.hasNoDataLoaders()) {
             return new SimpleInstrumentationContext<>();
         }
+        //如果使用了dataloader
         return state.getApproach().beginFieldFetch(parameters.withNewState(state.getState()));
     }
 

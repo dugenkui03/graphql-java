@@ -27,17 +27,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * 通过"字段层级跟踪"使得数据加载器更加高效
+ * fixme 通过"字段层级跟踪"使得数据加载器更加高效
  *
  * This approach uses field level tracking to achieve its aims of making the data loader more efficient
  */
 @Internal
 public class FieldLevelTrackingApproach {
-    private final Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier;
+
     private final Logger log;
 
-    private static class CallStack implements InstrumentationState {
+    //Supplier  T get()：提供dataLoader注册器的工具
+    private final Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier;
 
+    private static class CallStack implements InstrumentationState {
+        /**
+         * 翻译：
+         *      期望的每一层 获取count
+         *      每一层的fetchCount
+         *
+         */
         private final Map<Integer, Integer> expectedFetchCountPerLevel = new LinkedHashMap<>();
         private final Map<Integer, Integer> fetchCountPerLevel = new LinkedHashMap<>();
         private final Map<Integer, Integer> expectedStrategyCallsPerLevel = new LinkedHashMap<>();
@@ -52,11 +60,18 @@ public class FieldLevelTrackingApproach {
         }
 
 
+        /**
+         * 增加期望的当前层级要执行的字段数量
+         */
         int increaseExpectedFetchCount(int level, int count) {
             expectedFetchCountPerLevel.put(level, expectedFetchCountPerLevel.getOrDefault(level, 0) + count);
             return expectedFetchCountPerLevel.get(level);
         }
 
+
+        /**
+         * @param level fixme: 当前字段的层级数
+         */
         void increaseFetchCount(int level) {
             fetchCountPerLevel.put(level, fetchCountPerLevel.getOrDefault(level, 0) + 1);
         }
@@ -81,6 +96,9 @@ public class FieldLevelTrackingApproach {
             return Objects.equals(happenedOnFieldValueCallsPerLevel.get(level), expectedStrategyCallsPerLevel.get(level));
         }
 
+        /**
+         * 当前层级所有的fetcher都执行过了？：实际执行过的fetch和期望执行的fetche
+         */
         boolean allFetchesHappened(int level) {
             return Objects.equals(fetchCountPerLevel.get(level), expectedFetchCountPerLevel.get(level));
         }
@@ -97,6 +115,7 @@ public class FieldLevelTrackingApproach {
                     '}';
         }
 
+        //如如果当前层级没有派遣过，则进行派遣
         public boolean dispatchIfNotDispatchedBefore(int level) {
             if (dispatchedLevels.contains(level)) {
                 Assert.assertShouldNeverHappen("level " + level + " already dispatched");
@@ -237,12 +256,22 @@ public class FieldLevelTrackingApproach {
         };
     }
 
+    /**
+     * fixme 做了什么事情呢？
+     *      1. 获取状态记录器
+     */
     public InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters) {
+        //获取状态记录器：日志、dataloader注册器等
         CallStack callStack = parameters.getInstrumentationState();
-        ExecutionPath path = parameters.getEnvironment().getExecutionStepInfo().getPath();
-        int level = path.getLevel();
-        return new InstrumentationContext<Object>() {
 
+        //通过DataFetchingEnvironment获取ExecutionPath-字段间的父子结构
+        ExecutionPath path = parameters.getEnvironment().getExecutionStepInfo().getPath();
+
+        //当前字段的层级：自顶乡下
+        int level = path.getLevel();
+
+        //回调函数：
+        return new InstrumentationContext<Object>() {
             @Override
             public void onDispatched(CompletableFuture result) {
                 boolean dispatchNeeded;
@@ -273,9 +302,8 @@ public class FieldLevelTrackingApproach {
         return false;
     }
 
-    //
+    // fixme 准备离开？线程安全的异步调用；第1层级是特殊的层级：只有一个策略调用
     // thread safety : called with synchronised(callStack)
-    //
     private boolean levelReady(CallStack callStack, int level) {
         if (level == 1) {
             // level 1 is special: there is only one strategy call and that's it
@@ -288,12 +316,21 @@ public class FieldLevelTrackingApproach {
         return false;
     }
 
+
+    /**
+     * 调用注册器中的所有dataloader
+     */
     void dispatch() {
+        //获取dataloader注册器
         DataLoaderRegistry dataLoaderRegistry = getDataLoaderRegistry();
         log.debug("Dispatching data loaders ({})", dataLoaderRegistry.getKeys());
+        //派遣该dataloader注册器中所有的dataloader
         dataLoaderRegistry.dispatchAll();
     }
 
+    /**
+     * 获取dataloader注册器
+     */
     private DataLoaderRegistry getDataLoaderRegistry() {
         return dataLoaderRegistrySupplier.get();
     }

@@ -2,6 +2,7 @@ package graphql.util;
 
 import graphql.Internal;
 
+//
 @Internal
 public interface TraverserVisitor<T> {
 
@@ -20,6 +21,8 @@ public interface TraverserVisitor<T> {
     TraversalControl leave(TraverserContext<T> context);
 
     /**
+     * 当一个节点已经被访问的时候、调用该方法，所谓节点已经被访问是指：有环、节点有超过一个以上的父节点、这表示该schema是个图、而非树；
+     *
      * This method is called when a node was already visited before.
      *
      * This can happen for two reasons:

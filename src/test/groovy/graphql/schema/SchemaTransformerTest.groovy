@@ -349,6 +349,9 @@ type SubChildChanged {
 
     }
 
+    /**
+     * fixme 动态修改某个节点的能力
+     */
     def "transformed schema can be executed"() {
 
         given:

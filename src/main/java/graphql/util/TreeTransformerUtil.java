@@ -11,7 +11,7 @@ import static graphql.Assert.assertTrue;
 public class TreeTransformerUtil {
 
     /**
-     * 可以被多次调用来修改上下文中的当前节点，最新的一次调用生效。
+     * fixme 可以被多次调用来修改上下文中的当前节点，最新的一次调用生效。
      *
      * <p></p>
      * Can be called multiple times to change the current node of the context. The latest call wins

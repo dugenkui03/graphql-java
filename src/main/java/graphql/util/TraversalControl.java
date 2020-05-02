@@ -3,6 +3,7 @@ package graphql.util;
 import graphql.PublicApi;
 
 /**
+ * fixme 编辑控制值：继续、推出、中断
  * Special traversal control values
  */
 @PublicApi

@@ -151,6 +151,8 @@ public interface TraverserContext<T> {
     <S> S getVarFromParents(Class<? super S> key);
 
     /**
+     * 存储上下文中的变量
+     *
      * Stores a variable in the context
      *
      * @param <S>   type of a varable
@@ -227,6 +229,8 @@ public interface TraverserContext<T> {
     Phase getPhase();
 
     /**
+     * 便利操作是否并行发生在多个线程
+     *
      * If the traversing happens in parallel (multi threaded) or not.
      *
      * @return

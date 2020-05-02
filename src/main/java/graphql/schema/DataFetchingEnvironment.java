@@ -196,6 +196,8 @@ public interface DataFetchingEnvironment {
     QueryDirectives getQueryDirectives();
 
     /**
+     * 从DataLoaderRegistry中获取指定名称的dataloader；
+     *
      * This allows you to retrieve a named dataloader from the underlying {@link org.dataloader.DataLoaderRegistry}
      *
      * @param dataLoaderName the name of the data loader to fetch

@@ -13,16 +13,26 @@ import static graphql.Assert.assertNotNull;
 import static graphql.Assert.assertNull;
 import static graphql.Assert.assertTrue;
 
+/**
+ * 默认的遍历上下文；
+ */
 @Internal
 public class DefaultTraverserContext<T> implements TraverserContext<T> {
 
+    //当前节点
     private final T curNode;
+    //新字段？
     private T newNode;
+    //删除字段？
     private boolean nodeDeleted;
 
+    //父类型的遍历上下文
     private final TraverserContext<T> parent;
+    //是否已经被遍历
     private final Set<T> visited;
+    //变量？
     private final Map<Class<?>, Object> vars;
+    //共享的内容数据
     private final Object sharedContextData;
 
     private Object newAccValue;

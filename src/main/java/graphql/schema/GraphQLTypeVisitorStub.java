@@ -7,6 +7,8 @@ import graphql.util.TraverserContext;
 import static graphql.util.TraversalControl.CONTINUE;
 
 /**
+ * GraphQLTypeVisitor基本实现，
+ *
  * Base implementation of {@link GraphQLTypeVisitor} for convenience.
  * Overwrite only required methods and/or {@link #visitGraphQLType(GraphQLSchemaElement, TraverserContext)} as default fallback.
  */
