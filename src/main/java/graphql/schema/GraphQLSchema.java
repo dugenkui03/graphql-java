@@ -48,6 +48,9 @@ public class GraphQLSchema {
     private final SchemaDefinition definition;
     private final List<SchemaExtensionDefinition> extensionDefinitions;
 
+    /**
+     * fixme GraphQLCodeRegistry:field关联的DataFetcher
+     */
     private final GraphQLCodeRegistry codeRegistry;
 
     private final Map<String, GraphQLNamedType> typeMap;

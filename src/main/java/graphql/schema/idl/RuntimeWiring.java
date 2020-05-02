@@ -209,8 +209,8 @@ public class RuntimeWiring {
         /**
          * This form allows a lambda to be used as the builder of a type wiring
          *
-         * @param typeName        the name of the type to wire
-         * @param builderFunction a function that will be given the builder to use
+         * @param typeName        the name of the type to wire fixme 需要绑定字段所在的类型名称
+         * @param builderFunction a function that will be given the builder to use fixme 包含了要绑定的字段key、fetcher和线程池
          *
          * @return the runtime wiring builder
          */

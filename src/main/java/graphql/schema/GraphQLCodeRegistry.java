@@ -28,7 +28,9 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
  */
 @PublicApi
 public class GraphQLCodeRegistry {
-    //字段坐标对应的datafetcher
+    /**
+     * 字段及其对应的fetcher
+     */
     private final Map<FieldCoordinates, DataFetcherFactory> dataFetcherMap;
     //字段名称对应的datafetcher
     private final Map<String, DataFetcherFactory> systemDataFetcherMap;

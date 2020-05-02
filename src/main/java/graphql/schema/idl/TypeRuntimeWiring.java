@@ -11,6 +11,10 @@ import java.util.function.UnaryOperator;
 import static graphql.Assert.assertNotNull;
 
 /**
+ *  fixme
+ *      类型的wiring是对于给定的类型名称的所使用的dataFetcher和类型解析器的说明规范；
+ *      RuntimeWiring使用它来将GraphQLSchema函数连接在一起。
+ *
  * A type runtime wiring is a specification of the data fetchers and possible type resolver for a given type name.
  *
  * This is used by {@link RuntimeWiring} to wire together a functional {@link GraphQLSchema}
@@ -75,10 +79,15 @@ public class TypeRuntimeWiring {
     }
 
     public static class Builder {
+        //该type的field所使用的dataFetcher<fieldKey,dataFetcher>
         private final Map<String, DataFetcher> fieldDataFetchers = new LinkedHashMap<>();
+        //type类型名称
         private String typeName;
+        //默认使用的dataFetcher
         private DataFetcher defaultDataFetcher;
+
         private TypeResolver typeResolver;
+
         private EnumValuesProvider enumValuesProvider;
 
         /**
