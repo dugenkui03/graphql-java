@@ -52,8 +52,15 @@ import static graphql.schema.GraphQLTypeUtil.simplePrint;
 
 @PublicApi
 public class Introspection {
+    /**
+     * 内省dataFetcher?
+     * <字段坐标,对应的DataFetcher>
+     */
     private static final Map<FieldCoordinates, DataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
 
+    /**
+     * 注册一个字段对应的dataFetcher
+     */
     private static void register(GraphQLFieldsContainer parentType, String fieldName, DataFetcher dataFetcher) {
         introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), dataFetcher);
     }

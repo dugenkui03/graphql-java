@@ -236,6 +236,7 @@ public class Execution {
 
         //所有的查询都以此路径为起点
         ExecutionPath rootPath = ExecutionPath.rootPath();
+        //todo 非常重要、父亲类型
         ExecutionStepInfo executionStepInfo = newExecutionStepInfo().type(operationRootType).path(rootPath).build();
         //如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException、并且返回值data是null
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);

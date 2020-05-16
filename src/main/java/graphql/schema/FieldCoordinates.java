@@ -15,7 +15,9 @@ import static graphql.Assert.assertValidName;
  */
 @PublicApi
 public class FieldCoordinates {
-
+    /**
+     * 字段坐标：类型、名称
+     */
     private final String typeName;
     private final String fieldName;
 

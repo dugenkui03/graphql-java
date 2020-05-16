@@ -10,10 +10,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ *
+ * fixme
+ *      字段收集器参数
+ *      内部接口，因为调用这个类的FieldCollector是内部接口。
+ *
  * Internal because FieldCollector is internal.
  */
 @Internal
 public class FieldCollectorParameters {
+    /**
+     * fixme schema、片段定义map、变量和对象类型
+     */
     private final GraphQLSchema graphQLSchema;
     private final Map<String, FragmentDefinition> fragmentsByName;
     private final Map<String, Object> variables;
