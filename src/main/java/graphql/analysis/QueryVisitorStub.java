@@ -2,6 +2,7 @@ package graphql.analysis;
 
 import graphql.PublicApi;
 
+//查询访问者，空操作，方便使用
 @PublicApi
 public class QueryVisitorStub implements QueryVisitor {
 

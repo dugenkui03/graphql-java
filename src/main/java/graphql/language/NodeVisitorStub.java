@@ -5,6 +5,10 @@ import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 /**
+ * fixme
+ *      NodeVisitor的简单实现，为了让其子类根据需要在实现不同的方法
+ *      默认返回TraversalControl.CONTINUE
+ *
  * Convenient implementation of {@link NodeVisitor} for easy subclassing methods handling different types of Nodes in one method.
  */
 @PublicApi
@@ -209,6 +213,7 @@ public class NodeVisitorStub implements NodeVisitor {
     protected TraversalControl visitType(Type<?> node, TraverserContext<Node> context) {
         return visitNode(node, context);
     }
+
 
     protected TraversalControl visitNode(Node node, TraverserContext<Node> context) {
         return TraversalControl.CONTINUE;

@@ -17,26 +17,69 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER;
 
 /**
+ * fixme 用来便利、转换Document的工具类。
+ *
  * Helps to transform a Document (or parts of it) and tracks at the same time the corresponding Schema types.
  * <p>
+ *
+ * fixme 和仅仅遍历文档的区别是，每一个字段都有一个明确的类型信息。
+ *
  * This is an important distinction to just traversing the Document without any type information: Each field has a clearly
  * defined type. See {@link QueryVisitorFieldEnvironment}.
  * <p>
+ * fixme 此外，skip和include指令会自动评估。
  * Furthermore are the built in Directives skip/include automatically evaluated: if parts of the Document should be ignored they will not
  * be visited. But this is not a full evaluation of a Query: every fragment will be visited/followed regardless of the type condition.
  * <p>
- * It also doesn't consider field merging, which means for example {@code { user{firstName} user{firstName}} } will result in four
- * visitField calls.
+ * fixme 此外，并不会考虑到字段被merge的情况，因此如下情况会导致4次visit(合理，因为不同的field可能参数不同)
+ * It also doesn't consider field merging, which means for example
+ *
+ * <pre>
+ * {@code
+ *  {
+ *      user{
+ *          firstName
+ *      }
+ *
+ *      user{
+ *          firstName
+ *      }
+ *  } }
+ * </pre>
+ * will result in four visitField calls.
  */
 @PublicApi
 public class QueryTransformer {
 
+    /**
+     * 遍历document的时候，这个就是Document、见builder方法；Document也是Node
+     * <pre>
+     * {@code
+     *     QueryTransformer createQueryTransformer(Document document, GraphQLSchema schema, Map variables = [:]) {
+     *         def fragments = NodeUtil.getFragmentsByName(document)
+     *         QueryTransformer queryTransformer = QueryTransformer.newQueryTransformer()
+     *                 .schema(schema)
+     *                 .fragmentsByName(fragments)
+     *                 .root(document)
+     *                 .variables(variables)
+     *                 .rootParentType(schema.getQueryType())
+     *                 .build()
+     *         return queryTransformer
+     *     }
+     * }
+     * </pre>
+     */
     private final Node root;
+
+    //schema
     private final GraphQLSchema schema;
-    private final Map<String, FragmentDefinition> fragmentsByName;
+
+    //fixme 因为skip和include会被自动评估，因此最好把相应的变量值设置为true
     private final Map<String, Object> variables;
 
     private final GraphQLCompositeType rootParentType;
+
+    private final Map<String, FragmentDefinition> fragmentsByName;
 
 
     private QueryTransformer(GraphQLSchema schema,
@@ -51,6 +94,7 @@ public class QueryTransformer {
         this.fragmentsByName = assertNotNull(fragmentsByName, "fragmentsByName can't be null");
     }
 
+
     /**
      * Visits the Document in pre-order and allows to transform it using {@link graphql.util.TreeTransformerUtil}
      * methods. Please note that fragment spreads are not followed and need to be
@@ -63,7 +107,15 @@ public class QueryTransformer {
      * @throws IllegalArgumentException if there are multiple root nodes.
      */
     public Node transform(QueryVisitor queryVisitor) {
+        //空操作：访问字段、片段、内联片段
         QueryVisitor noOp = new QueryVisitorStub();
+
+        //提供有关受访问节点的类型信息
+        /**
+         * 继承自NodeVisitor——对类型系统的访问
+         *
+         * QueryVisitor是对查询文档的访问
+         */
         NodeVisitorWithTypeTracking nodeVisitor = new NodeVisitorWithTypeTracking(queryVisitor, noOp, variables, schema, fragmentsByName);
 
         Map<Class<?>, Object> rootVars = new LinkedHashMap<>();

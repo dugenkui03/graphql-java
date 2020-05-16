@@ -10,6 +10,7 @@ import graphql.util.TraverserContext;
  */
 @PublicApi
 public interface NodeVisitor {
+
     TraversalControl visitArgument(Argument node, TraverserContext<Node> data);
 
     TraversalControl visitArrayValue(ArrayValue node, TraverserContext<Node> data);

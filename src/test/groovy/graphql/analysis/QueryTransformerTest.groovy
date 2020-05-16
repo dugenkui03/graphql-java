@@ -61,6 +61,9 @@ class QueryTransformerTest extends Specification {
             }
         """)
 
+    /**
+     * todo 很有用，遍历一个文档、并找到每个字段对应的类型信息。但是datafetcher信息必须在schema中找
+     */
     def "transform query rename query fields based on type information "() {
         def query = TestUtil.parseQuery("{ root { fooA { midA { leafA } midB { leafB } } fooB { midA { leafA } midB { leafB } } } }")
 

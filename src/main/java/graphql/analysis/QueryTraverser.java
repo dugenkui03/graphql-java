@@ -23,11 +23,18 @@ import static graphql.Assert.assertShouldNeverHappen;
 import static java.util.Collections.singletonList;
 
 /**
+ * fixme：
+ *      协助遍历一个文档、并且提供了field对应的类型信息，类型信息参考 See {@link QueryVisitorFieldEnvironment}
+ *
  * Helps to traverse (or reduce) a Document (or parts of it) and tracks at the same time the corresponding Schema types.
- * <p>
  * This is an important distinction to just traversing the Document without any type information: Each field has a clearly
  * defined type. See {@link QueryVisitorFieldEnvironment}.
  * <p>
+ *
+ * fixme:
+ *      此外，skip和include指令会自动评估；
+ *      并不会考虑到字段被merge的情况，因此如下情况会导致4次visit(合理，因为不同的field可能参数不同)
+ *
  * Furthermore are the built in Directives skip/include automatically evaluated: if parts of the Document should be ignored they will not
  * be visited. But this is not a full evaluation of a Query: every fragment will be visited/followed regardless of the type condition.
  * <p>
@@ -37,13 +44,18 @@ import static java.util.Collections.singletonList;
 @PublicApi
 public class QueryTraverser {
 
+    //根结点
     private final Collection<? extends Node> roots;
     private final GraphQLSchema schema;
     private final Map<String, FragmentDefinition> fragmentsByName;
+
+    //fixme 因为skip和include会被自动评估，因此最好把相应的变量值设置为true
     private final Map<String, Object> variables;
 
     private final GraphQLCompositeType rootParentType;
 
+
+    //参考builder中将Document作为参数的使用
     private QueryTraverser(GraphQLSchema schema,
                            Document document,
                            String operation,
@@ -70,6 +82,7 @@ public class QueryTraverser {
         this.fragmentsByName = assertNotNull(fragmentsByName, "fragmentsByName can't be null");
     }
 
+    //深度优先遍历
     public Object visitDepthFirst(QueryVisitor queryVisitor) {
         return visitImpl(queryVisitor, null);
     }
@@ -158,6 +171,12 @@ public class QueryTraverser {
         return singletonList(fragmentsByName.get(fragmentSpread.getName()));
     }
 
+    /**
+     * 遍历一个查询文档的具体实现
+     * @param visitFieldCallback
+     * @param preOrder 深度优先非为前序遍历、后序遍历和中序遍历
+     * @return
+     */
     private Object visitImpl(QueryVisitor visitFieldCallback, Boolean preOrder) {
         Map<Class<?>, Object> rootVars = new LinkedHashMap<>();
         rootVars.put(QueryTraversalContext.class, new QueryTraversalContext(rootParentType, null, null));
@@ -168,6 +187,7 @@ public class QueryTraverser {
             preOrderCallback = visitFieldCallback;
             postOrderCallback = visitFieldCallback;
         } else {
+            //no operation
             QueryVisitor noOp = new QueryVisitorStub();
             preOrderCallback = preOrder ? visitFieldCallback : noOp;
             postOrderCallback = !preOrder ? visitFieldCallback : noOp;

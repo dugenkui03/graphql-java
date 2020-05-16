@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * fixme 允许你遍历一个节点树
+ * fixme 允许你遍历类型节点树
  * Lets you traverse a {@link Node} tree.
  */
 @PublicApi

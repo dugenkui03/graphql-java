@@ -27,6 +27,7 @@ import graphql.schema.GraphQLUnmodifiedType;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
+import java.util.List;
 import java.util.Map;
 
 import static graphql.Assert.assertNotNull;
@@ -34,20 +35,27 @@ import static graphql.schema.GraphQLTypeUtil.unwrapAll;
 import static graphql.util.TraverserContext.Phase.LEAVE;
 
 /**
- * Internally used node visitor which delegates to a {@link QueryVisitor} with type
- * information about the visited field.
+ * fixme 提供有关受访问节点的类型信息
+ *
+ * Internally used node visitor which delegates to a {@link QueryVisitor} with type information about the visited field.
  */
 @Internal
 public class NodeVisitorWithTypeTracking extends NodeVisitorStub {
 
-
     private final QueryVisitor preOrderCallback;
     private final QueryVisitor postOrderCallback;
-    private final Map<String, Object> variables;
-    private final GraphQLSchema schema;
-    private final Map<String, FragmentDefinition> fragmentsByName;
 
+    //变量
+    private final Map<String, Object> variables;
+    //片段
+    private final Map<String, FragmentDefinition> fragmentsByName;
+    //shcema
+    private final GraphQLSchema schema;
+
+    //include指令和skip指令的实现
     private final ConditionalNodes conditionalNodes = new ConditionalNodes();
+
+    //不同概念类型之间的强制转换
     private final ValuesResolver valuesResolver = new ValuesResolver();
 
 
@@ -145,13 +153,41 @@ public class NodeVisitorWithTypeTracking extends NodeVisitorStub {
 
     @Override
     public TraversalControl visitField(Field field, TraverserContext<Node> context) {
+
+        /**
+         * 获取上下文变量，从第一个父亲开始超着是否命中该key对应的value，一直追寻其祖父
+         *
+         * 详情见 {@link graphql.util.DefaultTraverserContext#getVarFromParents(Class)}
+         */
         QueryTraversalContext parentEnv = context.getVarFromParents(QueryTraversalContext.class);
 
+        /**
+         * 获取查询字段对应的类型字段定义
+         */
         GraphQLFieldDefinition fieldDefinition = Introspection.getFieldDef(schema, (GraphQLCompositeType) unwrapAll(parentEnv.getOutputType()), field.getName());
+
+        //是否是内省的__typename
         boolean isTypeNameIntrospectionField = fieldDefinition == Introspection.TypeNameMetaFieldDef;
+
+        /**
+         * fixme 如果不是内省的，则获取字段所在的类型类型
+         */
         GraphQLFieldsContainer fieldsContainer = !isTypeNameIntrospectionField ? (GraphQLFieldsContainer) unwrapAll(parentEnv.getOutputType()) : null;
+
+
+        /**
+         * 获取参数值
+         */
+        //获取code注册器
         GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();
-        Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDefinition.getArguments(), field.getArguments(), variables);
+        //字段定义参数
+        List<GraphQLArgument> definitionArguemnts = fieldDefinition.getArguments();
+        //查询字段参数
+        List<Argument> arguments = field.getArguments();
+        //获取参数值
+        Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, definitionArguemnts, arguments, variables);
+
+
         QueryVisitorFieldEnvironment environment = new QueryVisitorFieldEnvironmentImpl(isTypeNameIntrospectionField,
                 field,
                 fieldDefinition,

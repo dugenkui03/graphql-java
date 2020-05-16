@@ -140,11 +140,13 @@ public interface TraverserContext<T> {
     <S> S getVar(Class<? super S> key);
 
     /**
+     * fixme 获取上下文变量，从第一个父亲开始超着是否命中该key对应的value，一直追寻其祖父
+     *
      * Searches for a context variable starting from the parent
      * up the hierarchy of contexts until the first variable is found.
      *
-     * @param <S> type of the variable
-     * @param key key to lookup the variable value
+     * @param <S> type of the variable 变量的类型
+     * @param key key to lookup the variable value 变量对应的key的值
      *
      * @return a variable value or {@code null}
      */

@@ -33,6 +33,8 @@ public interface QueryVisitorFieldEnvironment {
     GraphQLFieldDefinition getFieldDefinition();
 
     /**
+     * 当前字段的父亲类型信息
+     *
      * @return the parent output type of the current field.
      */
     GraphQLOutputType getParentType();

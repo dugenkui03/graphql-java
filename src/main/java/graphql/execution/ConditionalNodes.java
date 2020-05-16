@@ -12,6 +12,11 @@ import static graphql.Directives.SkipDirective;
 import static graphql.language.NodeUtil.directivesByName;
 
 
+/**
+ * 包括值解析器
+ *
+ * include指令和skip指令的逻辑
+ */
 @Internal
 public class ConditionalNodes {
 
