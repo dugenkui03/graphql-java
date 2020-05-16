@@ -37,6 +37,9 @@ class QueryTransformerTest extends Specification {
         return queryTransformer
     }
 
+    /**
+     * fixme 创建一个schema
+     */
     def transfSchema = TestUtil.schema("""
             type Query {
                 root: Root

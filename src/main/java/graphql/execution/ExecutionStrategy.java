@@ -726,7 +726,7 @@ public abstract class ExecutionStrategy {
         //当前字段对应的子字段
         MergedSelectionSet subFields = fieldCollector.collectFields(collectorParameters, parameters.getField());
 
-        //创建ExecutionStepInfo对象：如果返回类型必须是非空的，则将此信息放在newExecutionStepInfo中
+        //todo 创建ExecutionStepInfo对象：如果返回类型必须是非空的，则将此信息放在newExecutionStepInfo中
         ExecutionStepInfo newExecutionStepInfo = executionStepInfo.changeTypeWithPreservedNonNull(resolvedObjectType);
 
         //创建非空字段结果验证器
@@ -809,25 +809,36 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * 根据抽象语法树节点{@link Field}、执行策略和执行上下文、获取要查询的字段定义{@link GraphQLFieldDefinition}。TODO 很重要啊、将field对应到field definetion上
+     * TODO query_field 是 如何定位到 shcema_field上的
      *
+     * 根据抽象语法树节点{@link Field}、strategyParameters和执行上下文
+     * 获取要查询的字段定义{@link GraphQLFieldDefinition}。
+     *
+     * @param executionContext
+     * @param strategyParameters 保存有定位到父亲节点的指针，递归的时候在 completeValueForObject 会重新生成一个指向当前类型的新策略参数
+     * @param field
      * @return a field definition：名称、类型、dataFetcher、参数和指令等。
      */
     protected GraphQLFieldDefinition getFieldDef(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters, Field field) {
-        // todo  GraphQLObjectType代表field的父类型？
+        /**
+         * {@link Execution.executeOperation} 中以Query对象为开始节点
+         */
         GraphQLObjectType parentType = (GraphQLObjectType) strategyParameters.getExecutionStepInfo().getUnwrappedNonNullType();
+        //根据schema、字段、字段所在实体类型，获取字段的定义
         return getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
     }
 
     /**
-     * 根据schema、AST节点{@link Field}和 GraphQLObjectType获取字段定义。
+     * todo 根据schema、AST节点{@link Field}和 GraphQLObjectType获取字段定义。
      *
-     * @param parentType todo the parent type of the field GraphQLObjectType代表field的父类型？
+     * @param schema     the schema in play
+     * @param parentType the parent type of the field field所在的实体类型
      * @param field      the field to find the definition of
      *
-     * @return a {@link GraphQLFieldDefinition} a field definition：名称、类型、dataFetcher、参数和指令等。
+     * @return a {@link GraphQLFieldDefinition} a field definition
      */
     protected GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLObjectType parentType, Field field) {
+        //从schema中获取 所在类型为parentType、名称为 field.getName的字段定义
         return Introspection.getFieldDef(schema, parentType, field.getName());
     }
 
@@ -895,7 +906,7 @@ public abstract class ExecutionStrategy {
 
 
     /**
-     * 为当前的字段创建一个类型信息层级:父字段到子字段的层级结构
+     * fixme 为当前的字段创建一个类型信息层级:父字段到子字段的层级结构
      * Builds the type info hierarchy for the current field
      *
      * @param executionContext the execution context in play 执行上下文
@@ -907,13 +918,17 @@ public abstract class ExecutionStrategy {
      */
     protected ExecutionStepInfo createExecutionStepInfo(ExecutionContext executionContext,
                                                         ExecutionStrategyParameters parameters,
-                                                        GraphQLFieldDefinition fieldDefinition,
+                                                        GraphQLFieldDefinition fieldDefinition,// todo 这个字段是咋分析到的
                                                         GraphQLObjectType fieldContainer) {
+        //todo 获取该字段的类型
         GraphQLOutputType fieldType = fieldDefinition.getType();
         MergedField field = parameters.getField();
         List<Argument> fieldArgs = field.getArguments();
+        //保存有字段对应的dataFetcher
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
-        Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDefinition.getArguments(), fieldArgs, executionContext.getVariables());
+        //请求变量
+        Map<String, Object> variables = executionContext.getVariables();
+        Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDefinition.getArguments(), fieldArgs, variables);
 
         return newExecutionStepInfo()
                 .type(fieldType)

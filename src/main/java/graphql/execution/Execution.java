@@ -234,13 +234,17 @@ public class Execution {
         MergedSelectionSet fields = fieldCollector.collectFields(collectorParameters, operationDefinition.getSelectionSet());
 
 
-        //所有的查询都以此路径为起点
+        //fixme 所有的查询都以此路径为起点、空串：""
         ExecutionPath rootPath = ExecutionPath.rootPath();
-        //todo 非常重要、父亲类型
+        /**
+         * fixme
+         *      operationRootType就是查询的入口类型，
+         *              其fieldDefinitionsByName包含了该类型下的所有字段名称和字段类型定义GraphQLFieldDefinition
+         *      rootPath 是空串""
+         */
         ExecutionStepInfo executionStepInfo = newExecutionStepInfo().type(operationRootType).path(rootPath).build();
         //如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException、并且返回值data是null
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
-
 
         //查询最终返回值
         CompletableFuture<ExecutionResult> result;
@@ -262,7 +266,7 @@ public class Execution {
              * 构造实行策略参数
              */
             ExecutionStrategyParameters strategyParameters = newParameters()
-                    .executionStepInfo(executionStepInfo)
+                    .executionStepInfo(executionStepInfo) //对定位查询字段对应的类型很重要
                     .source(root)
                     .localContext(null) // this is important to default as this
                     .fields(fields)

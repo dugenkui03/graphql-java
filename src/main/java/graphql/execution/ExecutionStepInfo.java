@@ -201,6 +201,7 @@ public class ExecutionStepInfo {
         if (isNonNullType()) {
             return new ExecutionStepInfo(GraphQLNonNull.nonNull(newType), fieldDefinition, field, path, this.parent, arguments, this.fieldContainer);
         } else {
+
             return new ExecutionStepInfo(newType, fieldDefinition, field, path, this.parent, arguments, this.fieldContainer);
         }
     }

@@ -568,7 +568,7 @@ public class Introspection {
     }
 
     /**
-     * fixme 获取该schema中parentType中名称为fieldName的字段定义；
+     * fixme 获取该schema中parentType中名称为fieldName的字段定义field
      *
      * understand that fields like __typename and __schema are special and take precedence in field resolution
      *
@@ -580,29 +580,39 @@ public class Introspection {
      */
     public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
 
-        /**
-         * 如果是内省类型
-         */
-        //如果schema中的查询类型是parentType
+        //如果是查询类型
         if (schema.getQueryType() == parentType) {
-            //如果字段名称是__schema或者__type，则返回对应的内省类型
+            //如果字段名称是__schema
             if (fieldName.equals(SchemaMetaFieldDef.getName())) {
                 return SchemaMetaFieldDef;
             }
+            //或者__type，则返回对应的内省类型
             if (fieldName.equals(TypeMetaFieldDef.getName())) {
                 return TypeMetaFieldDef;
             }
         }
-        //__typename
+
+        //如果是__typename：description("The name of the current Object type at runtime.")
         if (fieldName.equals(TypeNameMetaFieldDef.getName())) {
             return TypeNameMetaFieldDef;
         }
 
-
+        /**
+         * fixme 对于普通查询，还是会走到这里
+         *      1. 确定所在实体类型为对象或者interface；
+         *      2. 获取GraphQLObjectType，包含该实体类型字段名称以及字段定义Map<String, GraphQLFieldDefinition> fieldDefinitionsByName；
+         *      3.
+         *
+         */
         assertTrue(parentType instanceof GraphQLFieldsContainer, "should not happen : parent type must be an object or interface %s", parentType);
         GraphQLFieldsContainer fieldsContainer = (GraphQLFieldsContainer) parentType;
-        //最终使用到了GraphQLObjectType中 fieldName到FieldDefiniiton的映射map
-        GraphQLFieldDefinition fieldDefinition = schema.getCodeRegistry().getFieldVisibility().getFieldDefinition(fieldsContainer, fieldName);
+        /**
+         * 不设置、就会走到DefaultGraphqlFieldVisibility中
+         *
+         * DefaultGraphqlFieldVisibility间接调用fieldDefinitionsByName.get(name)
+         */
+        GraphqlFieldVisibility fieldVisibility = schema.getCodeRegistry().getFieldVisibility();
+        GraphQLFieldDefinition fieldDefinition = fieldVisibility.getFieldDefinition(fieldsContainer, fieldName);
         Assert.assertTrue(fieldDefinition != null, "Unknown field '%s'", fieldName);
         return fieldDefinition;
     }
