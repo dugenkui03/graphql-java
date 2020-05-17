@@ -33,6 +33,18 @@ public class Assert {
         throw new AssertException("Object required to be not null");
     }
 
+    public void assertNotNullWithoutReturn(Object ... objects){
+        if(objects==null){
+            throw new AssertException("objects required to be not null");
+        }
+
+        for (Object object : objects) {
+            if (object == null) {
+                throw new AssertException("object in objects required to be not null");
+            }
+        }
+    }
+
     public static <T> void assertNull(T object, String format, Object... args) {
         if (object == null) {
             return;

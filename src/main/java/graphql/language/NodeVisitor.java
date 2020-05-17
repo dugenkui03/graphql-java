@@ -5,7 +5,7 @@ import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 /**
- * fixme：在NodeTraverse中被用来 访问节点
+ * fixme 访问类型系统中的节点，对应查询文档节点访问者{@link graphql.analysis.QueryVisitor}
  * Used by {@link NodeTraverser} to visit {@link Node}.
  */
 @PublicApi

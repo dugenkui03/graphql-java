@@ -172,29 +172,48 @@ public class QueryTraverser {
     }
 
     /**
-     * 遍历一个查询文档的具体实现
-     * @param visitFieldCallback
-     * @param preOrder 深度优先非为前序遍历、后序遍历和中序遍历
-     * @return
+     * @param visitFieldCallback 访问查询文档中的节点，字段、片段、参数等
+     * @param preOrder 层序遍历(null)、前序遍历(true)、后序遍历(false)
+     *
+     * @return the accumulation result of this traversal
      */
     private Object visitImpl(QueryVisitor visitFieldCallback, Boolean preOrder) {
-        Map<Class<?>, Object> rootVars = new LinkedHashMap<>();
-        rootVars.put(QueryTraversalContext.class, new QueryTraversalContext(rootParentType, null, null));
+        /**
+         * 1. 创建NodeVisitor的实现类；
+         * 2. 创建带有QueryTraversalContext的NodeTraverser；
+         * 3. 带有上下文对象的遍历器、使用visitor从指定的根结点开始遍历。
+         */
 
+        //前序遍历、后序遍历，都是深度优先遍历的一种
         QueryVisitor preOrderCallback;
         QueryVisitor postOrderCallback;
+        //如果是广度遍历(层级遍历)：visitFieldCallback赋值preOrderCallback和postOrderCallback
         if (preOrder == null) {
             preOrderCallback = visitFieldCallback;
             postOrderCallback = visitFieldCallback;
         } else {
-            //no operation
-            QueryVisitor noOp = new QueryVisitorStub();
-            preOrderCallback = preOrder ? visitFieldCallback : noOp;
-            postOrderCallback = !preOrder ? visitFieldCallback : noOp;
+            if(preOrder){
+                //如果是前序遍历：visitFieldCallback赋值preOrderCallback
+                preOrderCallback=visitFieldCallback;
+                postOrderCallback=new QueryVisitorStub();//no operation
+            }else{
+                //如果是后序遍历：visitFieldCallback赋值postOrderCallback
+                preOrderCallback=new QueryVisitorStub();//no operation
+                postOrderCallback=visitFieldCallback;
+            }
         }
+        //NodeVisitor的实现类
+        NodeVisitorWithTypeTracking nodeVisitorWithTypeTracking =
+                new NodeVisitorWithTypeTracking(preOrderCallback, postOrderCallback, variables, schema, fragmentsByName);
 
+        //将QueryTraversalContext.class 极其对象 放在一个map中
+        Map<Class<?>, Object> rootVars = new LinkedHashMap<>();
+        QueryTraversalContext queryTraversalContext = new QueryTraversalContext(rootParentType, null, null);
+        rootVars.put(QueryTraversalContext.class, queryTraversalContext);
+        //对类型系统节点进行访问的访问者
         NodeTraverser nodeTraverser = new NodeTraverser(rootVars, this::childrenOf);
-        NodeVisitorWithTypeTracking nodeVisitorWithTypeTracking = new NodeVisitorWithTypeTracking(preOrderCallback, postOrderCallback, variables, schema, fragmentsByName);
+
+        //带有上下文对象的遍历器、使用visitor从指定的根结点开始遍历
         return nodeTraverser.depthFirst(nodeVisitorWithTypeTracking, roots);
     }
 

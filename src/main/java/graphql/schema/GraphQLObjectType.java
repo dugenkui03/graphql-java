@@ -28,9 +28,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * fixme graphql的主干类型。
- * This is the work horse type and represents an object with one or more field values that can be retrieved
- * by the graphql system.
+ * fixme graphql对象类型
+ * This is the work horse type and represents an object with one or more field values that can be retrieved by the graphql system.
  *
  * Those fields can themselves by object types and so on until you reach the leaf nodes of the type tree represented
  * by {@link graphql.schema.GraphQLScalarType}s.

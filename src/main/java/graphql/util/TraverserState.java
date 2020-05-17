@@ -126,6 +126,10 @@ public abstract class TraverserState<T> {
     }
 
 
+    /**
+     * @param vars
+     * @return
+     */
     public DefaultTraverserContext<T> newRootContext(Map<Class<?>, Object> vars) {
         return newContextImpl(null, null, vars, null, true);
     }
@@ -134,11 +138,8 @@ public abstract class TraverserState<T> {
         return newContextImpl(o, parent, new LinkedHashMap<>(), position, false);
     }
 
-    private DefaultTraverserContext<T> newContextImpl(T curNode,
-                                                      TraverserContext<T> parent,
-                                                      Map<Class<?>, Object> vars,
-                                                      NodeLocation nodeLocation,
-                                                      boolean isRootContext) {
+    private DefaultTraverserContext<T> newContextImpl(T curNode, TraverserContext<T> parent, Map<Class<?>, Object> vars,
+                                                      NodeLocation nodeLocation, boolean isRootContext) {
         assertNotNull(vars);
         return new DefaultTraverserContext<>(curNode, parent, visited, vars, sharedContextData, nodeLocation, isRootContext, false);
     }

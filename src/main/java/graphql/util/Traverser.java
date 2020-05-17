@@ -87,21 +87,27 @@ public class Traverser<T> {
         return traverse(Collections.singleton(root), visitor);
     }
 
+    /**
+     * @param roots 根结点
+     * @param visitor 节点访问者
+     *
+     * @return 遍历的累加结果
+     */
     public TraverserResult traverse(Collection<? extends T> roots, TraverserVisitor<? super T> visitor) {
         assertNotNull(roots);
         assertNotNull(visitor);
 
-
-        // "artificial" parent context for all roots with rootVars
-        DefaultTraverserContext<T> rootContext = traverserState.newRootContext(rootVars);
+        // "artificial" parent context for all roots with rootVars "携带有rootVars的所有的根的 “人工”父亲 上下文"
+        DefaultTraverserContext<T> rootContext = traverserState.newRootContext(rootVars);//遍历上下文
         traverserState.addNewContexts(roots, rootContext);
+
 
         DefaultTraverserContext currentContext;
         Object currentAccValue = initialAccumulate;
+
         traverseLoop:
         while (!traverserState.isEmpty()) {
             Object top = traverserState.pop();
-
             if (top instanceof TraverserState.EndList) {
                 Map<String, List<TraverserContext<T>>> childrenContextMap = ((TraverserState.EndList<T>) top).childrenContextMap;
                 // end-of-list marker, we are done recursing children,
@@ -124,7 +130,6 @@ public class Traverser<T> {
                         assertShouldNeverHappen();
                 }
             }
-
             currentContext = (DefaultTraverserContext) top;
 
             if (currentContext.isVisited()) {

@@ -1,11 +1,7 @@
 package graphql.language;
 
 import graphql.PublicApi;
-import graphql.util.DefaultTraverserContext;
-import graphql.util.TraversalControl;
-import graphql.util.Traverser;
-import graphql.util.TraverserContext;
-import graphql.util.TraverserVisitor;
+import graphql.util.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,8 +10,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * fixme 允许你遍历类型节点树
- * Lets you traverse a {@link Node} tree.
+ * fixme
+ *      遍历类型系统节点({@link Node} tree)
+ *      对应遍历查询文档的节点{@link graphql.analysis.QueryTraverser}
  */
 @PublicApi
 public class NodeTraverser {
@@ -50,18 +47,15 @@ public class NodeTraverser {
     }
 
     /**
-     * depthFirst traversal with a enter/leave phase.
-     *
-     * @param nodeVisitor the visitor of the nodes 节点访问者
+     * 深度优先遍历，对于一个节点分为 进入/离开 两个阶段
+     * @param nodeVisitor the visitor of the nodes fixme：广度优先还是深度优先、先序遍历还是后序遍历 的信息放在这里
      * @param roots       the root nodes 根节点
      *
-     * @return the accumulation result of this traversal
+     * @return 遍历操作的累加结果
      */
     public Object depthFirst(NodeVisitor nodeVisitor, Collection<? extends Node> roots) {
 
-        /**
-         * fixme 定义进出该节点的回调方法
-         */
+        //fixme 定义 进/出 该节点的回调方法
         TraverserVisitor<Node> nodeTraverserVisitor = new TraverserVisitor<Node>() {
             @Override
             public TraversalControl enter(TraverserContext<Node> context) {
@@ -73,6 +67,7 @@ public class NodeTraverser {
                 return context.thisNode().accept(context, nodeVisitor);
             }
         };
+
         return doTraverse(roots, nodeTraverserVisitor);
     }
 
@@ -151,13 +146,18 @@ public class NodeTraverser {
     }
 
     /**
-     * depthFirst -> doTraverse:
+     * @param roots 遍历开始的根节点
+     * @param traverserVisitor 广度优先、先序遍历、后序遍历的信息放在这里
+     *
+     * @return 遍历的信息
      */
     private Object doTraverse(Collection<? extends Node> roots, TraverserVisitor traverserVisitor) {
 
         Traverser<Node> nodeTraverser = Traverser.depthFirst(this.getChildren);
         nodeTraverser.rootVars(rootVars);
-        return nodeTraverser.traverse(roots, traverserVisitor).getAccumulatedResult();
+
+        TraverserResult traverserResult = nodeTraverser.traverse(roots, traverserVisitor);
+        return traverserResult.getAccumulatedResult();
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")

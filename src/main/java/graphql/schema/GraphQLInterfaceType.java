@@ -23,8 +23,9 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 
 /**
- * In graphql, an interface is an abstract type that defines the set of fields that a type must include to
- * implement that interface.
+ * fixme graphql里边的接口定义，包含字段定义。在dsl语法中，对象类型可以实现接口类型。
+ *
+ * In graphql, an interface is an abstract type that defines the set of fields that a type must include to implement that interface.
  * <p>
  * At runtime a {@link graphql.schema.TypeResolver} is used to take an interface object value and decide what {@link graphql.schema.GraphQLObjectType}
  * represents this interface type.

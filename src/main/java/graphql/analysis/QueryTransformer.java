@@ -17,7 +17,7 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER;
 
 /**
- * fixme 用来便利、转换Document的工具类。
+ * fixme 用来遍历、转换Document的工具类。
  *
  * Helps to transform a Document (or parts of it) and tracks at the same time the corresponding Schema types.
  * <p>

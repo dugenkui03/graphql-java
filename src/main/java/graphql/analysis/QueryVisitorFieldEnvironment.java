@@ -40,7 +40,7 @@ public interface QueryVisitorFieldEnvironment {
     GraphQLOutputType getParentType();
 
     /**
-     * @return the unmodified fields container fot the current type. This is the unwrapped version of {@link #getParentType()}
+     * @return the unmodified(未更改的) fields container fot the current type. This is the unwrapped version of {@link #getParentType()}
      * It is either {@link graphql.schema.GraphQLObjectType} or {@link graphql.schema.GraphQLInterfaceType}. because these
      * are the only {@link GraphQLFieldsContainer}
      *
@@ -50,6 +50,9 @@ public interface QueryVisitorFieldEnvironment {
 
     QueryVisitorFieldEnvironment getParentEnvironment();
 
+    /**
+     * @return 当前字段上的参数定义
+     */
     Map<String, Object> getArguments();
 
     SelectionSetContainer getSelectionSetContainer();
