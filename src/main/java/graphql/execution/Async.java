@@ -23,16 +23,52 @@ public class Async {
         CompletableFuture<U> apply(T input, int index, List<U> previousResults);
     }
 
+    /**
+     * @return 等futures中所有任务结束后，
+     *         将结果包装在 CompletableFuture<List<U>> 中返回
+     */
     public static <U> CompletableFuture<List<U>> each(List<CompletableFuture<U>> futures) {
         CompletableFuture<List<U>> overallResult = new CompletableFuture<>();
-
-        CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
+        /**
+         * https://colobu.com/2016/02/29/Java-CompletableFuture/
+         *
+         * fixme:
+         *      1. toArray(new SomeType[0]) 将返回确定类型的数组，而非 Object[]
+         *         CompletableFuture[] completableFutures = futures.toArray(new CompletableFuture[0]);
+         *      2. allOf方法是当所有的CompletableFuture都执行完后执行计算;
+         *      3. whenComplete：结束计算时、执行该方法中的函数方法 BiConsumer void accept(T t, U u)；
+         *      4. completeExceptionally和complete设定CompletableFuture的结果，可对应到之前调用get()的结果。
+         *
+         */
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .whenComplete((noUsed, exception) -> {
+                    /**
+                     * 如果时异常结果，则将异常包装?
+                     * 似乎是：如果有异常，不可能走到这个里边来。如下代码不会有任何输出
+                     *
+                     * <pre>
+                     *     {@code
+                     *         CompletableFuture<Integer> future = new CompletableFuture<>();
+                     *         future.complete(1);
+                     *
+                     *         CompletableFuture<Integer> future2 = new CompletableFuture<>();
+                     *         future2.complete(2);
+                     *
+                     *         CompletableFuture<Integer> future3 = new CompletableFuture<>();
+                     *         future2.exceptionally(e -> 3);
+                     *         CompletableFuture.allOf(future, future2, future3).whenComplete(
+                     *                 (r, e) -> {
+                     *                     System.out.println(r + "." + e);
+                     *                 }
+                     *         );
+                     *      }
+                     *  </pre>
+                     */
                     if (exception != null) {
                         overallResult.completeExceptionally(exception);
                         return;
                     }
+                    //因为已经 allOf了，所以此时futures肯定已经全部结束了
                     List<U> results = new ArrayList<>();
                     for (CompletableFuture<U> future : futures) {
                         results.add(future.join());
@@ -113,6 +149,7 @@ public class Async {
             return supplier.get();
         } catch (Exception e) {
             CompletableFuture<T> result = new CompletableFuture<>();
+            //如果result包装的任务还没结束，调用get就会抛出completeExceptionally包装的异常
             result.completeExceptionally(e);
             return result;
         }

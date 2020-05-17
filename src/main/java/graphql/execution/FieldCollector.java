@@ -42,7 +42,7 @@ public class FieldCollector {
             if (field.getSelectionSet() == null) {
                 continue;
             }
-            this.collectFields(parameters, field.getSelectionSet(), visitedFragments, subFields);
+            collectFields(parameters, field.getSelectionSet(), visitedFragments, subFields);
         }
         return newMergedSelectionSet().subFields(subFields).build();
     }
@@ -57,15 +57,23 @@ public class FieldCollector {
      * @return a map of the sub field selections fixme 信息入参数selectionSet都有，但是返回值是另一种类型
      */
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, SelectionSet selectionSet) {
+        //构造参数并调用collectFields
         Map<String, MergedField> subFields = new LinkedHashMap<>();
         List<String> visitedFragments = new ArrayList<>();
-        this.collectFields(parameters, selectionSet, visitedFragments, subFields);
+        collectFields(parameters, selectionSet, visitedFragments, subFields);
+
         return newMergedSelectionSet().subFields(subFields).build();
     }
 
 
+    /**
+     * @param parameters 保存有schema、变量、GraphQLObjectType对象类型等；
+     * @param selectionSet
+     * @param visitedFragments
+     * @param fields 保存结果用的变量
+     */
     private void collectFields(FieldCollectorParameters parameters, SelectionSet selectionSet, List<String> visitedFragments, Map<String, MergedField> fields) {
-
+        //遍历selections，分为三种情况：Field、片段和内联片段
         for (Selection selection : selectionSet.getSelections()) {
             if (selection instanceof Field) {
                 collectField(parameters, fields, (Field) selection);
@@ -104,19 +112,32 @@ public class FieldCollector {
         collectFields(parameters, inlineFragment.getSelectionSet(), visitedFragments, fields);
     }
 
+    /**
+     * 以字段的别名或名字进行"分组"
+     *
+     * @param parameters 保存有schema、变量、GraphQLObjectType对象类型等；
+     * @param fields 保存结果用的变量
+     * @param field 要进行收集的Field
+     */
     private void collectField(FieldCollectorParameters parameters, Map<String, MergedField> fields, Field field) {
+        //如果该字段上有跳过指令，则跳过对该字段的收集
         if (!conditionalNodes.shouldInclude(parameters.getVariables(), field.getDirectives())) {
             return;
         }
+
+        //获取别名或者字段名称
         String name = getFieldEntryKey(field);
+        //如果已经包含该 字段/别名，则将该字段放进已有的 MergedField
         if (fields.containsKey(name)) {
             MergedField curFields = fields.get(name);
             fields.put(name, curFields.transform(builder -> builder.addField(field)));
         } else {
+        //如果没有该 字段/别名，则使用该field创建一个MergedField
             fields.put(name, MergedField.newMergedField(field).build());
         }
     }
 
+    //获取字段的别名、无则获取字段的名字
     private String getFieldEntryKey(Field field) {
         if (field.getAlias() != null) {
             return field.getAlias();
@@ -155,6 +176,5 @@ public class FieldCollector {
         }
         return false;
     }
-
 
 }

@@ -25,10 +25,9 @@ public class ConditionalNodes {
     ValuesResolver valuesResolver = new ValuesResolver();
 
     /**
-     * 收集要解析的字段时、是否应该包含该字段
-     * @param variables 变量值
+     * 根据变量和指令集合，判断SkipDirective和IncludeDirective值信息
+     * @param variables 查询变量值
      * @param directives  字段上的指令集合
-     * @return
      */
     public boolean shouldInclude(Map<String, Object> variables, List<Directive> directives) {
         boolean skip = getDirectiveResult(variables, directives, SkipDirective.getName(), false);

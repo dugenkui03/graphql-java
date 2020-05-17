@@ -90,6 +90,8 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         executionStrategyCtx.onDispatched(overallResult);
+
+        //等futures中所有任务结束后，将结果包装在 CompletableFuture<List<U>> 中返回
         Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
             //定义结果处理dataFetcher结果的函数：void accept(T t, U u);
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer =
@@ -104,15 +106,18 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
             //fixme 对每个字段的异步任务做转换
             //遍历结果，并对之前保存每个字段异步任务的集合做映射：CompletableFuture<FieldValueInfo> ——> CompletableFuture<ExecutionResult>
             List<CompletableFuture<ExecutionResult>> executionResultFuture =
+                    //FieldValueInfo 是 resolveFieldWithInfo返回结果
                     completeValueInfos.stream().map(FieldValueInfo::getFieldValue).collect(Collectors.toList());
 
             //instrument
             executionStrategyCtx.onFieldValuesInfo(completeValueInfos);
+            //whenComplete：结束计算时、执行该方法中的函数方法 BiConsumer void accept(T t, U u)；
             Async.each(executionResultFuture).whenComplete(handleResultsConsumer);
         }).exceptionally((ex) -> {
             // if there are any issues with combining/handling the field results,
             // complete the future at all costs and bubble up any thrown exception so
             // the execution does not hang.
+            //如果合并/处理字段结果有任何问题，请不惜一切代价完成不远的将来，并冒起任何抛出的异常，这样执行就不会挂起。
             overallResult.completeExceptionally(ex);
             return null;
         });
