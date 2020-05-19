@@ -706,7 +706,7 @@ public abstract class ExecutionStrategy {
      *
      * @param executionContext   即使递归、也不会变的执行上下文
      * @param resolvedObjectType 要被解析为的graphql结果类型
-     * @param result             被强转的结果
+     * @param result             被强转的值
      *
      * @return a promise to an {@link ExecutionResult}
      */
