@@ -14,7 +14,7 @@ import spock.lang.Specification
 class QueryDirectivesIntegrationTest extends Specification {
 
     def sdl = '''
-        directive @timeout(afterMillis : Int) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
+        directive @timeout(afterMillis : Int) repeatable on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
         
         directive @cached(forMillis : Int) on FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | QUERY
         
@@ -44,7 +44,7 @@ class QueryDirectivesIntegrationTest extends Specification {
         
         query Books @timeout(afterMillis: 30) @importance(place:"Operation") {
             books(searchString: "monkey") {
-                id
+                id @timeout(afterMillis: 20) @timeout(afterMillis: 20)
                  ...Details @timeout(afterMillis: 20)
                  ...on Book @timeout(afterMillis: 15) {
                     review @timeout(afterMillis: 10) @cached(forMillis : 10)

@@ -63,6 +63,7 @@ import graphql.parser.antlr.GraphqlParser;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -367,9 +368,12 @@ public class GraphqlAntlrToLanguage {
 
     protected Directive createDirective(GraphqlParser.DirectiveContext ctx) {
         Directive.Builder builder = Directive.newDirective();
+        String name = ctx.name().getText();
         builder.name(ctx.name().getText());
         addCommonData(builder, ctx);
         builder.arguments(createArguments(ctx.arguments()));
+        TerminalNode repeatable = ctx.REPEATABLE();
+        builder.isRepeatable(repeatable!=null);
         return builder.build();
     }
 
@@ -637,6 +641,7 @@ public class GraphqlAntlrToLanguage {
         if (ctx.argumentsDefinition() != null) {
             def.inputValueDefinitions(createInputValueDefinitions(ctx.argumentsDefinition().inputValueDefinition()));
         }
+        def.isRepeatable(ctx.REPEATABLE() != null);
         return def.build();
     }
 

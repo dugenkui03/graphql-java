@@ -7,7 +7,7 @@ import spock.lang.Specification
 class QueryDirectivesImplTest extends Specification {
 
     def sdl = '''
-        directive @timeout(afterMillis : Int) on FIELD
+        directive @timeout(afterMillis : Int) repeatable on FIELD
         
         directive @cached(forMillis : Int = 99) on FIELD | QUERY
         
@@ -23,7 +23,12 @@ class QueryDirectivesImplTest extends Specification {
 
     def "can get immediate directives"() {
 
-        def f1 = TestUtil.parseField("f1 @cached @upper")
+        def direct1= schema.getDirective("timeout")
+        def direct2= schema.getDirective("cached")
+        def direct3= schema.getDirective("upper")
+
+
+        def f1 = TestUtil.parseField("f1 @cached @upper @cached @upper")
         def f2 = TestUtil.parseField("f2 @cached(forMillis : \$var) @timeout")
 
         def mergedField = MergedField.newMergedField([f1, f2]).build()

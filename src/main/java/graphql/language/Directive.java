@@ -21,14 +21,16 @@ import static java.util.Collections.emptyMap;
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
     private final String name;
     private final List<Argument> arguments = new ArrayList<>();
+    private final boolean isRepeatable;
 
     public static final String CHILD_ARGUMENTS = "arguments";
 
     @Internal
-    protected Directive(String name, List<Argument> arguments, SourceLocation sourceLocation, List<Comment> comments, IgnoredChars ignoredChars, Map<String, String> additionalData) {
+    protected Directive(String name, List<Argument> arguments,boolean isRepeatable, SourceLocation sourceLocation, List<Comment> comments, IgnoredChars ignoredChars, Map<String, String> additionalData) {
         super(sourceLocation, comments, ignoredChars, additionalData);
         this.name = name;
         this.arguments.addAll(arguments);
+        this.isRepeatable=isRepeatable;
     }
 
     /**
@@ -37,8 +39,8 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
      * @param name      of the directive
      * @param arguments of the directive
      */
-    public Directive(String name, List<Argument> arguments) {
-        this(name, arguments, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+    public Directive(String name, List<Argument> arguments,boolean isRepeatable) {
+        this(name, arguments, isRepeatable, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
     }
 
 
@@ -48,7 +50,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
      * @param name of the directive
      */
     public Directive(String name) {
-        this(name, new ArrayList<>(), null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, new ArrayList<>(),false, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
     }
 
     public List<Argument> getArguments() {
@@ -62,6 +64,10 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
 
     public Argument getArgument(String argumentName) {
         return getArgumentsByName().get(argumentName);
+    }
+
+    public boolean isRepeatable() {
+        return isRepeatable;
     }
 
     @Override
@@ -106,7 +112,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
 
     @Override
     public Directive deepCopy() {
-        return new Directive(name, deepCopy(arguments), getSourceLocation(), getComments(), getIgnoredChars(), getAdditionalData());
+        return new Directive(name, deepCopy(arguments),isRepeatable, getSourceLocation(), getComments(), getIgnoredChars(), getAdditionalData());
     }
 
     @Override
@@ -137,6 +143,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
         private List<Comment> comments = new ArrayList<>();
         private String name;
         private List<Argument> arguments = new ArrayList<>();
+        private boolean isRepeatable;
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -148,6 +155,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
             this.comments = existing.getComments();
             this.name = existing.getName();
             this.arguments = existing.getArguments();
+            this.isRepeatable = existing.isRepeatable();
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
         }
@@ -173,6 +181,11 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
             return this;
         }
 
+        public Builder isRepeatable(boolean isRepeatable) {
+            this.isRepeatable = isRepeatable;
+            return this;
+        }
+
         public Builder ignoredChars(IgnoredChars ignoredChars) {
             this.ignoredChars = ignoredChars;
             return this;
@@ -190,7 +203,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
 
 
         public Directive build() {
-            return new Directive(name, arguments, sourceLocation, comments, ignoredChars, additionalData);
+            return new Directive(name, arguments,isRepeatable, sourceLocation, comments, ignoredChars, additionalData);
         }
     }
 }

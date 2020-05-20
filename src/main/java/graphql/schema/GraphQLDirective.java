@@ -31,9 +31,10 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
 
     private final String name;
     private final String description;
-    private final EnumSet<DirectiveLocation> locations;
     private final List<GraphQLArgument> arguments = new ArrayList<>();
+    private final EnumSet<DirectiveLocation> locations;
     private final DirectiveDefinition definition;
+
 
 
     public static final String CHILD_ARGUMENTS = "arguments";
@@ -46,7 +47,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
                             String description,
                             EnumSet<DirectiveLocation> locations,
                             List<GraphQLArgument> arguments) {
-        this(name, description, locations, arguments, null);
+        this(name, description, locations, arguments,null);
     }
 
     private GraphQLDirective(String name,
