@@ -30,7 +30,11 @@ import graphql.validation.rules.UniqueOperationNames;
 import graphql.validation.rules.VariableDefaultValuesOfCorrectType;
 import graphql.validation.rules.VariableTypesMatchRule;
 import graphql.validation.rules.VariablesAreInputTypes;
+<<<<<<< HEAD
 import graphql.validation.rules.UniqueVariableNamesRule;
+=======
+import graphql.validation.rules.UniqueArgumentNamesRule;
+>>>>>>> c017c180... unique_argument_names
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +128,9 @@ public class Validator {
 
         UniqueVariableNamesRule uniqueVariableNamesRule = new UniqueVariableNamesRule(validationContext, validationErrorCollector);
         rules.add(uniqueVariableNamesRule);
+
+        UniqueArgumentNamesRule uniqueArgumentNamesRule = new UniqueArgumentNamesRule(validationContext, validationErrorCollector);
+        rules.add(uniqueArgumentNamesRule);
 
         return rules;
     }
