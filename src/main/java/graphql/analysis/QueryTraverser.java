@@ -213,7 +213,7 @@ public class QueryTraverser {
         //对类型系统节点进行访问的访问者
         NodeTraverser nodeTraverser = new NodeTraverser(rootVars, this::childrenOf);
 
-        //带有上下文对象的遍历器、使用visitor从指定的根结点开始遍历
+        //带有上下文对象的遍历器、使用visitor从指定的根结点开始遍历 todo
         return nodeTraverser.depthFirst(nodeVisitorWithTypeTracking, roots);
     }
 

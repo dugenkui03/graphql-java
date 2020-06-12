@@ -99,7 +99,7 @@ public class Traverser<T> {
 
         // "artificial" parent context for all roots with rootVars "携带有rootVars的所有的根的 “人工”父亲 上下文"
         DefaultTraverserContext<T> rootContext = traverserState.newRootContext(rootVars);//遍历上下文
-        traverserState.addNewContexts(roots, rootContext);
+        traverserState.addNewContexts(roots, rootContext);//Query对象
 
 
         DefaultTraverserContext currentContext;
@@ -131,39 +131,52 @@ public class Traverser<T> {
                 }
             }
             currentContext = (DefaultTraverserContext) top;
-
+            //如果当前节点已经被遍历过
             if (currentContext.isVisited()) {
                 currentContext.setCurAccValue(currentAccValue);
                 currentContext.setPhase(TraverserContext.Phase.BACKREF);
                 TraversalControl traversalControl = visitor.backRef(currentContext);
+                //是否有新的累加值、无则返回当前累加值
                 currentAccValue = currentContext.getNewAccumulate();
                 assertNotNull(traversalControl, "result of backRef must not be null");
                 assertTrue(CONTINUE_OR_QUIT.contains(traversalControl), "backRef can only return CONTINUE or QUIT");
                 if (traversalControl == QUIT) {
                     break traverseLoop;
                 }
-            } else {
+            }
+            //当前节点没有被遍历过
+            else {
                 currentContext.setCurAccValue(currentAccValue);
+                //如果有新的节点则返回、否则返回curNode
                 Object nodeBeforeEnter = currentContext.thisNode();
+                //当前的遍历阶段：进入
                 currentContext.setPhase(TraverserContext.Phase.ENTER);
+
+                /**
+                 * todo 应该是重头戏
+                 *      默认返回CONTINUE
+                 */
                 TraversalControl traversalControl = visitor.enter(currentContext);
+                //是否有新的累加值、无则返回当前累加值
                 currentAccValue = currentContext.getNewAccumulate();
                 assertNotNull(traversalControl, "result of enter must not be null");
+                //添加"已经访问的节点
                 this.traverserState.addVisited((T) nodeBeforeEnter);
+
+                //重头戏的操作结果
                 switch (traversalControl) {
-                    case QUIT:
-                        break traverseLoop;
-                    case ABORT:
-                        continue;
-                    case CONTINUE:
-                        traverserState.pushAll(currentContext, getChildren);
-                        continue;
-                    default:
-                        assertShouldNeverHappen();
+                    //如果是退出、则跳出循环
+                    case QUIT: break traverseLoop;
+                    //ABORT表示继续遍历
+                    case ABORT: continue;
+                    //如果是继续，则将遍历上下文和孩子节点放到遍历状态中：涉及到TraverserState.EndList的操作
+                    case CONTINUE: traverserState.pushAll(currentContext, getChildren); continue;
+                    default: assertShouldNeverHappen();
                 }
             }
         }
 
+        //遍历结果：当前累加的值
         TraverserResult traverserResult = new TraverserResult(currentAccValue);
         return traverserResult;
     }

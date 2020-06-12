@@ -20,6 +20,7 @@ public abstract class TraverserState<T> {
 
     private Object sharedContextData;
 
+    //队列
     private final Deque<Object> state;
     private final Set<T> visited = new LinkedHashSet<>();
 
@@ -88,6 +89,7 @@ public abstract class TraverserState<T> {
         }
     }
 
+    //??
     public static class EndList<U> {
         public Map<String, List<TraverserContext<U>>> childrenContextMap;
     }
@@ -107,15 +109,24 @@ public abstract class TraverserState<T> {
 
     public abstract void pushAll(TraverserContext<T> o, Function<? super T, Map<String, ? extends List<T>>> getChildren);
 
+    /**
+     * 获取并移除队首的元素
+     */
     public Object pop() {
         return this.state.pop();
     }
 
 
+    /**
+     * 给遍历状态添加上下文
+     */
     public void addNewContexts(Collection<? extends T> children, TraverserContext<T> parentContext) {
         assertNotNull(children).stream().map((child) -> newContext(child, parentContext, null)).forEach(this.state::add);
     }
 
+    /**
+     * @return Deque是否为空
+     */
     public boolean isEmpty() {
         return state.isEmpty();
     }

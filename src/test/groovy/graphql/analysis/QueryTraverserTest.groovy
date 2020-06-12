@@ -1494,7 +1494,9 @@ class QueryTraverserTest extends Specification {
         """)
         def visitor = mockQueryVisitor()
         def query = createQuery("""
-            {foo { subFoo} bar }
+            query(\$name:String= \"test\"){
+                 bar(name: \$name) 
+            }
             """)
         QueryTraverser queryTraversal = createQueryTraversal(query, schema)
         when:
@@ -1709,5 +1711,47 @@ class QueryTraverserTest extends Specification {
         0 * visitor.visitArgument(_)
     }
 
+    def "test npe"() {
+        given:
+        def schema = TestUtil.schema("""
+            type Query{
+                bar(name: String): String
+            }
+        """)
+        def visitor = mockQueryVisitor()
+        def query = createQuery("""
+            query(\$name:String= \"test\"){
+                 bar(name: \$name) 
+            }
+            """)
+
+        def query2 = createQuery("""
+            query(\$name:String){
+                 bar(name: \$name) 
+            }
+            """)
+
+
+
+        def variableDefinitions=((OperationDefinition)query.getDefinitions()[0]).getVariableDefinitions()
+        def variableDefinition = variableDefinitions.get(0)
+        variableDefinition.transform({ x -> x.defaultValue(null) })
+
+        QueryTraverser queryTraversal = createQueryTraversalWithVariable(query2, schema)
+        when:
+        queryTraversal.visitDepthFirst(visitor)
+
+        then:
+        1 == 1
+    }
+
+    QueryTraverser createQueryTraversalWithVariable(Document document, GraphQLSchema schema, Map variables = ["name":"dugenkui"]) {
+        QueryTraverser queryTraversal = QueryTraverser.newQueryTraverser()
+                .schema(schema)
+                .document(document)
+                .variables(variables)
+                .build()
+        return queryTraversal
+    }
 
 }

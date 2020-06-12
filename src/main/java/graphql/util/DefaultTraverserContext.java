@@ -28,17 +28,27 @@ public class DefaultTraverserContext<T> implements TraverserContext<T> {
 
     //父类型的遍历上下文
     private final TraverserContext<T> parent;
-    //是否已经被遍历
+    //已经被遍历过的节点
     private final Set<T> visited;
     //变量？
     private final Map<Class<?>, Object> vars;
     //共享的内容数据
     private final Object sharedContextData;
 
-    private Object newAccValue;
+    /**
+     * 是否有新的累加值
+     * setCurAccValue 中设置为false
+     * setAccumulate 设置为true
+     *
+     * 在 getNewAccumulate中判断hasNewAccValue：
+     *      true返回
+     */
     private boolean hasNewAccValue;
+    //新的累加值和当前累加值
+    private Object newAccValue;
     private Object curAccValue;
     private final NodeLocation location;
+    //是否是根结点上下文
     private final boolean isRootContext;
     private boolean parallel;
     private Map<String, List<TraverserContext<T>>> children;
@@ -148,12 +158,12 @@ public class DefaultTraverserContext<T> implements TraverserContext<T> {
         }
         return parent.thisNode();
     }
-
+    //获取遍历过的节点
     @Override
     public Set<T> visitedNodes() {
         return visited;
     }
-
+    //是否是已经遍历的节点
     @Override
     public boolean isVisited() {
         return visited.contains(curNode);
@@ -196,7 +206,7 @@ public class DefaultTraverserContext<T> implements TraverserContext<T> {
         return sharedContextData;
     }
 
-    /*
+    /*设置当前节点：并且没有新的节点
      * PRIVATE: Used by {@link Traverser}
      */
     void setCurAccValue(Object curAccValue) {
