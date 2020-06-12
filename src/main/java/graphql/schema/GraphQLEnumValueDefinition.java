@@ -29,12 +29,13 @@ import static java.util.Collections.emptyList;
  */
 @PublicApi
 public class GraphQLEnumValueDefinition implements GraphQLNamedSchemaElement, GraphQLDirectiveContainer {
-
+    //枚举值名称、描述、具体的值、禁用的原因、使用的指令
     private final String name;
     private final String description;
     private final Object value;
     private final String deprecationReason;
     private final List<GraphQLDirective> directives;
+    //todo
     private final EnumValueDefinition definition;
 
     public static final String CHILD_DIRECTIVES = "directives";

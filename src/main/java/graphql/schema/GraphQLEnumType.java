@@ -24,6 +24,8 @@ import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;
 
 /**
+ * 枚举类型值的类型有限并且不同。
+ *
  * A graphql enumeration type has a limited set of values.
  * <p>
  * This allows you to validate that any arguments of this type are one of the allowed values
@@ -34,9 +36,13 @@ import static java.util.Collections.emptyList;
 @PublicApi
 public class GraphQLEnumType implements GraphQLNamedInputType, GraphQLNamedOutputType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLDirectiveContainer {
 
+    //枚举类型的名称
     private final String name;
+    //枚举类型描述
     private final String description;
+    //枚举值
     private final Map<String, GraphQLEnumValueDefinition> valueDefinitionMap = new LinkedHashMap<>();
+    //枚举类型定义
     private final EnumTypeDefinition definition;
     private final List<EnumTypeExtensionDefinition> extensionDefinitions;
     private final List<GraphQLDirective> directives;
@@ -146,24 +152,35 @@ public class GraphQLEnumType implements GraphQLNamedInputType, GraphQLNamedOutpu
         throw new CoercingParseValueException("Invalid input for Enum '" + name + "'. No value found for name '" + value.toString() + "'");
     }
 
+    //获取目标值对应的枚举值名称
     private Object getNameByValue(Object value) {
+        //遍历枚举值
         for (GraphQLEnumValueDefinition valueDefinition : valueDefinitionMap.values()) {
+            //获取当前遍历的枚举值
             Object definitionValue = valueDefinition.getValue();
+            //如果目标值对应遍历枚举值、则返回遍历枚举名称
             if (value.equals(definitionValue)) {
                 return valueDefinition.getName();
             }
-            // we can treat enum backing values as strings in effect
+            // we can treat enum backing values as strings in effect："将枚举值视为字符串"
+            // 如果枚举值是java枚举类型并且目标值是字符串
             if (definitionValue instanceof Enum && value instanceof String) {
+                //对比目标值和枚举的名称是否相同，相同则返回枚举定义的名称
                 if (value.equals(((Enum) definitionValue).name())) {
                     return valueDefinition.getName();
                 }
             }
-        }
+        }// end of 遍历枚举值
+
+        //如果使用java的equals方法不匹配，则使用枚举策略
         // ok we didn't match on pure object.equals().  Lets try the Java enum strategy
         if (value instanceof Enum) {
+            //目标值枚举名称
             String enumNameValue = ((Enum<?>) value).name();
             for (GraphQLEnumValueDefinition valueDefinition : valueDefinitionMap.values()) {
+                //枚举值
                 Object definitionValue = String.valueOf(valueDefinition.getValue());
+                //如果目标值和枚举值相同，则返回枚举值的名称
                 if (enumNameValue.equals(definitionValue)) {
                     return valueDefinition.getName();
                 }

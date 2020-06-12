@@ -17,8 +17,11 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class EnumTypeDefinition extends AbstractDescribedNode<EnumTypeDefinition> implements TypeDefinition<EnumTypeDefinition>, DirectivesContainer<EnumTypeDefinition>, NamedNode<EnumTypeDefinition> {
+    //枚举类型定义名称
     private final String name;
+    //枚举值定义列表
     private final List<EnumValueDefinition> enumValueDefinitions;
+    //枚举上的指令
     private final List<Directive> directives;
 
     public static final String CHILD_ENUM_VALUE_DEFINITIONS = "enumValueDefinitions";
@@ -39,14 +42,13 @@ public class EnumTypeDefinition extends AbstractDescribedNode<EnumTypeDefinition
     }
 
     /**
-     * alternative to using a Builder for convenience
-     *
-     * @param name of the enum
+     * @param name of the enum 使用指定名称创建枚举类型定义
      */
     public EnumTypeDefinition(String name) {
         this(name, new ArrayList<>(), new ArrayList<>(), null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
     }
 
+    //获取枚举值的列表
     public List<EnumValueDefinition> getEnumValueDefinitions() {
         return new ArrayList<>(enumValueDefinitions);
     }

@@ -486,10 +486,14 @@ public abstract class ExecutionStrategy {
             //如果字段的类型为空，则抛出NonNullableFieldWasNullException异常
             fieldValue = completeValueForNull(parameters);
             return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
-        } else if (fieldType instanceof GraphQLScalarType) {
+        }
+        //如果是标量，使用coercing.serialize对值进行转换
+        else if (fieldType instanceof GraphQLScalarType) {
             fieldValue = completeValueForScalar(executionContext, parameters, (GraphQLScalarType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(SCALAR).fieldValue(fieldValue).build();
-        } else if (fieldType instanceof GraphQLEnumType) {
+        }
+        //如果是枚举
+        else if (fieldType instanceof GraphQLEnumType) {
             fieldValue = completeValueForEnum(executionContext, parameters, (GraphQLEnumType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(ENUM).fieldValue(fieldValue).build();
         } else if (isList(fieldType)) {
@@ -678,15 +682,17 @@ public abstract class ExecutionStrategy {
      * 将枚举类型的dataFetcher返回值转换为对应的graphql值
      * Called to turn an object into a enum value according to the {@link GraphQLEnumType} by asking that enum type to coerce the object into a valid value
      *
-     * @param executionContext contains the top level execution parameters
-     * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param enumType         the type of the enum
-     * @param result           the result to be coerced
+     * @param executionContext contains the top level execution parameters 执行上下文
+     * @param parameters       contains the parameters holding the fields to be executed and source object 执行策略参数
+     * @param enumType         the type of the enum 枚举的类型
+     * @param result           the result to be coerced 需要被强转的结果
      *
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForEnum(
-            ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLEnumType enumType, Object result) {
+    protected CompletableFuture<ExecutionResult> completeValueForEnum(ExecutionContext executionContext,
+                                                                      ExecutionStrategyParameters parameters,
+                                                                      GraphQLEnumType enumType,
+                                                                      Object result) {
         Object serialized;
         try {
             serialized = enumType.serialize(result);
