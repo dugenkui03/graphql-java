@@ -259,6 +259,7 @@ public class QueryTraverser {
         }
 
         /**
+         * 遍历整个查询所使用的Document对象
          * document to be used to traverse the whole query.
          * If set a {@link Builder#operationName(String)} might be required.
          *
@@ -272,11 +273,7 @@ public class QueryTraverser {
         }
 
         /**
-         * Variables used in the query.
-         *
-         * @param variables the variables to use
-         *
-         * @return this builder
+         * @param variables the variables to use 查询所使用的变量
          */
         public Builder variables(Map<String, Object> variables) {
             this.variables = variables;

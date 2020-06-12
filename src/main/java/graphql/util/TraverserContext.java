@@ -30,25 +30,29 @@ public interface TraverserContext<T> {
     }
 
     /**
+     * 返回当前被访问的节点
      * Returns current node being visited.
-     * Special cases:
-     * It is null for the root context and it is the changed node after {@link #changeNode(Object)} is called.
+     *
+     * 特例：root上下文为null、而且是changeNode()调用后的 changedNode
+     * Special cases: It is null for the root context and it is the changed node after {@link #changeNode(Object)} is called.
+     *
      * Throws Exception if the node is deleted.
+     * @return current node traverser is visiting. 遍历者正在访问的节点
      *
-     * @return current node traverser is visiting.
-     *
-     * @throws graphql.AssertException if the current node is deleted
+     * @throws graphql.AssertException if the current node is deleted 如果当前节点已经被删除、则抛异常
      */
     T thisNode();
 
     /**
-     * Returns the original, unchanged, not deleted Node.
+     * 返回原始的、未改变的、未删除的节点。
      *
+     * Returns the original, unchanged, not deleted Node.
      * @return the original node
      */
     T originalThisNode();
 
     /**
+     * 将当前的节点修改为给定的节点，"仅适用于enter"。
      * Change the current node to the provided node. Only applicable in enter.
      *
      * Useful when the tree should be changed while traversing.
@@ -59,20 +63,14 @@ public interface TraverserContext<T> {
      */
     void changeNode(T newNode);
 
-    /**
-     * Deletes the current node.
-     */
+    //如果当前节点调用过{@link #changeNode(Object)}、则返回true；
+    boolean isChanged();
+
+    //删除当前节点
     void deleteNode();
 
-    /**
-     * @return true if the current node is deleted (by calling {@link #deleteNode()}
-     */
+    //如果当前节点调用过{@link #deleteNode()}、已经被删除，则返回true
     boolean isDeleted();
-
-    /**
-     * @return true if the current node is changed (by calling {@link #changeNode(Object)}
-     */
-    boolean isChanged();
 
     /**
      * Returns parent context.
@@ -81,22 +79,15 @@ public interface TraverserContext<T> {
      * the current path as well as the variables {@link #getVar(java.lang.Class) }
      * stored in every parent context.
      *
-     * @return context associated with the node parent
+     * @return context associated with the node parent、该节点父亲节点对应的上下文
+     * todo 不可能是个图嘛？一个节点有两个父亲节点
      */
     TraverserContext<T> getParentContext();
 
-    /**
-     * The list of parent nodes starting from the current parent.
-     *
-     * @return list of parent nodes
-     */
+    //@return list of parent nodes 该节点的父亲节点
     List<T> getParentNodes();
 
-    /**
-     * The parent node.
-     *
-     * @return The parent node.
-     */
+    //@return The parent node. 该节点的父亲节点
     T getParentNode();
 
 

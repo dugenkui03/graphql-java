@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 语言元素的基本接口：
+ * 语言元素的基本接口:Document、操作、字段、字段别名、参数、片段、输入值、变量、类型引用、指令等
  * The base interface for virtually all graphql language elements
  *
  * NOTE: This class implements {@link java.io.Serializable} and hence it can be serialised and placed into a distributed cache.  However we
@@ -24,11 +24,14 @@ import java.util.Map;
 public interface Node<T extends Node> extends Serializable {
 
     /**
+     * 该元素的子节点
      * @return a list of the children of this node
+     * fixme：为啥遍历一个节点的时候要保存该节点是否被访问过呢？因为类型图可能是有环图
      */
     List<Node> getChildren();
 
     /**
+     * 对子节点按照名称进行分组
      * Alternative to {@link #getChildren()} where the children are not all in one list regardless of type
      * but grouped by name/type of the child.
      *
@@ -79,6 +82,8 @@ public interface Node<T extends Node> extends Serializable {
     Map<String, String> getAdditionalData();
 
     /**
+     * 不比较子节点？
+     *
      * Compares just the content and not the children.
      *
      * @param node the other node to compare to
@@ -88,6 +93,7 @@ public interface Node<T extends Node> extends Serializable {
     boolean isEqualTo(Node node);
 
     /**
+     * 该节点的深度拷贝
      * @return a deep copy of this node
      */
     T deepCopy();
