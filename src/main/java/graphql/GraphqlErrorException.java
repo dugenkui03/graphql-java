@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
  * A base class for graphql runtime exceptions that also implement {@link graphql.GraphQLError} and can be used
  * in a general sense direct or have specialisations made of it.
  * <p>

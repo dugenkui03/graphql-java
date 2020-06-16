@@ -16,6 +16,9 @@ import java.util.function.Function;
 
 import static graphql.util.TraversalControl.CONTINUE;
 
+/**
+ * Schema遍历器
+ */
 @PublicApi
 public class SchemaTraverser {
 

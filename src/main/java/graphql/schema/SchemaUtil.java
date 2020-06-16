@@ -16,6 +16,11 @@ public class SchemaUtil {
     private static final SchemaTraverser TRAVERSER = new SchemaTraverser();
 
 
+    /**
+     * @param additionalTypes 额外类型
+     * @param afterTransform
+     * @return 获取schema中所有type类型，包括内置类型
+     */
     Map<String, GraphQLNamedType> allTypes(final GraphQLSchema schema, final Set<GraphQLType> additionalTypes, boolean afterTransform) {
         List<GraphQLSchemaElement> roots = new ArrayList<>();
         roots.add(schema.getQueryType());

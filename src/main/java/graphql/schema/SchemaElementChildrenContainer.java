@@ -11,19 +11,23 @@ import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
 
+//容器：保存schema元素子节点
 @PublicApi
 public class SchemaElementChildrenContainer {
 
+    //<key,List<子节点元素>>
     private final Map<String, List<GraphQLSchemaElement>> children = new LinkedHashMap<>();
 
     private SchemaElementChildrenContainer(Map<String, List<GraphQLSchemaElement>> children) {
         this.children.putAll(assertNotNull(children));
     }
 
+    //根据key、获取子节点元素
     public <T extends GraphQLSchemaElement> List<T> getChildren(String key) {
         return (List<T>) children.getOrDefault(key, new ArrayList<>());
     }
 
+    //如果key包含一个元素、则返回；包含多个、则抛异常；不包含、则返回null
     public <T extends GraphQLSchemaElement> T getChildOrNull(String key) {
         List<? extends GraphQLSchemaElement> result = children.getOrDefault(key, new ArrayList<>());
         if (result.size() > 1) {
@@ -32,10 +36,12 @@ public class SchemaElementChildrenContainer {
         return result.size() > 0 ? (T) result.get(0) : null;
     }
 
+    //返回所有的子节点信息
     public Map<String, List<GraphQLSchemaElement>> getChildren() {
         return new LinkedHashMap<>(children);
     }
 
+    //获取所有的子节点，忽略key
     public List<GraphQLSchemaElement> getChildrenAsList() {
         List<GraphQLSchemaElement> result = new ArrayList<>();
         children.values().forEach(result::addAll);

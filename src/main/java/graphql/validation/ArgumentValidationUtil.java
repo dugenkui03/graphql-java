@@ -16,13 +16,14 @@ import java.util.Set;
 
 public class ArgumentValidationUtil extends ValidationUtil {
 
-    private final List<String> argumentNames = new ArrayList<>();
+    //要被验证的参数的名称和值
+    private final String argumentName;
     private Value<?> argumentValue;
+    private final List<String> argumentNames = new ArrayList<>();
     private String errorMessage;
     private final List<Object> arguments = new ArrayList<>();
     private Map<String, Object> errorExtensions;
 
-    private final String argumentName;
 
     public ArgumentValidationUtil(Argument argument) {
         argumentName = argument.getName();

@@ -3,7 +3,7 @@ package graphql.language;
 import graphql.PublicApi;
 
 /**
- * value 类型标记
+ * 标量值类型标记：BooleanValue、IntValue、FloatValue、StringValue等；
  */
 @PublicApi
 public interface ScalarValue<T extends Value> extends Value<T> {

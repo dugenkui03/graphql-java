@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
+/**
+ * 类型收集Visitor
+ */
 @Internal
 public class GraphQLTypeCollectingVisitor extends GraphQLTypeVisitorStub {
 

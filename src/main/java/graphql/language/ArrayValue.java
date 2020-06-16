@@ -19,8 +19,9 @@ import static java.util.Collections.emptyMap;
 @PublicApi
 public class ArrayValue extends AbstractNode<ArrayValue> implements Value<ArrayValue> {
 
+    //这是该节点的子节点
     private final List<Value> values = new ArrayList<>();
-
+    //子节点名称
     public static final String CHILD_VALUES = "values";
 
     @Internal

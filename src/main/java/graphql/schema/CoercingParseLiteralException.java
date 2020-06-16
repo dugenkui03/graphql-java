@@ -5,6 +5,7 @@ import graphql.GraphqlErrorException;
 import graphql.PublicApi;
 import graphql.language.SourceLocation;
 
+//解析文本常量异常
 @PublicApi
 public class CoercingParseLiteralException extends GraphqlErrorException {
 
