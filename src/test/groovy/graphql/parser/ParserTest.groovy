@@ -776,8 +776,7 @@ triple3 : """edge cases \\""" "" " \\"" \\" edge cases"""
         operationDefinition.getComments()[0].content == " Represents the 😕 emoji."
     }
 
-    def "can override antlr to ast"() {
-
+    def "can override antlr to ast 将antlr转换为ast抽象语法树"() {
         def query = '''
             query {
                 field

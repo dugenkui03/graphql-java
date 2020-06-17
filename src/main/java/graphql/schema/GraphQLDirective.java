@@ -46,9 +46,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
     private final boolean onFragment;
     private final boolean onField;
 
-    /**
-     * fixme 指令定义
-     */
+    //fixme 指令含义
     private final DirectiveDefinition definition;
 
 

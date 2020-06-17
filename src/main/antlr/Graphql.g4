@@ -10,15 +10,15 @@ import GraphqlSDL, GraphqlOperation, GraphqlCommon;
     package graphql.parser.antlr;
 }
 
-//todo
+//document由各种定义组层
 document : definition+;
 
-// 生命一个名称为definition的规则，该规则可以匹配操作定义、片段定义、类型系统定义和类型系统拓展，四个可匹配的分支
+//document组成元素：
 definition:
-operationDefinition |
-fragmentDefinition |
-typeSystemDefinition |
-typeSystemExtension
+operationDefinition | //操作定义：查询、更改、订阅
+fragmentDefinition | //片段
+typeSystemDefinition | //类型系统定义
+typeSystemExtension //类型系统拓展
 ;
 
 

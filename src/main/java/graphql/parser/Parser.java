@@ -74,9 +74,11 @@ public class Parser {
         ExtendedBailStrategy bailStrategy = new ExtendedBailStrategy(multiSourceReader);
         parser.setErrorHandler(bailStrategy);
 
+        //将tokens转换为抽象语法树元素
         GraphqlAntlrToLanguage toLanguage = getAntlrToLanguage(tokens, multiSourceReader);
         GraphqlParser.DocumentContext documentContext = parser.document();
 
+        //fixme 创建document对象
         Document doc = toLanguage.createDocument(documentContext);
 
         Token stop = documentContext.getStop();

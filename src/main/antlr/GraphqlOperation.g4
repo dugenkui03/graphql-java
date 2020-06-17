@@ -4,7 +4,8 @@ import GraphqlCommon;
 //操作定义：选择集
 operationDefinition:
 selectionSet |
-operationType  name? variableDefinitions? directives? selectionSet;
+//操作类型(订阅、更新、查询)；名称(GraphQL类型系统、关键字)；
+operationType name? variableDefinitions? directives? selectionSet;
 
 
 // 查询变量：    (变量定义,,,)

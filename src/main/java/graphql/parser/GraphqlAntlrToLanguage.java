@@ -75,12 +75,24 @@ import static graphql.parser.StringValueParsing.parseSingleQuotedString;
 import static graphql.parser.StringValueParsing.parseTripleQuotedString;
 import static java.util.stream.Collectors.toList;
 
+//fixme GraphqlAntlrToLanguage是抽象语法树元素
 @Internal
 public class GraphqlAntlrToLanguage {
 
+    /**
+     * 常量
+     */
+    //"通道评论"？
     private static final int CHANNEL_COMMENTS = 2;
+    //"通道忽略字符"？
     private static final int CHANNEL_IGNORED_CHARS = 3;
+
+    /**
+     * 工具
+     */
+    //"通用token流"
     private final CommonTokenStream tokens;
+    //多源读取器
     private final MultiSourceReader multiSourceReader;
 
 
@@ -92,6 +104,10 @@ public class GraphqlAntlrToLanguage {
     //MARKER START: Here GraphqlOperation.g4 specific methods begin
 
 
+    /**
+     * 创建document对象
+     * @param ctx antlr生成的Document对象
+     */
     public Document createDocument(GraphqlParser.DocumentContext ctx) {
         Document.Builder document = Document.newDocument();
         addCommonData(document, ctx);
@@ -100,12 +116,22 @@ public class GraphqlAntlrToLanguage {
         return document.build();
     }
 
+    /**
+     * 创建定义
+     * @param definitionContext
+     * @return
+     */
     protected Definition createDefinition(GraphqlParser.DefinitionContext definitionContext) {
+        //操作定义
         if (definitionContext.operationDefinition() != null) {
             return createOperationDefinition(definitionContext.operationDefinition());
-        } else if (definitionContext.fragmentDefinition() != null) {
+        }
+        //片段定义
+        else if (definitionContext.fragmentDefinition() != null) {
             return createFragmentDefinition(definitionContext.fragmentDefinition());
-        } else if (definitionContext.typeSystemDefinition() != null) {
+        }
+        //
+        else if (definitionContext.typeSystemDefinition() != null) {
             return createTypeSystemDefinition(definitionContext.typeSystemDefinition());
         } else if (definitionContext.typeSystemExtension() != null) {
             return createTypeSystemExtension(definitionContext.typeSystemExtension());
@@ -208,6 +234,7 @@ public class GraphqlAntlrToLanguage {
 
     protected Field createField(GraphqlParser.FieldContext ctx) {
         Field.Builder builder = Field.newField();
+        //添加注释、位置和ignored chars；todo 额外数据呢？
         addCommonData(builder, ctx);
         builder.name(ctx.name().getText());
         if (ctx.alias() != null) {
@@ -234,10 +261,18 @@ public class GraphqlAntlrToLanguage {
 
     //MARKER END: Here GraphqlOperation.g4 specific methods end
 
+    /**
+     * SDL系统描述语言（System Descriptive Language）
+     * @param ctx
+     * @return  SDL系统描述定义
+     */
     protected SDLDefinition createTypeSystemDefinition(GraphqlParser.TypeSystemDefinitionContext ctx) {
+        //如果是schema定义
         if (ctx.schemaDefinition() != null) {
             return createSchemaDefinition(ctx.schemaDefinition());
-        } else if (ctx.directiveDefinition() != null) {
+        }
+        //如果是指令定义
+        else if (ctx.directiveDefinition() != null) {
             return createDirectiveDefinition(ctx.directiveDefinition());
         } else if (ctx.typeDefinition() != null) {
             return createTypeDefinition(ctx.typeDefinition());
@@ -623,6 +658,7 @@ public class GraphqlAntlrToLanguage {
         return def.build();
     }
 
+    //指令定义：Schema中的指令定义
     protected DirectiveDefinition createDirectiveDefinition(GraphqlParser.DirectiveDefinitionContext ctx) {
         DirectiveDefinition.Builder def = DirectiveDefinition.newDirectiveDefinition();
         def.name(ctx.name().getText());
@@ -763,12 +799,16 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
+    //添加通用数据
     protected void addCommonData(NodeBuilder nodeBuilder, ParserRuleContext parserRuleContext) {
+        //获取 # 开始的注释的内容和位置
         List<Comment> comments = getComments(parserRuleContext);
         if (!comments.isEmpty()) {
             nodeBuilder.comments(comments);
         }
+        //获取位置信息
         nodeBuilder.sourceLocation(getSourceLocation(parserRuleContext));
+        //添加 "ignored chars"
         addIgnoredChars(parserRuleContext, nodeBuilder);
     }
 
@@ -849,6 +889,7 @@ public class GraphqlAntlrToLanguage {
         return getSourceLocation(parserRuleContext.getStart());
     }
 
+    //获取注释信息
     protected List<Comment> getComments(ParserRuleContext ctx) {
         Token start = ctx.getStart();
         if (start != null) {
@@ -861,7 +902,7 @@ public class GraphqlAntlrToLanguage {
         return Collections.emptyList();
     }
 
-
+    //从"通道"中获取注释信息
     protected List<Comment> getCommentOnChannel(List<Token> refChannel) {
         List<Comment> comments = new ArrayList<>();
         for (Token refTok : refChannel) {

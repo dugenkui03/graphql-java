@@ -1727,6 +1727,7 @@ class QueryTraverserTest extends Specification {
 
         def query2 = createQuery("""
             query(\$name:String){
+                 # 测试，哈哈
                  bar(name: \$name) 
             }
             """)

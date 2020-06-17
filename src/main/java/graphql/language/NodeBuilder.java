@@ -7,6 +7,7 @@ import java.util.Map;
 
 import static graphql.Assert.assertNotNull;
 
+//每个节点都有 位置、注释、忽略字符、额外数据等内容
 @PublicApi
 public interface NodeBuilder {
 

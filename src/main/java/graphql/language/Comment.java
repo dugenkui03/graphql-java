@@ -9,7 +9,9 @@ import java.io.Serializable;
  */
 @PublicApi
 public class Comment implements Serializable {
+    //注释内容
     public final String content;
+    //注释内容位置
     public final SourceLocation sourceLocation;
 
     public Comment(String content, SourceLocation sourceLocation) {

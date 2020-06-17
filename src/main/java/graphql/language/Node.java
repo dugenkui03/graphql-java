@@ -70,6 +70,7 @@ public interface Node<T extends Node> extends Serializable {
     IgnoredChars getIgnoredChars();
 
     /**
+     * 一个节点可以又一个与其关联的额外数据，map形式
      * A node can have a map of additional data associated with it.
      *
      * <p>
