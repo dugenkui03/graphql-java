@@ -39,23 +39,30 @@ import static java.util.Arrays.asList;
 @PublicApi
 public class GraphQLSchema {
 
+    //查询、更新、订阅、额外的数据
     private final GraphQLObjectType queryType;
     private final GraphQLObjectType mutationType;
     private final GraphQLObjectType subscriptionType;
     private final Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
+
+    //Schema包含的指令
     private final Set<GraphQLDirective> directives = new LinkedHashSet<>();
     private final Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
+
+    //schema定义
     private final SchemaDefinition definition;
     private final List<SchemaExtensionDefinition> extensionDefinitions;
 
-    /**
-     * fixme GraphQLCodeRegistry:field关联的DataFetcher
-     */
+    //fixme GraphQLCodeRegistry:field关联的DataFetcher
     private final GraphQLCodeRegistry codeRegistry;
 
     private final Map<String, GraphQLNamedType> typeMap;
     private final Map<String, List<GraphQLObjectType>> byInterface;
 
+
+    /**
+     *  ===========================构造函数：查询、更新、订阅、额外的数据===========================
+     */
     /**
      * @param queryType the query type
      * @deprecated use the {@link #newSchema()} builder pattern instead, as this constructor will be made private in a future version.
@@ -90,11 +97,15 @@ public class GraphQLSchema {
     public GraphQLSchema(GraphQLObjectType queryType, GraphQLObjectType mutationType, GraphQLObjectType subscriptionType, Set<GraphQLType> additionalTypes) {
         this(newSchema().query(queryType).mutation(mutationType).subscription(subscriptionType).additionalTypes(additionalTypes), false);
     }
+    /**
+     *  end of ===========================构造函数：查询、更新、订阅、额外的数据===========================
+     */
 
     @Internal
     private GraphQLSchema(Builder builder, boolean afterTransform) {
         assertNotNull(builder.additionalTypes, "additionalTypes can't be null");
         assertNotNull(builder.queryType, "queryType can't be null");
+
         assertNotNull(builder.additionalDirectives, "directives can't be null");
         assertNotNull(builder.codeRegistry, "codeRegistry can't be null");
 
@@ -372,6 +383,8 @@ public class GraphQLSchema {
         private SchemaDefinition definition;
         private List<SchemaExtensionDefinition> extensionDefinitions;
 
+        //fixme：为啥将IncludeDirective和SkipDirective放到这里呢？至少DeferDirective和DeprecatedDirective也应该在里边吧
+        //
         // we default these in 默认将指令IncludeDirective、SkipDirective包含进去
         private Set<GraphQLDirective> additionalDirectives = new LinkedHashSet<>(
                 asList(Directives.IncludeDirective, Directives.SkipDirective)

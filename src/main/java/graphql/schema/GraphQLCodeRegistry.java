@@ -17,8 +17,7 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 
 
 /**
- * fixme
- *      字段对应的DataFetcher
+ * fixme：字段对应的DataFetcher
  *
  * The {@link graphql.schema.GraphQLCodeRegistry} holds that execution code that is associated with graphql types, namely
  * the {@link graphql.schema.DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
@@ -29,10 +28,10 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
  */
 @PublicApi
 public class GraphQLCodeRegistry {
-    /**
-     * 字段及其对应的fetcher
-     */
+
+    //字段及其对应的fetcher<字段,DataFetcher>
     private final Map<FieldCoordinates, DataFetcherFactory> dataFetcherMap;
+
     //字段名称对应的datafetcher
     private final Map<String, DataFetcherFactory> systemDataFetcherMap;
 
