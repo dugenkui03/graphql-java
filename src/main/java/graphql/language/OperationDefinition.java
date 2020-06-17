@@ -16,6 +16,7 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+
 @PublicApi
 public class OperationDefinition extends AbstractNode<OperationDefinition> implements Definition<OperationDefinition>, SelectionSetContainer<OperationDefinition>, DirectivesContainer<OperationDefinition> {
 
@@ -23,6 +24,7 @@ public class OperationDefinition extends AbstractNode<OperationDefinition> imple
         QUERY, MUTATION, SUBSCRIPTION
     }
 
+    //操作名称、类型、变量定义、指令、选择集
     private final String name;
     private final Operation operation;
     private final List<VariableDefinition> variableDefinitions;

@@ -100,9 +100,7 @@ public class NodeChildrenContainer {
             return this;
         }
 
-        /**
-         * 移除指定key孩子下索引未index的孩子
-         */
+        //移除指定key的子节点下、索引为index的孩子
         public Builder removeChild(String key, int index) {
             this.children.get(key).remove(index);
             return this;

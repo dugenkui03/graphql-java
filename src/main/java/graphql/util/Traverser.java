@@ -1,6 +1,8 @@
 package graphql.util;
 
 import graphql.Internal;
+import graphql.analysis.QueryVisitorFieldArgumentInputValue;
+import graphql.analysis.QueryVisitorFieldArgumentInputValueImpl;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -153,9 +155,10 @@ public class Traverser<T> {
                 currentContext.setPhase(TraverserContext.Phase.ENTER);
 
                 /**
-                 * todo 应该是重头戏
-                 *      默认返回CONTINUE
+                 * todo 应该是重头戏： 默认返回CONTINUE
                  */
+                Object varFromParents = currentContext.getVarFromParents(QueryVisitorFieldArgumentInputValue.class);
+
                 TraversalControl traversalControl = visitor.enter(currentContext);
                 //是否有新的累加值、无则返回当前累加值
                 currentAccValue = currentContext.getNewAccumulate();

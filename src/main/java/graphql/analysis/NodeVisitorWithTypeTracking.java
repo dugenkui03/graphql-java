@@ -269,6 +269,8 @@ public class NodeVisitorWithTypeTracking extends NodeVisitorStub {
     @Override
     protected TraversalControl visitValue(Value<?> value, TraverserContext<Node> context) {
         QueryVisitorFieldArgumentEnvironment fieldArgEnv = context.getVarFromParents(QueryVisitorFieldArgumentEnvironment.class);
+
+        //todo 空值
         QueryVisitorFieldArgumentInputValueImpl inputValue = context.getVarFromParents(QueryVisitorFieldArgumentInputValue.class);
         // previous visits have set up the previous information
         inputValue = inputValue.completeArgumentInputValue(value);

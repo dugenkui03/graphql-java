@@ -50,7 +50,7 @@ public class GraphQLSchema {
     private final Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
 
     //schema定义
-    private final SchemaDefinition definition;
+    private final SchemaDefinition schemaDefinition;
     private final List<SchemaExtensionDefinition> extensionDefinitions;
 
     //fixme GraphQLCodeRegistry:field关联的DataFetcher
@@ -97,9 +97,6 @@ public class GraphQLSchema {
     public GraphQLSchema(GraphQLObjectType queryType, GraphQLObjectType mutationType, GraphQLObjectType subscriptionType, Set<GraphQLType> additionalTypes) {
         this(newSchema().query(queryType).mutation(mutationType).subscription(subscriptionType).additionalTypes(additionalTypes), false);
     }
-    /**
-     *  end of ===========================构造函数：查询、更新、订阅、额外的数据===========================
-     */
 
     @Internal
     private GraphQLSchema(Builder builder, boolean afterTransform) {
@@ -116,7 +113,7 @@ public class GraphQLSchema {
         this.additionalTypes.addAll(builder.additionalTypes);
         this.directives.addAll(builder.additionalDirectives);
         this.schemaDirectives.putAll(builder.schemaDirectives);
-        this.definition = builder.definition;
+        this.schemaDefinition = builder.definition;
         this.extensionDefinitions = builder.extensionDefinitions == null ? Collections.emptyList() : builder.extensionDefinitions;
         this.codeRegistry = builder.codeRegistry;
         // sorted by type name
@@ -135,7 +132,7 @@ public class GraphQLSchema {
         this.additionalTypes.addAll(otherSchema.additionalTypes);
         this.directives.addAll(otherSchema.directives);
         this.schemaDirectives.putAll(otherSchema.schemaDirectives);
-        this.definition = otherSchema.definition;
+        this.schemaDefinition = otherSchema.schemaDefinition;
         this.extensionDefinitions = otherSchema.extensionDefinitions == null ? Collections.emptyList() : otherSchema.extensionDefinitions;
         this.codeRegistry = codeRegistry;
 
@@ -143,6 +140,9 @@ public class GraphQLSchema {
         this.byInterface = otherSchema.byInterface;
     }
 
+    /**
+     *  end of ===========================构造函数：查询、更新、订阅、额外的数据===========================
+     */
 
     public GraphQLCodeRegistry getCodeRegistry() {
         return codeRegistry;
@@ -309,22 +309,24 @@ public class GraphQLSchema {
     }
 
     public SchemaDefinition getDefinition() {
-        return definition;
+        return schemaDefinition;
     }
 
+    //拓展定义
     public List<SchemaExtensionDefinition> getExtensionDefinitions() {
         return new ArrayList<>(extensionDefinitions);
     }
 
+    //是否支持更改和订阅
     public boolean isSupportingMutations() {
         return mutationType != null;
     }
-
     public boolean isSupportingSubscriptions() {
         return subscriptionType != null;
     }
 
     /**
+     * todo 学习这个方法
      * This helps you transform the current GraphQLSchema object into another one by starting a builder with all
      * the current values and allows you to transform it how you want.
      *
@@ -332,8 +334,11 @@ public class GraphQLSchema {
      * @return a new GraphQLSchema object based on calling build on that builder
      */
     public GraphQLSchema transform(Consumer<Builder> builderConsumer) {
+        //this：注意是构造一个新的引用对象
         Builder builder = newSchema(this);
+        //函数
         builderConsumer.accept(builder);
+        //返回新值
         return builder.build();
     }
 
@@ -345,6 +350,8 @@ public class GraphQLSchema {
     }
 
     /**
+     * fixme 使用一个已经存在的schema构造一个新的schema、只是新的引用、目标对象不变
+     *
      * This allows you to build a schema from an existing schema.  It copies everything from the existing
      * schema and then allows you to replace them.
      *
@@ -365,21 +372,29 @@ public class GraphQLSchema {
                 .additionalTypes(existingSchema.additionalTypes);
     }
 
+
+    //将该schema包含的指令放到数组中
     private static GraphQLDirective[] schemaDirectivesArray(GraphQLSchema existingSchema) {
         return existingSchema.schemaDirectives.values()
                 .toArray(new GraphQLDirective[0]);
     }
 
+    //是否是query类型
     public boolean isSupportingQuery() {
         return queryType!=null;
     }
 
     public static class Builder {
+        //查询类型
         private GraphQLObjectType queryType;
         private GraphQLObjectType mutationType;
         private GraphQLObjectType subscriptionType;
+
+        //code注册器
         private GraphQLCodeRegistry codeRegistry = GraphQLCodeRegistry.newCodeRegistry().build();
+        //额外的类型
         private Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
+        //指令、操作类型定义
         private SchemaDefinition definition;
         private List<SchemaExtensionDefinition> extensionDefinitions;
 

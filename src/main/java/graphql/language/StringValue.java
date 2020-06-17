@@ -87,6 +87,7 @@ public class StringValue extends AbstractNode<StringValue> implements ScalarValu
 
     @Override
     public TraversalControl accept(TraverserContext<Node> context, NodeVisitor visitor) {
+        //接受一个visitor、然后visitor
         return visitor.visitStringValue(this, context);
     }
 

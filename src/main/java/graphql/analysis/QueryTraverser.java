@@ -329,6 +329,7 @@ public class QueryTraverser {
             }
         }
 
+        //如果document或者operation为null，而且root或者rootParentType或者fragmentsByName为空，则返回异常
         private void checkState() {
             if (document != null || operation != null) {
                 if (root != null || rootParentType != null || fragmentsByName != null) {
