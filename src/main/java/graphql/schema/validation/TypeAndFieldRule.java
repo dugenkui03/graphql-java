@@ -130,7 +130,7 @@ public class TypeAndFieldRule implements SchemaValidationRule {
 
         Set<String> typeNames = new HashSet<>();
         for (GraphQLNamedOutputType memberType : memberTypes) {
-            String typeName = ((TypeName) memberType).getName();
+            String typeName = memberType.getName();
             GraphQLNamedType graphQLNamedType = schemaTypeHolder.get(typeName);
             if (!(graphQLNamedType instanceof GraphQLObjectType)) {
                 SchemaValidationError validationError =
