@@ -1,12 +1,11 @@
 package graphql.schema.validation;
 
-import graphql.introspection.Introspection;
-import graphql.language.Type;
 import graphql.language.TypeName;
 import graphql.language.UnionTypeDefinition;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLFieldsContainer;
+import graphql.schema.GraphQLNamedOutputType;
 import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
@@ -26,9 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
-import static graphql.introspection.Introspection.getIntrospectionTypes;
 import static graphql.introspection.Introspection.isBootstrapType;
+import static graphql.introspection.Introspection.isIntrospectionTypes;
+import static graphql.schema.idl.ScalarInfo.isGraphqlSpecifiedScalar;
 
 /**
  * The validation about GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType, GraphQLEnumType, GraphQLInputObjectType, GraphQLScalarType.
@@ -54,7 +55,7 @@ public class TypeAndFieldRule implements SchemaValidationRule {
 
         List<GraphQLNamedType> allTypesAsList = graphQLSchema.getAllTypesAsList();
 
-        List<GraphQLNamedType> filteredType = filterScalarAndIntrospectionTypes(allTypesAsList);
+        List<GraphQLNamedType> filteredType = filterBuiltInTypes(allTypesAsList);
 
         schemaTypeHolder = graphQLSchema.getTypeMap();
 
@@ -120,7 +121,7 @@ public class TypeAndFieldRule implements SchemaValidationRule {
             return;
         }
 
-        List<Type> memberTypes = definition.getMemberTypes();
+        List<GraphQLNamedOutputType> memberTypes = type.getTypes();
         if (memberTypes == null || memberTypes.size() == 0) {
             SchemaValidationError validationError =
                     new SchemaValidationError(SchemaValidationErrorType.UnionTypeLackOfTypeError, String.format("Union type \"%s\" must include one or more unique member types.", type.getName()));
@@ -128,7 +129,7 @@ public class TypeAndFieldRule implements SchemaValidationRule {
         }
 
         Set<String> typeNames = new HashSet<>();
-        for (Type memberType : memberTypes) {
+        for (GraphQLNamedOutputType memberType : memberTypes) {
             String typeName = ((TypeName) memberType).getName();
             GraphQLNamedType graphQLNamedType = schemaTypeHolder.get(typeName);
             if (!(graphQLNamedType instanceof GraphQLObjectType)) {
@@ -221,30 +222,24 @@ public class TypeAndFieldRule implements SchemaValidationRule {
         }
     }
 
-    private List<GraphQLNamedType> filterScalarAndIntrospectionTypes(List<GraphQLNamedType> graphQLNamedTypes) {
+    private List<GraphQLNamedType> filterBuiltInTypes(List<GraphQLNamedType> graphQLNamedTypes) {
         if (graphQLNamedTypes == null || graphQLNamedTypes.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return FpKit.filterList(graphQLNamedTypes, type -> !isScalarOrIntrospectionTypes(type));
+        Predicate<GraphQLNamedType> filterFunction = namedType -> {
+            if (isBootstrapType(namedType) || isIntrospectionTypes(namedType)) {
+                return false;
+            }
+            if (namedType instanceof GraphQLScalarType && isGraphqlSpecifiedScalar((GraphQLScalarType) namedType)) {
+                return false;
+            }
+            return true;
+        };
+
+        return FpKit.filterList(graphQLNamedTypes, filterFunction);
     }
 
-    private boolean isScalarOrIntrospectionTypes(GraphQLNamedType type) {
-        if (type instanceof GraphQLScalarType) {
-            return true;
-        }
-
-        if (isBootstrapType(type)) {
-            return true;
-        }
-
-        Set<GraphQLNamedType> introspectionTypes = getIntrospectionTypes();
-        if (introspectionTypes.contains(type)) {
-            return true;
-        }
-
-        return false;
-    }
 
     @Override
     public void check(GraphQLFieldDefinition fieldDef, SchemaValidationErrorCollector validationErrorCollector) {

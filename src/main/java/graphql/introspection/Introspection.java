@@ -29,7 +29,6 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeUtil;
 import graphql.schema.GraphQLUnionType;
 import graphql.schema.visibility.GraphqlFieldVisibility;
@@ -37,7 +36,6 @@ import graphql.schema.visibility.GraphqlFieldVisibility;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,10 +58,6 @@ public class Introspection {
     private static final Map<FieldCoordinates, DataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
 
     private static final Set<GraphQLNamedType> introspectionTypes = new HashSet<>();
-
-    public static Set<GraphQLNamedType> getIntrospectionTypes() {
-        return introspectionTypes;
-    }
 
     private static void register(GraphQLFieldsContainer parentType, String fieldName, DataFetcher dataFetcher) {
         introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), dataFetcher);
@@ -542,6 +536,10 @@ public class Introspection {
         introspectionTypes.add(__Field);
         introspectionTypes.add(__EnumValue);
         introspectionTypes.add(__Directive);
+    }
+
+    public static boolean isIntrospectionTypes(GraphQLNamedType type) {
+        return introspectionTypes.contains(type);
     }
 
     public static final DataFetcher<Object> SchemaMetaFieldDefDataFetcher = DataFetchingEnvironment::getGraphQLSchema;

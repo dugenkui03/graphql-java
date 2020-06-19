@@ -55,22 +55,6 @@ class TypeAndFieldRuleTest extends Specification {
         e.message == "invalid schema:\nEnum type \"EnumType\" must define one or more enum values."
     }
 
-    def "the member types of a Union type must be unique"() {
-        when:
-        def sdl = '''
-        type Query { field: Int }
-        
-        type A{ field: Int }
-        
-        union UnionType = A | A
-        '''
-
-        TestUtil.schema(sdl)
-        then:
-        InvalidSchemaException e = thrown(InvalidSchemaException)
-        e.message == "invalid schema:\nThe member types of a Union type must be unique. member type \"A\" in Union \"UnionType\" is not unique."
-    }
-
     def "A non null type cannot wrap an existing non null type"() {
         given:
         def graphqlObjectType = GraphQLObjectType.newObject()
