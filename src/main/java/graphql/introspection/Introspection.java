@@ -24,18 +24,23 @@ import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLModifiedType;
 import graphql.schema.GraphQLNamedSchemaElement;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeUtil;
 import graphql.schema.GraphQLUnionType;
 import graphql.schema.visibility.GraphqlFieldVisibility;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static graphql.Assert.assertTrue;
 import static graphql.Scalars.GraphQLBoolean;
@@ -53,6 +58,12 @@ import static graphql.schema.GraphQLTypeUtil.simplePrint;
 @PublicApi
 public class Introspection {
     private static final Map<FieldCoordinates, DataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
+
+    private static final Set<GraphQLNamedType> introspectionTypes = new HashSet<>();
+
+    public static Set<GraphQLNamedType> getIntrospectionTypes() {
+        return introspectionTypes;
+    }
 
     private static void register(GraphQLFieldsContainer parentType, String fieldName, DataFetcher dataFetcher) {
         introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), dataFetcher);
@@ -522,6 +533,17 @@ public class Introspection {
         });
     }
 
+    static {
+        introspectionTypes.add(__DirectiveLocation);
+        introspectionTypes.add(__TypeKind);
+        introspectionTypes.add(__Type);
+        introspectionTypes.add(__Schema);
+        introspectionTypes.add(__InputValue);
+        introspectionTypes.add(__Field);
+        introspectionTypes.add(__EnumValue);
+        introspectionTypes.add(__Directive);
+    }
+
     public static final DataFetcher<Object> SchemaMetaFieldDefDataFetcher = DataFetchingEnvironment::getGraphQLSchema;
     public static final GraphQLFieldDefinition SchemaMetaFieldDef = newFieldDefinition()
             .name("__schema")
@@ -551,16 +573,19 @@ public class Introspection {
             .build();
 
 
+    // make sure all TypeReferences are resolved
+    private static final GraphQLObjectType bootstrapType = newObject()
+            .name("BootstrapType")
+            .field(SchemaMetaFieldDef)
+            .field(TypeMetaFieldDef)
+            .field(TypeNameMetaFieldDef)
+            .build();
     static {
-        // make sure all TypeReferences are resolved
-        GraphQLSchema.newSchema()
-                .query(GraphQLObjectType.newObject()
-                        .name("IntrospectionQuery")
-                        .field(SchemaMetaFieldDef)
-                        .field(TypeMetaFieldDef)
-                        .field(TypeNameMetaFieldDef)
-                        .build())
-                .build();
+        GraphQLSchema.newSchema().query(bootstrapType).build();
+    }
+
+    public static boolean isBootstrapType(GraphQLNamedType namedType) {
+        return namedType == bootstrapType;
     }
 
     /**

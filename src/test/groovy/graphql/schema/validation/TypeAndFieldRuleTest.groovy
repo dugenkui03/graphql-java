@@ -27,6 +27,19 @@ class TypeAndFieldRuleTest extends Specification {
         e.message == "invalid schema:\n\"Query\" must define one or more fields."
     }
 
+    def "interface must define one or more fields."() {
+        when:
+        def sdl = '''
+        type Query { field: Int }
+        interface Interface {}
+        '''
+
+        TestUtil.schema(sdl)
+        then:
+        InvalidSchemaException e = thrown(InvalidSchemaException)
+        e.message == "invalid schema:\n\"Interface\" must define one or more fields."
+    }
+
     def "Enum type must define one or more enum values"() {
         when:
         def sdl = '''
