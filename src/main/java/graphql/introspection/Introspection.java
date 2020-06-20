@@ -28,6 +28,7 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeUtil;
 import graphql.schema.GraphQLUnionType;
 import graphql.schema.visibility.GraphqlFieldVisibility;
@@ -58,8 +59,11 @@ public class Introspection {
      */
     private static final Map<FieldCoordinates, DataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
 
+
     /**
-     * 注册一个字段对应的dataFetcher
+     * @param parentType GraphQLFieldsContainer包含GraphQLObjectType和GraphQLInterface两个实现、包含字段的类型：getFieldDefinitions和getFieldDefinitionByName
+     * @param fieldName parentType的字段名称
+     * @param dataFetcher 字段对应的dataFetcher
      */
     private static void register(GraphQLFieldsContainer parentType, String fieldName, DataFetcher dataFetcher) {
         introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), dataFetcher);
@@ -257,7 +261,7 @@ public class Introspection {
         return null;
     };
 
-
+    //实体继承的interface？
     private static final DataFetcher interfacesFetcher = environment -> {
         Object type = environment.getSource();
         if (type instanceof GraphQLObjectType) {
@@ -276,6 +280,7 @@ public class Introspection {
         }
         return null;
     };
+
 
     private static final DataFetcher enumValuesTypesFetcher = environment -> {
         Object type = environment.getSource();
@@ -296,6 +301,7 @@ public class Introspection {
         return null;
     };
 
+    //返回输入对象字段
     private static final DataFetcher inputFieldsFetcher = environment -> {
         Object type = environment.getSource();
         if (type instanceof GraphQLInputObjectType) {
@@ -307,6 +313,7 @@ public class Introspection {
         return null;
     };
 
+    //返回被修饰的类型-一层
     private static final DataFetcher OfTypeFetcher = environment -> {
         Object type = environment.getSource();
         if (type instanceof GraphQLModifiedType) {
@@ -318,6 +325,9 @@ public class Introspection {
 
     public static final GraphQLObjectType __Type = newObject()
             .name("__Type")
+            .description("The core of the type introspection system. It represents scalars, interfaces, object types, " +
+                    "unions, enums in the system. It also represents type modifiers, which are used to modify a type that " +
+                    "it refers to. This is how GraphQL represent lists, non‐nullable types, and the combinations thereof.")
             .field(newFieldDefinition()
                     .name("kind")
                     .type(nonNull(__TypeKind)))
@@ -354,7 +364,6 @@ public class Introspection {
                     .name("ofType")
                     .type(typeRef("__Type")))
             .build();
-
     static {
         register(__Type, "kind", kindDataFetcher);
         register(__Type, "fields", fieldsFetcher);
@@ -368,6 +377,36 @@ public class Introspection {
     }
 
 
+    /**
+     * 指令位置：===================查询、片段、字段、schema、标量、对象、字段定义、输入字段定义等。===================
+     *
+     * 指令位置枚举值定义
+     */
+    public static final GraphQLEnumType __DirectiveLocation = GraphQLEnumType.newEnum()
+            .name("__DirectiveLocation")
+            .description("An enum describing valid locations where a directive can be placed")
+            .value("QUERY", DirectiveLocation.QUERY, "Indicates the directive is valid on queries.")
+            .value("MUTATION", DirectiveLocation.MUTATION, "Indicates the directive is valid on mutations.")
+            .value("FIELD", DirectiveLocation.FIELD, "Indicates the directive is valid on fields.")
+            .value("FRAGMENT_DEFINITION", DirectiveLocation.FRAGMENT_DEFINITION, "Indicates the directive is valid on fragment definitions.")
+            .value("FRAGMENT_SPREAD", DirectiveLocation.FRAGMENT_SPREAD, "Indicates the directive is valid on fragment spreads.")
+            .value("INLINE_FRAGMENT", DirectiveLocation.INLINE_FRAGMENT, "Indicates the directive is valid on inline fragments.")
+            //
+            // from schema SDL PR  https://github.com/facebook/graphql/pull/90
+            //
+            .value("SCHEMA", DirectiveLocation.SCHEMA, "Indicates the directive is valid on a schema SDL definition.")
+            .value("SCALAR", DirectiveLocation.SCALAR, "Indicates the directive is valid on a scalar SDL definition.")
+            .value("OBJECT", DirectiveLocation.OBJECT, "Indicates the directive is valid on an object SDL definition.")
+            .value("FIELD_DEFINITION", DirectiveLocation.FIELD_DEFINITION, "Indicates the directive is valid on a field SDL definition.")
+            .value("ARGUMENT_DEFINITION", DirectiveLocation.ARGUMENT_DEFINITION, "Indicates the directive is valid on a field argument SDL definition.")
+            .value("INTERFACE", DirectiveLocation.INTERFACE, "Indicates the directive is valid on an interface SDL definition.")
+            .value("UNION", DirectiveLocation.UNION, "Indicates the directive is valid on an union SDL definition.")
+            .value("ENUM", DirectiveLocation.ENUM, "Indicates the directive is valid on an enum SDL definition.")
+            .value("ENUM_VALUE", DirectiveLocation.ENUM_VALUE, "Indicates the directive is valid on an enum value SDL definition.")
+            .value("INPUT_OBJECT", DirectiveLocation.INPUT_OBJECT, "Indicates the directive is valid on an input object SDL definition.")
+            .value("INPUT_FIELD_DEFINITION", DirectiveLocation.INPUT_FIELD_DEFINITION, "Indicates the directive is valid on an input object field SDL definition.")
+            .build();
+    //指令位置枚举值
     public enum DirectiveLocation {
         //fixme 定义在查询上 查询、更新、订阅
         QUERY,
@@ -394,36 +433,24 @@ public class Introspection {
         INPUT_OBJECT,
         INPUT_FIELD_DEFINITION
     }
+    /**
+     * end of ===================指令位置：查询、片段、字段、schema、标量、对象、字段定义、输入字段定义等。===================
+     */
 
-    public static final GraphQLEnumType __DirectiveLocation = GraphQLEnumType.newEnum()
-            .name("__DirectiveLocation")
-            .description("An enum describing valid locations where a directive can be placed")
-            .value("QUERY", DirectiveLocation.QUERY, "Indicates the directive is valid on queries.")
-            .value("MUTATION", DirectiveLocation.MUTATION, "Indicates the directive is valid on mutations.")
-            .value("FIELD", DirectiveLocation.FIELD, "Indicates the directive is valid on fields.")
-            .value("FRAGMENT_DEFINITION", DirectiveLocation.FRAGMENT_DEFINITION, "Indicates the directive is valid on fragment definitions.")
-            .value("FRAGMENT_SPREAD", DirectiveLocation.FRAGMENT_SPREAD, "Indicates the directive is valid on fragment spreads.")
-            .value("INLINE_FRAGMENT", DirectiveLocation.INLINE_FRAGMENT, "Indicates the directive is valid on inline fragments.")
-            //
-            // from schema SDL PR  https://github.com/facebook/graphql/pull/90
-            //
-            .value("SCHEMA", DirectiveLocation.SCHEMA, "Indicates the directive is valid on a schema SDL definition.")
-            .value("SCALAR", DirectiveLocation.SCALAR, "Indicates the directive is valid on a scalar SDL definition.")
-            .value("OBJECT", DirectiveLocation.OBJECT, "Indicates the directive is valid on an object SDL definition.")
-            .value("FIELD_DEFINITION", DirectiveLocation.FIELD_DEFINITION, "Indicates the directive is valid on a field SDL definition.")
-            .value("ARGUMENT_DEFINITION", DirectiveLocation.ARGUMENT_DEFINITION, "Indicates the directive is valid on a field argument SDL definition.")
-            .value("INTERFACE", DirectiveLocation.INTERFACE, "Indicates the directive is valid on an interface SDL definition.")
-            .value("UNION", DirectiveLocation.UNION, "Indicates the directive is valid on an union SDL definition.")
-            .value("ENUM", DirectiveLocation.ENUM, "Indicates the directive is valid on an enum SDL definition.")
-            .value("ENUM_VALUE", DirectiveLocation.ENUM_VALUE, "Indicates the directive is valid on an enum value SDL definition.")
-            .value("INPUT_OBJECT", DirectiveLocation.INPUT_OBJECT, "Indicates the directive is valid on an input object SDL definition.")
-            .value("INPUT_FIELD_DEFINITION", DirectiveLocation.INPUT_FIELD_DEFINITION, "Indicates the directive is valid on an input object field SDL definition.")
-            .build();
-
-
+    /**
+     * 指令：名称、描述、元素位置、参数、所在位置(操作、片段、字段)。结合静态代码块看。
+     * type __Directive {
+     *   name: String!
+     *   description: String
+     *   locations: [__DirectiveLocation!]!
+     *   args: [__InputValue!]!
+     *   isRepeatable: Boolean!
+     * }
+     */
     @SuppressWarnings("deprecation") // because graphql spec still has the deprecated fields
     public static final GraphQLObjectType __Directive = newObject()
             .name("__Directive")
+            .description("The __Directive type represents a Directive that a server supports.")
             .field(newFieldDefinition()
                     .name("name")
                     .type(GraphQLString))
@@ -449,8 +476,8 @@ public class Introspection {
                     .type(GraphQLBoolean)
                     .deprecate("Use `locations`."))
             .build();
-
     static {
+        //指令位置、参数、名称和描述等
         register(__Directive, "locations", environment -> {
             GraphQLDirective directive = environment.getSource();
             return new ArrayList<>(directive.validLocations());
@@ -474,11 +501,13 @@ public class Introspection {
             return directive.isOnField() ||
                     directive.validLocations().contains(DirectiveLocation.FIELD);
         });
-
         register(__Directive, "name", nameDataFetcher);
         register(__Directive, "description", descriptionDataFetcher);
     }
 
+    /**
+     * ============__Schema类，内省查询入口，包含所有的类型、操作、指令等信息。详见static代码块=========================
+     */
     public static final GraphQLObjectType __Schema = newObject()
             .name("__Schema")
             .description("A GraphQL Introspection defines the capabilities" +
@@ -505,12 +534,13 @@ public class Introspection {
                     .description("'If this server support subscription, the type that subscription operations will be rooted at.")
                     .type(__Type))
             .build();
-
     static {
+        //__Schema类型，类型字段名称types、该字段使用的打他Fetcher：获取所有的类型
         register(__Schema, "types", environment -> {
             GraphQLSchema schema = environment.getSource();
             return schema.getAllTypesAsList();
         });
+        //获取schema的操作类型
         register(__Schema, "queryType", environment -> {
             GraphQLSchema schema = environment.getSource();
             return schema.getQueryType();
@@ -519,24 +549,34 @@ public class Introspection {
             GraphQLSchema schema = environment.getSource();
             return schema.getMutationType();
         });
-        register(__Schema, "directives", environment -> environment.getGraphQLSchema().getDirectives());
         register(__Schema, "subscriptionType", environment -> {
             GraphQLSchema schema = environment.getSource();
             return schema.getSubscriptionType();
         });
+        //获取schema的指令
+        register(__Schema, "directives", environment -> environment.getGraphQLSchema().getDirectives());
     }
 
-    public static final DataFetcher<Object> SchemaMetaFieldDefDataFetcher = DataFetchingEnvironment::getGraphQLSchema;
+    /**
+     * ============__Schema类，内省查询入口，包含所有的类型、操作、指令等信息。详见static代码块=========================
+     */
+
+
+    //获取到schema
+    public static final DataFetcher<GraphQLSchema> SchemaMetaFieldDefDataFetcher = DataFetchingEnvironment::getGraphQLSchema;
+
     public static final GraphQLFieldDefinition SchemaMetaFieldDef = newFieldDefinition()
             .name("__schema")
             .type(nonNull(__Schema))
             .description("Access the current type schema of this server.")
             .build();
 
-    public static final DataFetcher<Object> TypeMetaFieldDefDataFetcher = environment -> {
+    //获取类型：todo 通过 environment.getArgument("name") 可以获取到类型名称嘛？
+    public static final DataFetcher<GraphQLType> TypeMetaFieldDefDataFetcher = environment -> {
         String name = environment.getArgument("name");
         return environment.getGraphQLSchema().getType(name);
     };
+
     public static final GraphQLFieldDefinition TypeMetaFieldDef = newFieldDefinition()
             .name("__type")
             .type(__Type)
@@ -546,7 +586,9 @@ public class Introspection {
                     .type(nonNull(GraphQLString)))
             .build();
 
-    public static final DataFetcher<Object> TypeNameMetaFieldDefDataFetcher = environment -> simplePrint(environment.getParentType());
+    //获取类型名称的dataFetcher
+    public static final DataFetcher<String> TypeNameMetaFieldDefDataFetcher = environment -> simplePrint(environment.getParentType());
+
 
     public static final GraphQLFieldDefinition TypeNameMetaFieldDef = newFieldDefinition()
             .name("__typename")
@@ -559,9 +601,13 @@ public class Introspection {
         // make sure all TypeReferences are resolved
         GraphQLSchema.newSchema()
                 .query(GraphQLObjectType.newObject()
+                        //非内省类型不应该包含 __开始的字段
                         .name("IntrospectionQuery")
+                        //__schema
                         .field(SchemaMetaFieldDef)
+                        //__type
                         .field(TypeMetaFieldDef)
+                        //__typename
                         .field(TypeNameMetaFieldDef)
                         .build())
                 .build();
