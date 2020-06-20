@@ -11,6 +11,8 @@ import static graphql.Assert.assertValidName;
 /**
  * A special type to allow a object/interface types to reference itself. It's replaced with the real type
  * object when the schema is built.
+ *
+ * 一个特殊的类型：允许对象/接口类型引用自身。在构建schema的时候、实际的类型则会替换他。
  */
 @PublicApi
 public class GraphQLTypeReference implements GraphQLNamedOutputType, GraphQLNamedInputType {

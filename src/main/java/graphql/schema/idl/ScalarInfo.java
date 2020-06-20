@@ -10,11 +10,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 标量对象信息
+ *
  * Info on all the standard scalar objects provided by graphql-java
  */
 public class ScalarInfo {
 
     /**
+     * 规范规定的标量集合
+     *
      * A list of the built-in scalar types as defined by the graphql specification
      */
     public static final List<GraphQLScalarType> GRAPHQL_SPECIFICATION_SCALARS = new ArrayList<>();
@@ -43,6 +47,8 @@ public class ScalarInfo {
     }
 
     /**
+     * fixme 是不是规范定义的标量
+     *
      * Returns true if the scalar type is a scalar that is specified by the graphql specification
      *
      * @param scalarTypeName the name of the scalar type in question

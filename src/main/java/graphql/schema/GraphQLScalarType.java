@@ -38,16 +38,28 @@ import static java.util.Collections.emptyList;
  */
 public class GraphQLScalarType implements GraphQLNamedInputType, GraphQLNamedOutputType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLDirectiveContainer {
 
+    //名称、描述
     private final String name;
     private final String description;
+
+    /**
+     * Java对象序列化为graphql类型、graphql类型解析为java对象；
+     */
     private final Coercing coercing;
+
+    //fixme scalar类型定义：名称、指令
     private final ScalarTypeDefinition definition;
     private final List<ScalarTypeExtensionDefinition> extensionDefinitions;
+
+    //标量上定义的指令？孩子节点
     private final List<GraphQLDirective> directives;
 
     public static final String CHILD_DIRECTIVES = "directives";
 
 
+    /**
+     * ===================================构造函数：标量名称、描述、转换器、标量定义、标量上用的指令=============================
+     */
     /**
      * @param name        the name
      * @param description the description
@@ -89,6 +101,12 @@ public class GraphQLScalarType implements GraphQLNamedInputType, GraphQLNamedOut
         this.extensionDefinitions = Collections.unmodifiableList(new ArrayList<>(extensionDefinitions));
     }
 
+    /**
+     * end of ===================================构造函数：标量名称、描述、转换器、标量定义、标量上用的指令=======================
+     */
+
+
+
     @Override
     public String getName() {
         return name;
@@ -123,6 +141,7 @@ public class GraphQLScalarType implements GraphQLNamedInputType, GraphQLNamedOut
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", coercing=" + coercing +
+                ", children=" + getChildren() +
                 '}';
     }
 

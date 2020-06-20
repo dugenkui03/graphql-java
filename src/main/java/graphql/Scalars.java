@@ -26,6 +26,9 @@ import static graphql.Assert.assertShouldNeverHappen;
  */
 public class Scalars {
 
+    /**
+     * Long、Int、Byte和Short
+     */
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
     private static final BigInteger INT_MAX = BigInteger.valueOf(Integer.MAX_VALUE);
@@ -35,13 +38,15 @@ public class Scalars {
     private static final BigInteger SHORT_MAX = BigInteger.valueOf(Short.MAX_VALUE);
     private static final BigInteger SHORT_MIN = BigInteger.valueOf(Short.MIN_VALUE);
 
-
+    //是否是数字?
     private static boolean isNumberIsh(Object input) {
         return input instanceof Number || input instanceof String;
     }
 
+    //类型名称？
     private static String typeName(Object input) {
         if (input == null) {
+            //null是不可用的命名，所以返回null也算是特殊标识
             return "null";
         }
 
