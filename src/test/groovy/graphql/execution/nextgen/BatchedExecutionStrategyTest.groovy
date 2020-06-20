@@ -2,10 +2,10 @@ package graphql.execution.nextgen
 
 
 import graphql.nextgen.GraphQL
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import spock.lang.Specification
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 import static graphql.TestUtil.schema
 
 class BatchedExecutionStrategyTest extends Specification {

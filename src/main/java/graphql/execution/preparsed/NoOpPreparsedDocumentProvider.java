@@ -1,7 +1,7 @@
 package graphql.execution.preparsed;
 
 
-import graphql.ExecutionInput;
+import graphql.execution.ExecutionInput;
 
 import java.util.function.Function;
 

@@ -1,9 +1,9 @@
 package readme;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLSchema;
 

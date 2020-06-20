@@ -1,10 +1,11 @@
 package graphql;
 
 
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.Scalars;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

@@ -2,9 +2,9 @@ package graphql.validation.rules;
 
 
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.OperationDefinition;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;
 import graphql.validation.ValidationErrorCollector;

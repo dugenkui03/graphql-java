@@ -1,9 +1,9 @@
 package graphql.validation.rules;
 
-import graphql.Directives;
-import graphql.Internal;
-import graphql.language.Directive;
-import graphql.language.Node;
+import graphql.schema.Directives;
+import graphql.masker.Internal;
+import graphql.language.node.Directive;
+import graphql.language.node.Node;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.validation.AbstractRule;

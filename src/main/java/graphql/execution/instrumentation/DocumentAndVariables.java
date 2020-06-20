@@ -1,13 +1,13 @@
 package graphql.execution.instrumentation;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.language.Document;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 /**
  * 保存dsl及本次请求的变量

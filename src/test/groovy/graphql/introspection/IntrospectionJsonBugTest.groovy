@@ -1,6 +1,6 @@
 package graphql.introspection
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.language.Document
 import graphql.schema.GraphQLScalarType
 import graphql.schema.idl.MockedWiringFactory

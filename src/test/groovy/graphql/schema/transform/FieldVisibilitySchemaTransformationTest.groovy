@@ -1,6 +1,6 @@
 package graphql.schema.transform
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.TestUtil
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLInputObjectType

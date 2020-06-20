@@ -1,6 +1,9 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
+import graphql.analysis.environment.QueryVisitorFragmentSpreadEnvironment;
+import graphql.analysis.environment.QueryVisitorInlineFragmentEnvironment;
 
 //查询访问者，空操作，方便使用
 @PublicApi

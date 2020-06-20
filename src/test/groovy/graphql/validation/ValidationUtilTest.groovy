@@ -1,25 +1,25 @@
 package graphql.validation
 
 import graphql.StarWarsSchema
-import graphql.language.ArrayValue
-import graphql.language.BooleanValue
-import graphql.language.EnumValue
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.NullValue
-import graphql.language.ObjectField
-import graphql.language.ObjectValue
-import graphql.language.StringValue
-import graphql.language.TypeName
-import graphql.language.VariableReference
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.EnumValue
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.NullValue
+import graphql.language.node.ObjectField
+import graphql.language.node.ObjectValue
+import graphql.language.node.StringValue
+import graphql.language.node.TypeName
+import graphql.language.node.VariableReference
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLSchema
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull
 

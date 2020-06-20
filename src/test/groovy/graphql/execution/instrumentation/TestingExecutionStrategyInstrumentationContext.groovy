@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation
 
-import graphql.ExecutionResult
+import graphql.execution.ExecutionResult
 
 class TestingExecutionStrategyInstrumentationContext extends TestingInstrumentContext<ExecutionResult> implements ExecutionStrategyInstrumentationContext {
 

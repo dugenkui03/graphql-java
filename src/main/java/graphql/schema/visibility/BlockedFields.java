@@ -1,7 +1,7 @@
 package graphql.schema.visibility;
 
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLFieldsContainer;
 import graphql.schema.GraphQLInputFieldsContainer;

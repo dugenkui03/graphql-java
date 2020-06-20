@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
 import graphql.StarWarsSchema
-import graphql.language.TypeName
+import graphql.language.node.TypeName
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType

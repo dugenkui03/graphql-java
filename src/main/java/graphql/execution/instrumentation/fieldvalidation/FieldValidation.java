@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation.fieldvalidation;
 
-import graphql.GraphQLError;
-import graphql.PublicSpi;
+import graphql.error.GraphQLError;
+import graphql.masker.PublicSpi;
 
 import java.util.List;
 

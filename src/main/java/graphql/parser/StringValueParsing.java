@@ -1,7 +1,7 @@
 package graphql.parser;
 
-import graphql.Assert;
-import graphql.Internal;
+import graphql.util.Assert;
+import graphql.masker.Internal;
 
 import java.io.StringWriter;
 import java.util.ArrayList;

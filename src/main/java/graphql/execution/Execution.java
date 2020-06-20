@@ -1,42 +1,43 @@
 package graphql.execution;
 
 
-import graphql.DeferredExecutionResult;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
+import graphql.execution.defer.DeferredExecutionResult;
 import graphql.GraphQL;
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.execution.defer.DeferSupport;
+import graphql.execution.exception.MissingRootTypeException;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.strategy.AsyncSerialExecutionStrategy;
+import graphql.execution.strategy.ExecutionStrategy;
+import graphql.execution.strategy.ExecutionStrategyParameters;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
+import graphql.language.node.definition.FragmentDefinition;
 import graphql.language.NodeUtil;
-import graphql.language.OperationDefinition;
-import graphql.language.VariableDefinition;
+import graphql.language.node.definition.OperationDefinition;
+import graphql.language.node.definition.VariableDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import graphql.util.LogKit;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertShouldNeverHappen;
 import static graphql.execution.ExecutionContextBuilder.newExecutionContextBuilder;
 import static graphql.execution.ExecutionStepInfo.newExecutionStepInfo;
-import static graphql.execution.ExecutionStrategyParameters.newParameters;
-import static graphql.language.OperationDefinition.Operation.MUTATION;
-import static graphql.language.OperationDefinition.Operation.QUERY;
-import static graphql.language.OperationDefinition.Operation.SUBSCRIPTION;
+import static graphql.execution.strategy.ExecutionStrategyParameters.newParameters;
+import static graphql.language.node.definition.OperationDefinition.Operation.MUTATION;
+import static graphql.language.node.definition.OperationDefinition.Operation.QUERY;
+import static graphql.language.node.definition.OperationDefinition.Operation.SUBSCRIPTION;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Internal

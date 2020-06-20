@@ -1,10 +1,10 @@
 package graphql.cachecontrol
 
 
-import graphql.ExecutionResultImpl
+import graphql.execution.ExecutionResultImpl
 import graphql.TestUtil
 import graphql.execution.ExecutionPath
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import spock.lang.Specification
 
 class CacheControlTest extends Specification {

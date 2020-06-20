@@ -4,11 +4,11 @@ import com.google.gson.Gson
 import graphql.GraphQL
 import graphql.StarWarsSchema
 import graphql.TestUtil
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
 import graphql.execution.batched.BatchedExecutionStrategy
 import graphql.execution.instrumentation.tracing.TracingInstrumentation
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import spock.lang.Specification
 

@@ -1,6 +1,6 @@
 package graphql.validation.rules
 
-import graphql.Directives
+import graphql.schema.Directives
 import graphql.GraphQL
 import graphql.TestUtil
 import graphql.validation.ValidationError

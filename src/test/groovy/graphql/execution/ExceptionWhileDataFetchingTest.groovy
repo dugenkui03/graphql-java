@@ -1,12 +1,9 @@
 package graphql.execution
 
-import graphql.ErrorType
-import graphql.ExceptionWhileDataFetching
-import graphql.ExecutionInput
-import graphql.GraphQLError
+import graphql.error.ErrorType
+import graphql.error.GraphQLError
 import graphql.TestUtil
-import graphql.language.SourceLocation
-import graphql.schema.DataFetcher
+import graphql.language.node.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.idl.RuntimeWiring
 import spock.lang.Specification

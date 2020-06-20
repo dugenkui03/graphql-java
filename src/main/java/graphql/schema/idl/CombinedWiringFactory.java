@@ -1,14 +1,14 @@
 package graphql.schema.idl;
 
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetcherFactory;
 import graphql.schema.TypeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertShouldNeverHappen;
 
 /**
  * This combines a number of {@link WiringFactory}s together to act as one.  It asks each one

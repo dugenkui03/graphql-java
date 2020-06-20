@@ -4,8 +4,8 @@ import graphql.TestUtil
 import graphql.schema.idl.SchemaPrinter
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLInt
+import static Scalars.GraphQLString
 import static graphql.TestUtil.*
 import static graphql.schema.DefaultGraphqlTypeComparatorRegistry.DEFAULT_COMPARATOR
 import static graphql.schema.DefaultGraphqlTypeComparatorRegistry.newComparators

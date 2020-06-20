@@ -1,9 +1,9 @@
 package graphql.execution.instrumentation;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.PublicApi;
-import graphql.execution.Async;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
+import graphql.masker.PublicApi;
+import graphql.execution.utils.AsyncUtil;
 import graphql.execution.ExecutionContext;
 import graphql.execution.FieldValueInfo;
 import graphql.execution.MergedField;
@@ -17,7 +17,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters;
 import graphql.language.Document;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLSchema;
 import graphql.validation.ValidationError;
 
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -213,7 +213,7 @@ public class ChainedInstrumentation implements Instrumentation {
 
     @Override
     public CompletableFuture<ExecutionResult> instrumentExecutionResult(ExecutionResult executionResult, InstrumentationExecutionParameters parameters) {
-        CompletableFuture<List<ExecutionResult>> resultsFuture = Async.eachSequentially(instrumentations, (instrumentation, index, prevResults) -> {
+        CompletableFuture<List<ExecutionResult>> resultsFuture = AsyncUtil.eachSequentially(instrumentations, (instrumentation, index, prevResults) -> {
             InstrumentationState state = getState(instrumentation, parameters.getInstrumentationState());
             ExecutionResult lastResult = prevResults.size() > 0 ? prevResults.get(prevResults.size() - 1) : executionResult;
             return instrumentation.instrumentExecutionResult(lastResult, parameters.withNewState(state));

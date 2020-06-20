@@ -1,8 +1,8 @@
 package readme;
 
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
-import graphql.GraphQLError;
+import graphql.error.GraphQLError;
 import graphql.execution.ExecutionPath;
 import graphql.execution.instrumentation.ChainedInstrumentation;
 import graphql.execution.instrumentation.Instrumentation;
@@ -18,7 +18,7 @@ import graphql.execution.instrumentation.fieldvalidation.SimpleFieldValidation;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLSchema;
 
 import java.util.ArrayList;

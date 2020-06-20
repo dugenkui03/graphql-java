@@ -1,6 +1,6 @@
 package graphql.execution.reactive;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -8,8 +8,8 @@ import org.reactivestreams.Subscription;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertNotNullWithNPE;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNullWithNPE;
 
 /**
  * A Publisher of things that are buffered and handles a single subscriber at a time.

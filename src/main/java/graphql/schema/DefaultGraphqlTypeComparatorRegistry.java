@@ -1,13 +1,13 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.schema.GraphqlTypeComparatorEnvironment.newEnvironment;
 
 /**

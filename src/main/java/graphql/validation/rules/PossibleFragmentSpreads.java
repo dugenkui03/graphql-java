@@ -1,11 +1,11 @@
 package graphql.validation.rules;
 
 
-import graphql.Assert;
+import graphql.util.Assert;
 import graphql.execution.TypeFromAST;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.InlineFragment;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.InlineFragment;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;

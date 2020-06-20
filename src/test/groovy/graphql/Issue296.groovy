@@ -2,7 +2,7 @@ package graphql
 
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLArgument.newArgument
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField

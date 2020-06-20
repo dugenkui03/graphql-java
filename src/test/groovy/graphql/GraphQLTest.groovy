@@ -1,20 +1,25 @@
 package graphql
 
-import graphql.analysis.MaxQueryComplexityInstrumentation
-import graphql.analysis.MaxQueryDepthInstrumentation
-import graphql.execution.AsyncExecutionStrategy
+import graphql.analysis.instrumentation.MaxQueryComplexityInstrumentation
+import graphql.analysis.instrumentation.MaxQueryDepthInstrumentation
+import graphql.error.AssertException
+import graphql.error.ErrorType
+import graphql.error.GraphQLException
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionId
 import graphql.execution.ExecutionIdProvider
-import graphql.execution.ExecutionStrategyParameters
-import graphql.execution.MissingRootTypeException
+import graphql.execution.strategy.ExecutionStrategyParameters
+import graphql.execution.exception.MissingRootTypeException
 import graphql.execution.batched.BatchedExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
-import graphql.language.SourceLocation
-import graphql.schema.DataFetcher
+import graphql.language.node.SourceLocation
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
@@ -22,6 +27,7 @@ import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
+import graphql.schema.Scalars
 import graphql.schema.StaticDataFetcher
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
@@ -31,10 +37,10 @@ import spock.lang.Unroll
 import java.util.concurrent.CompletableFuture
 import java.util.function.UnaryOperator
 
-import static graphql.ExecutionInput.Builder
-import static graphql.ExecutionInput.newExecutionInput
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.execution.ExecutionInput.Builder
+import static graphql.execution.ExecutionInput.newExecutionInput
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLArgument.newArgument
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField

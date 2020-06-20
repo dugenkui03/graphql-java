@@ -1,30 +1,29 @@
 package graphql.schema.diff;
 
 import graphql.introspection.IntrospectionResultToSchema;
-import graphql.language.Argument;
-import graphql.language.Directive;
-import graphql.language.DirectivesContainer;
+import graphql.language.node.Argument;
+import graphql.language.node.Directive;
+import graphql.language.node.container.DirectivesContainer;
 import graphql.language.Document;
-import graphql.language.EnumTypeDefinition;
-import graphql.language.EnumValueDefinition;
-import graphql.language.FieldDefinition;
-import graphql.language.InputObjectTypeDefinition;
-import graphql.language.InputValueDefinition;
-import graphql.language.InterfaceTypeDefinition;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.OperationTypeDefinition;
-import graphql.language.ScalarTypeDefinition;
-import graphql.language.SchemaDefinition;
-import graphql.language.Type;
-import graphql.language.TypeDefinition;
-import graphql.language.TypeKind;
-import graphql.language.TypeName;
-import graphql.language.UnionTypeDefinition;
-import graphql.language.Value;
+import graphql.language.node.definition.EnumTypeDefinition;
+import graphql.language.node.definition.EnumValueDefinition;
+import graphql.language.node.definition.FieldDefinition;
+import graphql.language.node.definition.InputObjectTypeDefinition;
+import graphql.language.node.definition.InputValueDefinition;
+import graphql.language.node.definition.InterfaceTypeDefinition;
+import graphql.language.node.definition.ObjectTypeDefinition;
+import graphql.language.node.definition.OperationTypeDefinition;
+import graphql.language.node.definition.ScalarTypeDefinition;
+import graphql.language.node.definition.SchemaDefinition;
+import graphql.language.node.Type;
+import graphql.language.node.definition.TypeDefinition;
+import graphql.language.node.TypeKind;
+import graphql.language.node.TypeName;
+import graphql.language.node.definition.UnionTypeDefinition;
+import graphql.language.node.Value;
 import graphql.schema.diff.reporting.DifferenceReporter;
 import graphql.schema.idl.TypeInfo;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static graphql.language.TypeKind.getTypeKind;
+import static graphql.language.node.TypeKind.getTypeKind;
 import static graphql.schema.idl.TypeInfo.getAstDesc;
 import static graphql.schema.idl.TypeInfo.typeInfo;
 

@@ -1,9 +1,9 @@
 package graphql.execution.instrumentation
 
-import graphql.ExecutionResult
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.StarWarsSchema
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
@@ -11,7 +11,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters
 import graphql.language.Document
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.validation.ValidationError
 import spock.lang.Specification
 

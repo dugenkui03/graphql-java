@@ -1,15 +1,15 @@
 package graphql.validation.rules
 
-import graphql.Scalars
-import graphql.language.Field
-import graphql.language.SelectionSet
+import graphql.schema.Scalars
+import graphql.language.node.Field
+import graphql.language.node.SelectionSet
 import graphql.schema.GraphQLObjectType
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.language.Field.newField
+import static graphql.language.node.Field.newField
 
 class ScalarLeafsTest extends Specification {
 

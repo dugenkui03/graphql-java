@@ -1,14 +1,15 @@
 package graphql.execution;
 
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 import graphql.cachecontrol.CacheControl;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationState;
+import graphql.execution.strategy.ExecutionStrategy;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
-import graphql.language.OperationDefinition;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.schema.GraphQLSchema;
 import org.dataloader.DataLoaderRegistry;
 
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 @PublicApi
 public class ExecutionContextBuilder {

@@ -1,14 +1,13 @@
 package graphql.schema
 
-import graphql.AssertException
-import graphql.DirectivesUtil
+import graphql.error.AssertException
 import graphql.NestedInputSchema
 import graphql.introspection.Introspection
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLBoolean
+import static Scalars.GraphQLInt
+import static Scalars.GraphQLString
 import static graphql.StarWarsSchema.characterInterface
 import static graphql.StarWarsSchema.droidType
 import static graphql.StarWarsSchema.episodeEnum

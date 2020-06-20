@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 //容器：保存schema元素子节点
 @PublicApi

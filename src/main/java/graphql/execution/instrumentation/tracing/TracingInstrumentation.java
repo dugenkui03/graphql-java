@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.tracing;
 
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.PublicApi;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.masker.PublicApi;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.InstrumentationState;

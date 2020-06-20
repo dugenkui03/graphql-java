@@ -1,32 +1,33 @@
 package graphql.execution.batched;
 
-import graphql.Assert;
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.PublicApi;
-import graphql.TrivialDataFetcher;
-import graphql.execution.Async;
-import graphql.execution.DataFetcherExceptionHandler;
-import graphql.execution.DataFetcherExceptionHandlerParameters;
-import graphql.execution.DataFetcherExceptionHandlerResult;
+import graphql.util.Assert;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.masker.PublicApi;
+import graphql.execution.TrivialDataFetcher;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.utils.AsyncUtil;
+import graphql.execution.exception.handler.DataFetcherExceptionHandler;
+import graphql.execution.exception.handler.DataFetcherExceptionHandlerParameters;
+import graphql.execution.exception.handler.DataFetcherExceptionHandlerResult;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionPath;
 import graphql.execution.ExecutionStepInfo;
-import graphql.execution.ExecutionStrategy;
-import graphql.execution.ExecutionStrategyParameters;
+import graphql.execution.strategy.ExecutionStrategy;
+import graphql.execution.strategy.ExecutionStrategyParameters;
 import graphql.execution.FieldCollectorParameters;
 import graphql.execution.MergedField;
 import graphql.execution.MergedSelectionSet;
 import graphql.execution.NonNullableFieldValidator;
 import graphql.execution.ResolveType;
-import graphql.execution.SimpleDataFetcherExceptionHandler;
+import graphql.execution.exception.handler.SimpleDataFetcherExceptionHandler;
 import graphql.execution.directives.QueryDirectivesImpl;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.DataFetchingFieldSelectionSetImpl;
@@ -64,7 +65,7 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * <blockquote>
- * BatchedExecutionStrategy has been deprecated in favour of {@link graphql.execution.AsyncExecutionStrategy}
+ * BatchedExecutionStrategy has been deprecated in favour of {@link AsyncExecutionStrategy}
  * and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}.
  *
  * BatchedExecutionStrategy does not properly implement the graphql runtime specification.  Specifically it
@@ -86,7 +87,7 @@ import static java.util.stream.Collectors.toList;
  * Normal DataFetchers can be used, however they will not see benefits of batching as they expect a single source object
  * at a time.
  *
- * @deprecated This has been deprecated in favour of using {@link graphql.execution.AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
+ * @deprecated This has been deprecated in favour of using {@link AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
  */
 @PublicApi
 @Deprecated
@@ -279,7 +280,7 @@ public class BatchedExecutionStrategy extends ExecutionStrategy {
             DataFetcher<?> dataFetcher = instrumentation.instrumentDataFetcher(
                     batchedDataFetcher, instrumentationFieldFetchParameters);
             Object fetchedValueRaw = dataFetcher.get(environment);
-            fetchedValue = Async.toCompletableFuture(fetchedValueRaw);
+            fetchedValue = AsyncUtil.toCompletableFuture(fetchedValueRaw);
         } catch (Exception e) {
             fetchedValue = new CompletableFuture<>();
             fetchedValue.completeExceptionally(e);

@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * A GraphQLType which is also a named element, which means it has a getName() method.

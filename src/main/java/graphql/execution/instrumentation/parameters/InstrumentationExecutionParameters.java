@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation.parameters;
 
-import graphql.ExecutionInput;
-import graphql.PublicApi;
+import graphql.execution.ExecutionInput;
+import graphql.masker.PublicApi;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.schema.GraphQLSchema;

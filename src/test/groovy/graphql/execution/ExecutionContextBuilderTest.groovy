@@ -2,10 +2,11 @@ package graphql.execution
 
 import graphql.cachecontrol.CacheControl
 import graphql.execution.instrumentation.Instrumentation
+import graphql.execution.strategy.ExecutionStrategy
 import graphql.language.Document
-import graphql.language.FragmentDefinition
-import graphql.language.OperationDefinition
-import graphql.parser.Parser
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.definition.OperationDefinition
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLSchema
 import org.dataloader.DataLoaderRegistry
 import spock.lang.Specification
@@ -41,7 +42,7 @@ class ExecutionContextBuilderTest extends Specification {
         def root = "root"
         executionContextBuilder.root(root)
 
-        Document document = new Parser().parseDocument("query myQuery(\$var: String){...MyFragment} fragment MyFragment on Query{foo}")
+        Document document = new DocumentParser().parseDocument("query myQuery(\$var: String){...MyFragment} fragment MyFragment on Query{foo}")
         def operation = document.definitions[0] as OperationDefinition
         def fragment = document.definitions[1] as FragmentDefinition
         executionContextBuilder.operationDefinition(operation)

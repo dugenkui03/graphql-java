@@ -1,7 +1,13 @@
 package graphql.language;
 
-import graphql.Internal;
-import graphql.execution.UnknownOperationException;
+import graphql.masker.Internal;
+import graphql.execution.exception.UnknownOperationException;
+import graphql.language.node.Argument;
+import graphql.language.node.Directive;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.Node;
+import graphql.language.node.container.NodeChildrenContainer;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.util.FpKit;
 import graphql.util.NodeLocation;
 

@@ -1,17 +1,18 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 
 import java.util.Objects;
 
-import static graphql.Assert.assertTrue;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertTrue;
+import static graphql.util.Assert.assertValidName;
 
 /**
  * 字段坐标：类型.名称：
  *
  * A field in graphql is uniquely located within a parent type and hence code elements
- * like {@link graphql.schema.DataFetcher} need to be specified using those coordinates.
+ * like {@link DataFetcher} need to be specified using those coordinates.
  */
 @PublicApi
 public class FieldCoordinates {

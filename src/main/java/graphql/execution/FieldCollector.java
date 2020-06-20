@@ -1,13 +1,13 @@
 package graphql.execution;
 
 
-import graphql.Internal;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.InlineFragment;
-import graphql.language.Selection;
-import graphql.language.SelectionSet;
+import graphql.masker.Internal;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.InlineFragment;
+import graphql.language.node.Selection;
+import graphql.language.node.SelectionSet;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;

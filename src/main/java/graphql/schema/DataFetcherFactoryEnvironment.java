@@ -1,10 +1,11 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 
 /**
  * This is passed to a {@link graphql.schema.DataFetcherFactory} when it is invoked to
- * get a {@link graphql.schema.DataFetcher}
+ * get a {@link DataFetcher}
  */
 @PublicApi
 public class DataFetcherFactoryEnvironment {
@@ -15,7 +16,7 @@ public class DataFetcherFactoryEnvironment {
     }
 
     /**
-     * @return the field that needs a {@link graphql.schema.DataFetcher}
+     * @return the field that needs a {@link DataFetcher}
      */
     public GraphQLFieldDefinition getFieldDefinition() {
         return fieldDefinition;

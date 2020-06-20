@@ -1,8 +1,8 @@
 package graphql.validation;
 
 
-import graphql.Internal;
-import graphql.language.Node;
+import graphql.masker.Internal;
+import graphql.language.node.Node;
 
 import java.util.List;
 

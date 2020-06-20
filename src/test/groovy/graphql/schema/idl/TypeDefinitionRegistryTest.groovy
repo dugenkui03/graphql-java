@@ -1,24 +1,24 @@
 package graphql.schema.idl
 
 
-import graphql.language.DirectiveDefinition
-import graphql.language.EnumTypeDefinition
-import graphql.language.EnumTypeExtensionDefinition
-import graphql.language.InputObjectTypeDefinition
-import graphql.language.InputObjectTypeExtensionDefinition
-import graphql.language.InterfaceTypeDefinition
-import graphql.language.InterfaceTypeExtensionDefinition
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.ObjectTypeDefinition
-import graphql.language.ObjectTypeExtensionDefinition
-import graphql.language.ScalarTypeDefinition
-import graphql.language.ScalarTypeExtensionDefinition
-import graphql.language.SchemaDefinition
-import graphql.language.Type
-import graphql.language.TypeName
-import graphql.language.UnionTypeDefinition
-import graphql.language.UnionTypeExtensionDefinition
+import graphql.language.node.definition.DirectiveDefinition
+import graphql.language.node.definition.EnumTypeDefinition
+import graphql.language.node.definition.extension.EnumTypeExtensionDefinition
+import graphql.language.node.definition.InputObjectTypeDefinition
+import graphql.language.node.definition.extension.InputObjectTypeExtensionDefinition
+import graphql.language.node.definition.InterfaceTypeDefinition
+import graphql.language.node.definition.extension.InterfaceTypeExtensionDefinition
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.definition.ObjectTypeDefinition
+import graphql.language.node.definition.extension.ObjectTypeExtensionDefinition
+import graphql.language.node.definition.ScalarTypeDefinition
+import graphql.language.node.definition.extension.ScalarTypeExtensionDefinition
+import graphql.language.node.definition.SchemaDefinition
+import graphql.language.node.Type
+import graphql.language.node.TypeName
+import graphql.language.node.definition.UnionTypeDefinition
+import graphql.language.node.definition.extension.UnionTypeExtensionDefinition
 import graphql.schema.idl.errors.SchemaProblem
 import graphql.schema.idl.errors.SchemaRedefinitionError
 import spock.lang.Specification
@@ -175,9 +175,7 @@ class TypeDefinitionRegistryTest extends Specification {
     def "test merge of directive defs"() {
 
         def spec1 = """ 
-
           directive @example on FIELD_DEFINITION | ARGUMENT_DEFINITION
-
           type Post {
               id: Int!
             }
@@ -191,7 +189,6 @@ class TypeDefinitionRegistryTest extends Specification {
         }
          
           directive @example on FIELD_DEFINITION | ARGUMENT_DEFINITION
-
         """
 
         def result1 = parse(spec1)

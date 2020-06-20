@@ -1,6 +1,6 @@
 package graphql
 
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 
 import static graphql.execution.DataFetcherResult.newResult

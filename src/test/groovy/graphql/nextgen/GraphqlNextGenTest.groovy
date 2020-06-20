@@ -1,10 +1,10 @@
 package graphql.nextgen
 
 
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import spock.lang.Specification
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 import static graphql.TestUtil.schema
 
 class GraphqlNextGenTest extends Specification {

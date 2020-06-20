@@ -1,8 +1,8 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
-import graphql.language.FieldDefinition;
-import graphql.language.TypeDefinition;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.FieldDefinition;
+import graphql.language.node.definition.TypeDefinition;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLOutputType;
 

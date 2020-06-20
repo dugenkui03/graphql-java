@@ -1,8 +1,8 @@
 package graphql.schema.idl.errors;
 
-import graphql.language.Node;
-import graphql.language.TypeDefinition;
-import graphql.language.TypeName;
+import graphql.language.node.Node;
+import graphql.language.node.definition.TypeDefinition;
+import graphql.language.node.TypeName;
 
 import static java.lang.String.format;
 

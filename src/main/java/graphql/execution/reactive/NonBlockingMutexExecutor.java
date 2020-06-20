@@ -1,12 +1,12 @@
 package graphql.execution.reactive;
 
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 
 /**

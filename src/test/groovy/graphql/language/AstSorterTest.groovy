@@ -1,10 +1,10 @@
 package graphql.language
 
-
+import graphql.language.operation.AstSorter
 import spock.lang.Specification
 
 import static graphql.TestUtil.parseQuery
-import static graphql.language.AstPrinter.printAst
+import static graphql.language.operation.AstPrinter.printAst
 
 class AstSorterTest extends Specification {
 

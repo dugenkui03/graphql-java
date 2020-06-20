@@ -1,13 +1,13 @@
 package graphql.execution.nextgen.result;
 
-import graphql.Assert;
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.util.Assert;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionStepInfo;
-import graphql.execution.NonNullableFieldWasNullError;
-import graphql.execution.NonNullableFieldWasNullException;
+import graphql.execution.exception.NonNullableFieldWasNullError;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 import graphql.util.NodeLocation;
 import graphql.util.NodeMultiZipper;
 import graphql.util.NodeZipper;

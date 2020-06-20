@@ -1,7 +1,7 @@
 package graphql.parser;
 
-import graphql.Assert;
-import graphql.PublicApi;
+import graphql.util.Assert;
+import graphql.masker.PublicApi;
 
 import java.io.IOException;
 import java.io.LineNumberReader;

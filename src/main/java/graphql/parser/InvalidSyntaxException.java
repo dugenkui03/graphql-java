@@ -1,10 +1,10 @@
 package graphql.parser;
 
 
-import graphql.GraphQLException;
-import graphql.Internal;
-import graphql.InvalidSyntaxError;
-import graphql.language.SourceLocation;
+import graphql.error.GraphQLException;
+import graphql.masker.Internal;
+import graphql.error.InvalidSyntaxError;
+import graphql.language.node.SourceLocation;
 
 import java.util.Collections;
 import java.util.List;

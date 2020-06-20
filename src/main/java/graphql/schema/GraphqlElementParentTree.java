@@ -1,7 +1,7 @@
 package graphql.schema;
 
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -9,8 +9,8 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 
 /**
  * This represents a hierarchy an graphql runtime element upwards to its

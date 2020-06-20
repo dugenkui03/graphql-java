@@ -1,6 +1,8 @@
 package graphql
 
-import graphql.language.SourceLocation
+import graphql.error.InvalidSyntaxError
+import graphql.execution.ExecutionResultImpl
+import graphql.language.node.SourceLocation
 import spock.lang.Specification
 
 class ExecutionResultImplTest extends Specification {

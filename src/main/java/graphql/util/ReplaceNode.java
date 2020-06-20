@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 /**
  * Special class to be set as var in {@link TraverserContext#setVar(Class, Object)} to indicate that the current node should be replaced.

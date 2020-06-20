@@ -9,7 +9,7 @@ import graphql.schema.validation.exception.SchemaValidationErrorType
 import graphql.schema.validation.rules.NonNullInputObjectCyclesRuler
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLBoolean
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLInputObjectType.newInputObject
 import static graphql.schema.GraphQLNonNull.nonNull

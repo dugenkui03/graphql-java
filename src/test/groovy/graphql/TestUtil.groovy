@@ -2,16 +2,17 @@ package graphql
 
 import graphql.execution.MergedField
 import graphql.execution.MergedSelectionSet
+import graphql.execution.TypeResolutionEnvironment
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.language.Document
-import graphql.language.Field
-import graphql.language.ObjectTypeDefinition
-import graphql.language.OperationDefinition
-import graphql.language.ScalarTypeDefinition
-import graphql.language.Type
-import graphql.parser.Parser
+import graphql.language.node.Field
+import graphql.language.node.definition.ObjectTypeDefinition
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.definition.ScalarTypeDefinition
+import graphql.language.node.Type
+import graphql.parser.DocumentParser
 import graphql.schema.Coercing
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -32,8 +33,8 @@ import graphql.schema.idl.errors.SchemaProblem
 import java.util.function.Supplier
 import java.util.stream.Collectors
 
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLArgument.newArgument
 import static graphql.schema.GraphQLDirective.newDirective
 
@@ -209,7 +210,7 @@ class TestUtil {
 
 
     static Document parseQuery(String query) {
-        new Parser().parseDocument(query)
+        new DocumentParser().parseDocument(query)
     }
 
     static Type parseType(String typeAst) {

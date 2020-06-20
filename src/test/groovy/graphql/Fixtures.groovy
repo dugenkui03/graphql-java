@@ -3,6 +3,7 @@ package graphql
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
+import graphql.schema.Scalars
 
 class Fixtures {
 

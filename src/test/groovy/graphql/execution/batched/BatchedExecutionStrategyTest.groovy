@@ -4,14 +4,14 @@
 
 package graphql.execution.batched
 
-import graphql.ExceptionWhileDataFetching
-import graphql.ExecutionResult
+import graphql.execution.ExceptionWhileDataFetching
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.TestUtil
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.instrumentation.TestingInstrumentation
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.RuntimeWiring

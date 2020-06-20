@@ -1,5 +1,7 @@
 package graphql
 
+import graphql.error.GraphQLException
+import graphql.error.SerializationError
 import graphql.execution.batched.BatchedExecutionStrategy
 import spock.lang.Specification
 import spock.lang.Unroll

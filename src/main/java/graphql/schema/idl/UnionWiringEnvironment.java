@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
-import graphql.language.UnionTypeDefinition;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.UnionTypeDefinition;
 
 @PublicApi
 public class UnionWiringEnvironment extends WiringEnvironment {

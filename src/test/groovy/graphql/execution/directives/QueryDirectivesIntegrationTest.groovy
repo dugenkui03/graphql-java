@@ -2,7 +2,7 @@ package graphql.execution.directives
 
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.GraphQLDirective
 import spock.lang.Specification
 

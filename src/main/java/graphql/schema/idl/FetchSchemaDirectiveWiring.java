@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.Internal;
-import graphql.schema.DataFetcher;
+import graphql.masker.Internal;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLFieldDefinition;
@@ -10,7 +10,7 @@ import graphql.schema.PropertyDataFetcher;
 import java.util.List;
 import java.util.Optional;
 
-import static graphql.DirectivesUtil.directiveWithArg;
+import static graphql.schema.DirectivesUtil.directiveWithArg;
 import static graphql.schema.FieldCoordinates.coordinates;
 
 /**

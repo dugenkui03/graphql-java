@@ -2,8 +2,8 @@ package graphql.schema
 
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLFloat
-import static graphql.Scalars.GraphQLInt
+import static Scalars.GraphQLFloat
+import static Scalars.GraphQLInt
 import static graphql.schema.GraphQLDirective.newDirective
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField
 

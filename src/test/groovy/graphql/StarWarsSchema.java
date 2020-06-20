@@ -6,10 +6,9 @@ import graphql.schema.GraphQLInputObjectType;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphqlTypeComparatorRegistry;
 import graphql.schema.StaticDataFetcher;
 
-import static graphql.Scalars.GraphQLString;
+import static graphql.schema.Scalars.GraphQLString;
 import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLEnumType.newEnum;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;

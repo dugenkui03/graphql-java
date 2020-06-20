@@ -1,11 +1,11 @@
 package graphql.util;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.List;
 import java.util.Queue;
 
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertTrue;
 
 @PublicApi
 public class TreeTransformerUtil {

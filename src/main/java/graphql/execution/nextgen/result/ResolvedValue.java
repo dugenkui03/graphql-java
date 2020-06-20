@@ -1,7 +1,7 @@
 package graphql.execution.nextgen.result;
 
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 
 import java.util.ArrayList;
 import java.util.Collections;

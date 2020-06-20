@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
@@ -12,7 +12,7 @@ import spock.lang.Specification
 
 import java.util.concurrent.CompletableFuture
 
-import static graphql.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLInt
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLTypeReference.typeRef

@@ -1,6 +1,6 @@
 package graphql.execution;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLUnionType;

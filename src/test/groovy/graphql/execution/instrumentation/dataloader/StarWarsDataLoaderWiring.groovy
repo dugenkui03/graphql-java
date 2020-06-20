@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.dataloader
 
 import graphql.StarWarsData
-import graphql.TypeResolutionEnvironment
-import graphql.schema.DataFetcher
+import graphql.execution.TypeResolutionEnvironment
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLObjectType
 import graphql.schema.TypeResolver

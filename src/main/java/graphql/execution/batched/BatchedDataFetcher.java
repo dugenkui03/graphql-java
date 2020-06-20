@@ -1,10 +1,11 @@
 package graphql.execution.batched;
 
-import graphql.schema.DataFetcher;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.DataFetcher;
 
 /**
  * See {@link Batched}.
- * @deprecated This has been deprecated in favour of using {@link graphql.execution.AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
+ * @deprecated This has been deprecated in favour of using {@link AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
  */
 @Deprecated
 public interface BatchedDataFetcher extends DataFetcher {

@@ -1,5 +1,6 @@
 package graphql
 
+import graphql.execution.ExceptionWhileDataFetching
 import spock.lang.Specification
 
 

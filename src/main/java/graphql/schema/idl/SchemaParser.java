@@ -1,13 +1,13 @@
 package graphql.schema.idl;
 
-import graphql.GraphQLError;
-import graphql.InvalidSyntaxError;
-import graphql.PublicApi;
+import graphql.error.GraphQLError;
+import graphql.error.InvalidSyntaxError;
+import graphql.masker.PublicApi;
 import graphql.language.Definition;
 import graphql.language.Document;
-import graphql.language.SDLDefinition;
+import graphql.language.node.definition.SDLDefinition;
 import graphql.parser.InvalidSyntaxException;
-import graphql.parser.Parser;
+import graphql.parser.DocumentParser;
 import graphql.schema.idl.errors.NonSDLDefinitionError;
 import graphql.schema.idl.errors.SchemaProblem;
 
@@ -100,8 +100,8 @@ public class SchemaParser {
     public TypeDefinitionRegistry parseImpl(Reader schemaInput) {
         try {
             //解析文档为Documnet
-            Parser parser = new Parser();
-            Document document = parser.parseDocument(schemaInput);
+            DocumentParser documentParser = new DocumentParser();
+            Document document = documentParser.parseDocument(schemaInput);
             //构建类型定义注册器并返回
             return buildRegistry(document);
         } catch (InvalidSyntaxException e) {

@@ -1,13 +1,13 @@
 package graphql.execution.preparsed;
 
-import graphql.GraphQLError;
-import graphql.PublicApi;
+import graphql.error.GraphQLError;
+import graphql.masker.PublicApi;
 import graphql.language.Document;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.Collections.singletonList;
 
 /**

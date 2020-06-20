@@ -1,11 +1,11 @@
 package graphql.schema.idl
 
 import graphql.TestUtil
-import graphql.language.AstPrinter
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.Type
-import graphql.language.TypeName
+import graphql.language.operation.AstPrinter
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.Type
+import graphql.language.node.TypeName
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType

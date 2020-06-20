@@ -1,6 +1,6 @@
 package graphql.execution.nextgen.result
 
-import graphql.AssertException
+import graphql.error.AssertException
 import graphql.util.NodeLocation
 import spock.lang.Specification
 

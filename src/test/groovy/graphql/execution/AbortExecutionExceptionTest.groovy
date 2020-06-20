@@ -1,8 +1,9 @@
 package graphql.execution
 
-import graphql.ErrorType
-import graphql.GraphQLError
-import graphql.language.SourceLocation
+import graphql.error.ErrorType
+import graphql.error.GraphQLError
+import graphql.execution.exception.AbortExecutionException
+import graphql.language.node.SourceLocation
 import spock.lang.Specification
 
 class AbortExecutionExceptionTest extends Specification {

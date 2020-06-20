@@ -1,7 +1,7 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * 作为响应的类型

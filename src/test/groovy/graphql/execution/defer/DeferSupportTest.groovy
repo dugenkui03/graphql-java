@@ -1,14 +1,14 @@
 package graphql.execution.defer
 
-import graphql.DeferredExecutionResult
-import graphql.ExecutionResult
-import graphql.ExecutionResultImpl
+
+import graphql.execution.ExecutionResult
+import graphql.execution.ExecutionResultImpl
 import graphql.execution.ExecutionPath
-import graphql.language.Argument
-import graphql.language.BooleanValue
-import graphql.language.Directive
-import graphql.language.Field
-import graphql.language.VariableReference
+import graphql.language.node.Argument
+import graphql.language.node.BooleanValue
+import graphql.language.node.Directive
+import graphql.language.node.Field
+import graphql.language.node.VariableReference
 import org.awaitility.Awaitility
 import spock.lang.Specification
 

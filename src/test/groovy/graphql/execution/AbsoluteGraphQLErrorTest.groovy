@@ -1,14 +1,15 @@
 package graphql.execution
 
 import graphql.DataFetchingErrorGraphQLError
-import graphql.language.Field
-import graphql.language.SourceLocation
+import graphql.execution.exception.AbsoluteGraphQLError
+import graphql.language.node.Field
+import graphql.language.node.SourceLocation
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.TestUtil.mergedField
 import static graphql.TestUtil.mergedSelectionSet
-import static graphql.execution.ExecutionStrategyParameters.newParameters
+import static graphql.execution.strategy.ExecutionStrategyParameters.newParameters
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLObjectType.newObject
 

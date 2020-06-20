@@ -1,12 +1,10 @@
 package graphql.execution
 
-import graphql.AssertException
-import graphql.ExceptionWhileDataFetching
-import graphql.ExecutionInput
-import graphql.GraphQLError
-import graphql.SerializationError
+import graphql.error.AssertException
+import graphql.error.GraphQLError
+import graphql.error.SerializationError
 import graphql.TestUtil
-import graphql.schema.DataFetcher
+import graphql.execution.exception.NonNullableFieldWasNullError
 import spock.lang.Specification
 import spock.lang.Unroll
 

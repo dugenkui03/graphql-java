@@ -1,10 +1,10 @@
 package graphql.validation;
 
 
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.GraphqlErrorHelper;
-import graphql.language.SourceLocation;
+import graphql.error.ErrorType;
+import graphql.error.GraphQLError;
+import graphql.error.GraphqlErrorHelper;
+import graphql.language.node.SourceLocation;
 
 import java.util.ArrayList;
 import java.util.Collections;

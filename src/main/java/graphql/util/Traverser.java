@@ -1,8 +1,7 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.analysis.QueryVisitorFieldArgumentInputValue;
-import graphql.analysis.QueryVisitorFieldArgumentInputValueImpl;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,9 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertShouldNeverHappen;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertTrue;
 import static graphql.util.TraversalControl.CONTINUE;
 import static graphql.util.TraversalControl.QUIT;
 

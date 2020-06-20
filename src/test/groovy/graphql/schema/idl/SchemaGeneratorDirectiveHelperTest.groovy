@@ -1,12 +1,12 @@
 package graphql.schema.idl
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLArgument

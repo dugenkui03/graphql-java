@@ -1,7 +1,7 @@
 package graphql.schema.diff;
 
-import graphql.PublicApi;
-import graphql.language.TypeKind;
+import graphql.masker.PublicApi;
+import graphql.language.node.TypeKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;

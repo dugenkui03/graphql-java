@@ -1,17 +1,17 @@
 package graphql.execution.instrumentation
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.StarWarsSchema
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.batched.BatchedExecutionStrategy
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
-import graphql.language.AstPrinter
-import graphql.parser.Parser
-import graphql.schema.DataFetcher
+import graphql.language.operation.AstPrinter
+import graphql.parser.DocumentParser
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.PropertyDataFetcher
 import graphql.schema.StaticDataFetcher
@@ -308,7 +308,7 @@ class InstrumentationTest extends Specification {
             DocumentAndVariables instrumentDocumentAndVariables(DocumentAndVariables documentAndVariables, InstrumentationExecutionParameters parameters) {
                 this.capturedData["originalDoc"] = AstPrinter.printAst(documentAndVariables.getDocument())
                 this.capturedData["originalVariables"] = documentAndVariables.getVariables()
-                def newDoc = new Parser().parseDocument(newQuery)
+                def newDoc = new DocumentParser().parseDocument(newQuery)
                 def newVars = [var: "1001"]
                 documentAndVariables.transform({ builder -> builder.document(newDoc).variables(newVars) })
             }

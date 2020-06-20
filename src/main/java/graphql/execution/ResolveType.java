@@ -1,7 +1,7 @@
 package graphql.execution;
 
-import graphql.Internal;
-import graphql.TypeResolutionEnvironment;
+import graphql.masker.Internal;
+import graphql.execution.exception.UnresolvedTypeException;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;

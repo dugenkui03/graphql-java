@@ -1,11 +1,11 @@
 package graphql.schema
 
-import graphql.AssertException
+import graphql.error.AssertException
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLBoolean
+import static Scalars.GraphQLInt
+import static Scalars.GraphQLString
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField
 import static graphql.schema.GraphQLInputObjectType.newInputObject
 

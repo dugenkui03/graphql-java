@@ -1,8 +1,8 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 @PublicApi
 public class DefaultEdge<T> implements Edge<T> {

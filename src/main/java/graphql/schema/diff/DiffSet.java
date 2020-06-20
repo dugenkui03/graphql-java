@@ -1,9 +1,9 @@
 package graphql.schema.diff;
 
-import graphql.Assert;
-import graphql.ExecutionResult;
+import graphql.util.Assert;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.introspection.IntrospectionQuery;
 import graphql.schema.GraphQLSchema;
 

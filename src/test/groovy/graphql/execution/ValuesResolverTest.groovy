@@ -1,30 +1,30 @@
 package graphql.execution
 
-import graphql.GraphQLException
+import graphql.error.GraphQLException
 import graphql.TestUtil
-import graphql.language.Argument
-import graphql.language.ArrayValue
-import graphql.language.BooleanValue
-import graphql.language.EnumValue
-import graphql.language.IntValue
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.ObjectField
-import graphql.language.ObjectValue
-import graphql.language.StringValue
-import graphql.language.TypeName
-import graphql.language.Value
-import graphql.language.VariableDefinition
-import graphql.language.VariableReference
+import graphql.language.node.Argument
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.EnumValue
+import graphql.language.node.IntValue
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.ObjectField
+import graphql.language.node.ObjectValue
+import graphql.language.node.StringValue
+import graphql.language.node.TypeName
+import graphql.language.node.Value
+import graphql.language.node.definition.VariableDefinition
+import graphql.language.node.VariableReference
 import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLArgument
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLFloat
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLFloat
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLEnumType.newEnum
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField
 import static graphql.schema.GraphQLInputObjectType.newInputObject

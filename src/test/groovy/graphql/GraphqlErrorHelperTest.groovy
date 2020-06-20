@@ -1,6 +1,9 @@
 package graphql
 
-import graphql.language.SourceLocation
+import graphql.error.ErrorClassification
+import graphql.error.GraphQLError
+import graphql.error.GraphqlErrorHelper
+import graphql.language.node.SourceLocation
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

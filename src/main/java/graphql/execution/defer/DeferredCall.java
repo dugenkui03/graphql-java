@@ -1,10 +1,8 @@
 package graphql.execution.defer;
 
-import graphql.DeferredExecutionResult;
-import graphql.DeferredExecutionResultImpl;
-import graphql.ExecutionResult;
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.execution.ExecutionResult;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionPath;
 
 import java.util.List;

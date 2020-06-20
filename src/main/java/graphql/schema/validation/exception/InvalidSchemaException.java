@@ -1,6 +1,6 @@
 package graphql.schema.validation.exception;
 
-import graphql.GraphQLException;
+import graphql.error.GraphQLException;
 
 import java.util.Collection;
 

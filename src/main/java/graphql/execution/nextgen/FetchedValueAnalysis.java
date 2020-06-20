@@ -1,7 +1,7 @@
 package graphql.execution.nextgen;
 
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.FetchedValue;
 import graphql.execution.MergedField;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 @Internal
 public class FetchedValueAnalysis {

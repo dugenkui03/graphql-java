@@ -1,22 +1,27 @@
 package graphql.execution
 
-import graphql.Assert
+import graphql.util.Assert
 import graphql.DataFetchingErrorGraphQLError
-import graphql.ExceptionWhileDataFetching
-import graphql.ExecutionResult
-import graphql.Scalars
-import graphql.SerializationError
+import graphql.schema.Scalars
+import graphql.error.SerializationError
 import graphql.StarWarsSchema
-import graphql.TypeMismatchError
+import graphql.error.TypeMismatchError
+import graphql.execution.exception.handler.DataFetcherExceptionHandler
+import graphql.execution.exception.handler.DataFetcherExceptionHandlerParameters
+import graphql.execution.exception.handler.DataFetcherExceptionHandlerResult
+import graphql.execution.exception.NonNullableFieldWasNullException
+import graphql.execution.exception.handler.SimpleDataFetcherExceptionHandler
 import graphql.execution.instrumentation.SimpleInstrumentation
-import graphql.language.Argument
-import graphql.language.Field
-import graphql.language.OperationDefinition
-import graphql.language.SourceLocation
-import graphql.language.StringValue
-import graphql.parser.Parser
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.ExecutionStrategy
+import graphql.execution.strategy.ExecutionStrategyParameters
+import graphql.language.node.Argument
+import graphql.language.node.Field
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.SourceLocation
+import graphql.language.node.StringValue
+import graphql.parser.DocumentParser
 import graphql.schema.Coercing
-import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
@@ -28,8 +33,8 @@ import spock.lang.Specification
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 
-import static ExecutionStrategyParameters.newParameters
-import static graphql.Scalars.GraphQLString
+import static graphql.execution.strategy.ExecutionStrategyParameters.newParameters
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.TestUtil.mergedField
 import static graphql.TestUtil.mergedSelectionSet
 import static graphql.schema.GraphQLArgument.newArgument
@@ -81,7 +86,7 @@ class ExecutionStrategyTest extends Specification {
                 .field(fieldDefinition)
                 .build()
 
-        def document = new Parser().parseDocument("{someField}")
+        def document = new DocumentParser().parseDocument("{someField}")
         def operation = document.definitions[0] as OperationDefinition
 
         GraphQLSchema schema = GraphQLSchema.newSchema().query(objectType).build()

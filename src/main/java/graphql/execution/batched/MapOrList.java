@@ -1,6 +1,6 @@
 package graphql.execution.batched;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

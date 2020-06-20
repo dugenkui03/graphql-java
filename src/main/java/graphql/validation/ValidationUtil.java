@@ -1,18 +1,18 @@
 package graphql.validation;
 
 
-import graphql.Assert;
-import graphql.GraphQLError;
-import graphql.language.ArrayValue;
-import graphql.language.ListType;
-import graphql.language.NonNullType;
-import graphql.language.NullValue;
-import graphql.language.ObjectField;
-import graphql.language.ObjectValue;
-import graphql.language.Type;
-import graphql.language.TypeName;
-import graphql.language.Value;
-import graphql.language.VariableReference;
+import graphql.util.Assert;
+import graphql.error.GraphQLError;
+import graphql.language.node.ArrayValue;
+import graphql.language.node.ListType;
+import graphql.language.node.NonNullType;
+import graphql.language.node.NullValue;
+import graphql.language.node.ObjectField;
+import graphql.language.node.ObjectValue;
+import graphql.language.node.Type;
+import graphql.language.node.TypeName;
+import graphql.language.node.Value;
+import graphql.language.node.VariableReference;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.GraphQLEnumType;

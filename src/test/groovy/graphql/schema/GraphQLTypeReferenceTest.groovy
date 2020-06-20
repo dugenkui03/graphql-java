@@ -1,6 +1,6 @@
 package graphql.schema
 
-import graphql.Scalars
+
 import spock.lang.Specification
 
 import static graphql.schema.GraphQLArgument.newArgument

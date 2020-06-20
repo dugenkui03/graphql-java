@@ -1,14 +1,14 @@
 package graphql.validation.rules;
 
-import graphql.Directives;
-import graphql.Internal;
+import graphql.schema.Directives;
+import graphql.masker.Internal;
 import graphql.language.Document;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.InlineFragment;
-import graphql.language.Selection;
-import graphql.language.SelectionSet;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.InlineFragment;
+import graphql.language.node.Selection;
+import graphql.language.node.SelectionSet;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;
 import graphql.validation.ValidationError;
@@ -17,7 +17,6 @@ import graphql.validation.ValidationErrorType;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

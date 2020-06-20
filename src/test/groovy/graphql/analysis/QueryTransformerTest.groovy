@@ -1,27 +1,32 @@
 package graphql.analysis
 
 import graphql.TestUtil
+import graphql.analysis.environment.QueryVisitorFieldEnvironment
+import graphql.analysis.environment.QueryVisitorFragmentDefinitionEnvironment
+import graphql.analysis.environment.QueryVisitorFragmentSpreadEnvironment
+import graphql.analysis.environment.QueryVisitorInlineFragmentEnvironment
+import graphql.analysis.environmentImpl.QueryVisitorFieldEnvironmentImpl
 import graphql.language.Document
-import graphql.language.Field
+import graphql.language.node.Field
 import graphql.language.NodeUtil
-import graphql.language.OperationDefinition
-import graphql.language.TypeName
-import graphql.parser.Parser
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.TypeName
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLFieldsContainer
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLUnionType
 import graphql.util.TraversalControl
 import spock.lang.Specification
 
-import static graphql.language.AstPrinter.printAstCompact
-import static graphql.language.Field.newField
+import static graphql.language.operation.AstPrinter.printAstCompact
+import static graphql.language.node.Field.newField
 import static graphql.util.TreeTransformerUtil.changeNode
 import static graphql.util.TreeTransformerUtil.deleteNode
 import static graphql.util.TreeTransformerUtil.insertAfter
 
 class QueryTransformerTest extends Specification {
     Document createQuery(String query) {
-        Parser parser = new Parser()
+        DocumentParser parser = new DocumentParser()
         parser.parseDocument(query)
     }
 

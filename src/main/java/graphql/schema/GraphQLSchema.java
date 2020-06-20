@@ -1,11 +1,11 @@
 package graphql.schema;
 
 
-import graphql.Directives;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.SchemaDefinition;
-import graphql.language.SchemaExtensionDefinition;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.error.GraphQLException;
+import graphql.language.node.definition.SchemaDefinition;
+import graphql.language.node.definition.extension.SchemaExtensionDefinition;
 import graphql.schema.validation.exception.InvalidSchemaException;
 import graphql.schema.validation.exception.SchemaValidationError;
 import graphql.schema.validation.SchemaValidator;
@@ -22,10 +22,10 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertShouldNeverHappen;
-import static graphql.Assert.assertTrue;
-import static graphql.DirectivesUtil.directivesByName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertTrue;
+import static graphql.schema.DirectivesUtil.directivesByName;
 import static graphql.schema.GraphqlTypeComparators.byNameAsc;
 import static graphql.schema.GraphqlTypeComparators.sortTypes;
 import static java.util.Arrays.asList;
@@ -161,7 +161,7 @@ public class GraphQLSchema {
      *
      * @param typeName the name of the type
      * @return a graphql object type or null if there is one
-     * @throws graphql.GraphQLException if the type is NOT a object type
+     * @throws GraphQLException if the type is NOT a object type
      */
     public GraphQLObjectType getObjectType(String typeName) {
         GraphQLType graphQLType = typeMap.get(typeName);

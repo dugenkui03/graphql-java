@@ -1,7 +1,7 @@
 package graphql.parser;
 
-import graphql.Internal;
-import graphql.language.SourceLocation;
+import graphql.masker.Internal;
+import graphql.language.node.SourceLocation;
 import org.antlr.v4.runtime.Token;
 
 import java.util.List;

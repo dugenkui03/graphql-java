@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static graphql.Scalars.GraphQLString;
+import static graphql.schema.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static org.junit.Assert.assertEquals;

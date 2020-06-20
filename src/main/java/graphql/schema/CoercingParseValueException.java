@@ -1,9 +1,9 @@
 package graphql.schema;
 
-import graphql.ErrorType;
-import graphql.GraphqlErrorException;
-import graphql.PublicApi;
-import graphql.language.SourceLocation;
+import graphql.error.ErrorType;
+import graphql.error.GraphqlErrorException;
+import graphql.masker.PublicApi;
+import graphql.language.node.SourceLocation;
 
 @PublicApi
 public class CoercingParseValueException extends GraphqlErrorException {

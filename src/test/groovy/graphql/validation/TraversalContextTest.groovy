@@ -1,32 +1,32 @@
 package graphql.validation
 
-import graphql.Directives
-import graphql.language.Argument
-import graphql.language.ArrayValue
-import graphql.language.BooleanValue
-import graphql.language.Directive
-import graphql.language.Field
-import graphql.language.FragmentDefinition
-import graphql.language.InlineFragment
-import graphql.language.ObjectField
-import graphql.language.OperationDefinition
-import graphql.language.SelectionSet
-import graphql.language.StringValue
-import graphql.language.TypeName
-import graphql.language.VariableDefinition
+import graphql.schema.Directives
+import graphql.language.node.Argument
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.Directive
+import graphql.language.node.Field
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.InlineFragment
+import graphql.language.node.ObjectField
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.SelectionSet
+import graphql.language.node.StringValue
+import graphql.language.node.TypeName
+import graphql.language.node.definition.VariableDefinition
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
 import spock.lang.Specification
 
-import static graphql.Directives.IncludeDirective
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Directives.IncludeDirective
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.StarWarsSchema.droidType
 import static graphql.StarWarsSchema.inputHumanType
 import static graphql.StarWarsSchema.queryType
 import static graphql.StarWarsSchema.starWarsSchema
-import static graphql.language.OperationDefinition.Operation.QUERY
+import static graphql.language.node.definition.OperationDefinition.Operation.QUERY
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull
 

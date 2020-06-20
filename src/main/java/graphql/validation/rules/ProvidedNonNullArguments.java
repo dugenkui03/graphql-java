@@ -1,10 +1,10 @@
 package graphql.validation.rules;
 
 
-import graphql.language.Argument;
-import graphql.language.Directive;
-import graphql.language.Field;
-import graphql.language.Node;
+import graphql.language.node.Argument;
+import graphql.language.node.Directive;
+import graphql.language.node.Field;
+import graphql.language.node.Node;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLFieldDefinition;

@@ -1,10 +1,9 @@
 package graphql.schema;
 
 
-import graphql.DirectivesUtil;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.EnumValueDefinition;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.EnumValueDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -14,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.util.FpKit.getByName;
 import static graphql.util.FpKit.valuesToList;
 import static java.util.Collections.emptyList;

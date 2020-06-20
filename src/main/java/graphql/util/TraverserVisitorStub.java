@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 @Internal
 public class TraverserVisitorStub<T> implements TraverserVisitor<T> {

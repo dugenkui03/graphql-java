@@ -1,16 +1,16 @@
 package graphql.execution;
 
-import graphql.Assert;
-import graphql.AssertException;
-import graphql.PublicApi;
+import graphql.util.Assert;
+import graphql.error.AssertException;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 import static java.lang.String.format;
 
 

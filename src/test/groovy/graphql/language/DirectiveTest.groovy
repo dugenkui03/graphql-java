@@ -1,5 +1,8 @@
 package graphql.language
 
+import graphql.language.node.Argument
+import graphql.language.node.Directive
+import graphql.language.node.StringValue
 import spock.lang.Specification
 
 class DirectiveTest extends Specification {

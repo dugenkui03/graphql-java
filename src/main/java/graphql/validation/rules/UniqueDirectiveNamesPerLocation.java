@@ -1,13 +1,13 @@
 package graphql.validation.rules;
 
-import graphql.language.Directive;
+import graphql.language.node.Directive;
 import graphql.language.Document;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.InlineFragment;
-import graphql.language.Node;
-import graphql.language.OperationDefinition;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.InlineFragment;
+import graphql.language.node.Node;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;
 import graphql.validation.ValidationErrorCollector;

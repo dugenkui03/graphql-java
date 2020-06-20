@@ -1,9 +1,10 @@
 package graphql.schema;
 
 
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.FieldDefinition;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
+import graphql.language.node.definition.FieldDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -15,15 +16,15 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.schema.DataFetcherFactoryEnvironment.newDataFetchingFactoryEnvironment;
 import static graphql.util.FpKit.getByName;
 
 /**
  * 字段是你在graphql中获取数据值的方式，一个"字段定义代表一个字段、字段类型、字段参数和DataFetcher，
  * Fields are the ways you get data values in graphql and a field definition represents a field, its type, the arguments it takes
- * and the {@link graphql.schema.DataFetcher} used to get data values for that field.
+ * and the {@link DataFetcher} used to get data values for that field.
  *
  * fixme: 字段可以被认为是graphql中的函数，他们有名字、参数、并返回结果。
  * Fields can be thought of as functions in graphql, they have a name, take defined arguments and return a value.
@@ -296,7 +297,7 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
         }
 
         /**
-         * Sets the {@link graphql.schema.DataFetcher} to use with this field.
+         * Sets the {@link DataFetcher} to use with this field.
          *
          * @param dataFetcher the data fetcher to use
          *

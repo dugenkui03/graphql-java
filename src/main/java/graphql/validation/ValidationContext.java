@@ -1,10 +1,10 @@
 package graphql.validation;
 
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.language.Definition;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
+import graphql.language.node.definition.FragmentDefinition;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLDirective;

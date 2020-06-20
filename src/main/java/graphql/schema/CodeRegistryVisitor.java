@@ -1,10 +1,11 @@
 package graphql.schema;
 
-import graphql.Internal;
+import graphql.masker.Internal;
+import graphql.execution.DataFetcher;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertTrue;
 import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.util.TraversalControl.CONTINUE;
 

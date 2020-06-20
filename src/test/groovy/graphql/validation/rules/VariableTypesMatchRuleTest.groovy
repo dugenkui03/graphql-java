@@ -1,14 +1,14 @@
 package graphql.validation.rules
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.StarWarsSchema
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.OperationDefinition
-import graphql.language.StringValue
-import graphql.language.TypeName
-import graphql.language.VariableDefinition
-import graphql.language.VariableReference
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.StringValue
+import graphql.language.node.TypeName
+import graphql.language.node.definition.VariableDefinition
+import graphql.language.node.VariableReference
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.validation.ValidationContext

@@ -2,6 +2,7 @@ package graphql.execution
 
 import graphql.GraphQL
 import graphql.StarWarsSchema
+import graphql.execution.strategy.ExecutorServiceExecutionStrategy
 import spock.lang.Specification
 
 import java.util.concurrent.BlockingQueue

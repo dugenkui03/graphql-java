@@ -1,15 +1,15 @@
 package graphql.validation.rules
 
-import graphql.Directives
+import graphql.schema.Directives
 import graphql.StarWarsSchema
-import graphql.language.Directive
+import graphql.language.node.Directive
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLNonNull.nonNull
 

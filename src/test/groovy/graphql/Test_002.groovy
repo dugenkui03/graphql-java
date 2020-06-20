@@ -1,9 +1,8 @@
 package graphql
 
-import graphql.GraphQL
-import graphql.TestUtil
+
 import graphql.execution.directives.QueryDirectives
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.GraphQLDirective
 import spock.lang.Specification
 

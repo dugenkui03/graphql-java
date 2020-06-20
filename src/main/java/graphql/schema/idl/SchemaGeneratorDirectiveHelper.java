@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.Internal;
-import graphql.language.NamedNode;
+import graphql.masker.Internal;
+import graphql.language.node.NamedNode;
 import graphql.language.NodeParentTree;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLCodeRegistry;
@@ -25,7 +25,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.stream.Collectors.toList;
 
 /**

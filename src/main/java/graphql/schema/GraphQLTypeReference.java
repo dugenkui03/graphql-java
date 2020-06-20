@@ -1,12 +1,12 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
-import graphql.language.Node;
+import graphql.masker.PublicApi;
+import graphql.language.node.Node;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertValidName;
 
 /**
  * A special type to allow a object/interface types to reference itself. It's replaced with the real type

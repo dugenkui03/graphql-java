@@ -1,7 +1,7 @@
 package graphql.schema.transform;
 
 
-import graphql.PublicSpi;
+import graphql.masker.PublicSpi;
 
 /**
  * Predicate used during a {@link FieldVisibilitySchemaTransformation} to test whether a field should be visible.

@@ -1,12 +1,12 @@
 package graphql.execution.instrumentation.fieldvalidation
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
-import graphql.GraphQLError
+import graphql.error.GraphQLError
 import graphql.TestUtil
-import graphql.execution.AbortExecutionException
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.exception.AbortExecutionException
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.Execution
 import graphql.execution.ExecutionId
 import graphql.execution.ExecutionPath

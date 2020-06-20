@@ -1,16 +1,16 @@
 package graphql.schema.idl;
 
-import graphql.Assert;
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.language.Directive;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.OperationTypeDefinition;
-import graphql.language.SchemaDefinition;
-import graphql.language.SchemaExtensionDefinition;
-import graphql.language.Type;
-import graphql.language.TypeDefinition;
-import graphql.language.TypeName;
+import graphql.util.Assert;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.language.node.Directive;
+import graphql.language.node.definition.ObjectTypeDefinition;
+import graphql.language.node.definition.OperationTypeDefinition;
+import graphql.language.node.definition.SchemaDefinition;
+import graphql.language.node.definition.extension.SchemaExtensionDefinition;
+import graphql.language.node.Type;
+import graphql.language.node.definition.TypeDefinition;
+import graphql.language.node.TypeName;
 import graphql.schema.idl.errors.MissingTypeError;
 import graphql.schema.idl.errors.OperationRedefinitionError;
 import graphql.schema.idl.errors.OperationTypesMustBeObjects;

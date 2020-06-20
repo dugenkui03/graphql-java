@@ -1,12 +1,12 @@
 package graphql.util
 
 import graphql.TestUtil
-import graphql.language.Field
-import graphql.language.Node
+import graphql.language.node.Field
+import graphql.language.node.Node
 import spock.lang.Specification
 
-import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER
-import static graphql.language.AstPrinter.printAstCompact
+import static graphql.language.operation.AstNodeAdapter.AST_NODE_ADAPTER
+import static graphql.language.operation.AstPrinter.printAstCompact
 import static graphql.util.TreeTransformerUtil.changeNode
 
 class TreeParallelTransformerTest extends Specification {

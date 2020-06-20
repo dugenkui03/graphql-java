@@ -1,6 +1,6 @@
 package graphql.validation.rules;
 
-import graphql.language.VariableDefinition;
+import graphql.language.node.definition.VariableDefinition;
 import graphql.schema.GraphQLInputType;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;

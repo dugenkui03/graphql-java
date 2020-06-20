@@ -1,7 +1,7 @@
 package graphql.analysis;
 
-import graphql.Internal;
-import graphql.language.Value;
+import graphql.masker.Internal;
+import graphql.language.node.Value;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLInputObjectField;
 import graphql.schema.GraphQLInputType;

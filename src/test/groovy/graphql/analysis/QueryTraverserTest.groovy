@@ -1,18 +1,25 @@
 package graphql.analysis
 
 import graphql.TestUtil
-import graphql.language.ArrayValue
+import graphql.analysis.environment.QueryVisitorFieldArgumentEnvironment
+import graphql.analysis.environment.QueryVisitorFieldArgumentValueEnvironment
+import graphql.analysis.environment.QueryVisitorFieldEnvironment
+import graphql.analysis.environment.QueryVisitorFragmentDefinitionEnvironment
+import graphql.analysis.environmentImpl.QueryVisitorFieldEnvironmentImpl
+import graphql.analysis.environmentImpl.QueryVisitorFragmentSpreadEnvironmentImpl
+import graphql.analysis.environmentImpl.QueryVisitorInlineFragmentEnvironmentImpl
+import graphql.language.node.ArrayValue
 import graphql.language.Document
-import graphql.language.Field
-import graphql.language.FragmentDefinition
-import graphql.language.FragmentSpread
-import graphql.language.InlineFragment
-import graphql.language.IntValue
+import graphql.language.node.Field
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.FragmentSpread
+import graphql.language.node.InlineFragment
+import graphql.language.node.IntValue
 import graphql.language.NodeUtil
-import graphql.language.ObjectValue
-import graphql.language.OperationDefinition
-import graphql.language.StringValue
-import graphql.parser.Parser
+import graphql.language.node.ObjectValue
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.StringValue
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInterfaceType
@@ -35,7 +42,7 @@ class QueryTraverserTest extends Specification {
 
 
     Document createQuery(String query) {
-        Parser parser = new Parser()
+        DocumentParser parser = new DocumentParser()
         parser.parseDocument(query)
     }
 
@@ -1494,14 +1501,11 @@ class QueryTraverserTest extends Specification {
         """)
         def visitor = mockQueryVisitor()
         def query = createQuery("""
-            query(\$name:String= \"test\"){
-                 bar(name: \$name) 
-            }
+            {foo { subFoo} bar }
             """)
         QueryTraverser queryTraversal = createQueryTraversal(query, schema)
         when:
         queryTraversal.visitDepthFirst(visitor)
-
         then:
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
             it.field.name == "foo" && it.traverserContext.phase == ENTER
@@ -1509,12 +1513,10 @@ class QueryTraverserTest extends Specification {
         then:
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
             it.field.name == "subFoo" && it.traverserContext.phase == ENTER
-
         })
         then:
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
             it.field.name == "subFoo" && it.traverserContext.phase == LEAVE
-
         })
         then:
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
@@ -1528,7 +1530,6 @@ class QueryTraverserTest extends Specification {
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
             it.field.name == "bar" && it.traverserContext.phase == LEAVE
         })
-
     }
 
     def "test accumulate  is returned"() {

@@ -1,7 +1,7 @@
 package graphql.validation.rules;
 
-import graphql.VisibleForTesting;
-import graphql.language.FragmentDefinition;
+import graphql.masker.VisibleForTesting;
+import graphql.language.node.definition.FragmentDefinition;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;
 import graphql.validation.ValidationErrorCollector;

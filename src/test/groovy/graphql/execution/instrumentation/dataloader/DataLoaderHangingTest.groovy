@@ -1,10 +1,10 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.ExecutionResult
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.execution.Async
-import graphql.schema.DataFetcher
+import graphql.execution.utils.AsyncUtil
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.idl.RuntimeWiring
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring
 
 class DataLoaderHangingTest extends Specification {
@@ -157,7 +157,7 @@ class DataLoaderHangingTest extends Specification {
             futures.add(result)
         }
         // wait for each future to complete and grab the results
-        Async.each(futures)
+        AsyncUtil.each(futures)
                 .whenComplete({ results, error ->
             if (error) {
                 throw error

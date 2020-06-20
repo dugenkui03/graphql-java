@@ -1,16 +1,16 @@
 package graphql.validation.rules
 
-import graphql.language.BooleanValue
-import graphql.language.StringValue
-import graphql.language.TypeName
-import graphql.language.VariableDefinition
+import graphql.language.node.BooleanValue
+import graphql.language.node.StringValue
+import graphql.language.node.TypeName
+import graphql.language.node.definition.VariableDefinition
 import graphql.schema.GraphQLNonNull
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLNonNull.nonNull
 
 class VariableDefaultValuesOfCorrectTypeTest extends Specification {

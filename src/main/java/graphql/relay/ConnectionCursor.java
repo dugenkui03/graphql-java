@@ -1,6 +1,6 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * Represents a {@link Connection connection} cursor in Relay which is an opaque

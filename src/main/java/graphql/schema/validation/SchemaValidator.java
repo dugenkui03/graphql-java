@@ -1,6 +1,6 @@
 package graphql.schema.validation;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.schema.*;
 import graphql.schema.validation.exception.SchemaValidationError;
 import graphql.schema.validation.exception.SchemaValidationErrorCollector;

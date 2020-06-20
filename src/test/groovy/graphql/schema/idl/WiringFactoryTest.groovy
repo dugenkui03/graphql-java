@@ -1,10 +1,10 @@
 package graphql.schema.idl
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.TestUtil
-import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionEnvironment
 import graphql.schema.Coercing
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetcherFactories
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetchingEnvironment

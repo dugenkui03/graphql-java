@@ -2,7 +2,7 @@ package graphql.validation.rules
 
 import graphql.TestUtil
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.ValidationContext
@@ -15,7 +15,7 @@ class NoFragmentCyclesTest extends Specification {
     ValidationErrorCollector errorCollector = new ValidationErrorCollector()
 
     def traverse(String query) {
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         ValidationContext validationContext = new ValidationContext(TestUtil.dummySchema, document)
         NoFragmentCycles noFragmentCycles = new NoFragmentCycles(validationContext, errorCollector)
         LanguageTraversal languageTraversal = new LanguageTraversal()

@@ -1,5 +1,6 @@
 package graphql
 
+import graphql.execution.ExecutionInput
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

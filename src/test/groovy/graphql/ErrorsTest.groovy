@@ -1,7 +1,10 @@
 package graphql
 
+import graphql.error.GraphQLError
+import graphql.error.InvalidSyntaxError
+import graphql.execution.ExceptionWhileDataFetching
 import graphql.execution.ExecutionPath
-import graphql.language.SourceLocation
+import graphql.language.node.SourceLocation
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

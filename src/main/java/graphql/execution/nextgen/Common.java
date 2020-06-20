@@ -1,15 +1,15 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
-import graphql.execution.MissingRootTypeException;
-import graphql.language.OperationDefinition;
+import graphql.masker.Internal;
+import graphql.execution.exception.MissingRootTypeException;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 
-import static graphql.Assert.assertShouldNeverHappen;
-import static graphql.language.OperationDefinition.Operation.MUTATION;
-import static graphql.language.OperationDefinition.Operation.QUERY;
-import static graphql.language.OperationDefinition.Operation.SUBSCRIPTION;
+import static graphql.util.Assert.assertShouldNeverHappen;
+import static graphql.language.node.definition.OperationDefinition.Operation.MUTATION;
+import static graphql.language.node.definition.OperationDefinition.Operation.QUERY;
+import static graphql.language.node.definition.OperationDefinition.Operation.SUBSCRIPTION;
 
 @Internal
 public class Common {

@@ -1,7 +1,7 @@
 package graphql.schema.idl.errors;
 
-import graphql.GraphQLError;
-import graphql.GraphQLException;
+import graphql.error.GraphQLError;
+import graphql.error.GraphQLException;
 import graphql.schema.idl.SchemaParser;
 
 import java.util.ArrayList;

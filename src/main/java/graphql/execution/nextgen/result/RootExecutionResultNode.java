@@ -1,13 +1,13 @@
 package graphql.execution.nextgen.result;
 
-import graphql.GraphQLError;
+import graphql.error.GraphQLError;
 import graphql.execution.ExecutionStepInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertShouldNeverHappen;
 
 public class RootExecutionResultNode extends ObjectExecutionResultNode {
 

@@ -1,9 +1,9 @@
 package readme;
 
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
-import graphql.execution.SubscriptionExecutionStrategy;
-import graphql.schema.DataFetcher;
+import graphql.execution.strategy.SubscriptionExecutionStrategy;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

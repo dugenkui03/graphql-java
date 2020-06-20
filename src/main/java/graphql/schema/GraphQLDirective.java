@@ -1,8 +1,8 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
-import graphql.language.DirectiveDefinition;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.DirectiveDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.introspection.Introspection.DirectiveLocation;
 import static graphql.util.FpKit.getByName;
 

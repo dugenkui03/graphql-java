@@ -1,6 +1,6 @@
 package graphql.schema.idl;//idl 接口定义语言
 
-import graphql.PublicSpi;
+import graphql.masker.PublicSpi;
 
 /**
  * fixme 对每一个graphql枚举提供java运行时值，使用IDL驱动schema创建。

@@ -1,6 +1,6 @@
 package graphql.schema.diff.reporting;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.schema.diff.DiffEvent;
 
 import java.util.Arrays;

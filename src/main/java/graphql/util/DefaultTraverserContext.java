@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static graphql.Assert.assertFalse;
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertFalse;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertNull;
+import static graphql.util.Assert.assertTrue;
 
 /**
  * 默认的遍历上下文；

@@ -1,6 +1,6 @@
 package graphql.execution.nextgen.result;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.util.Traverser;
 import graphql.util.TraverserVisitor;
 

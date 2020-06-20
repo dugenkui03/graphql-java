@@ -1,6 +1,9 @@
 package graphql
 
-import graphql.language.SourceLocation
+import graphql.error.ErrorType
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
+import graphql.language.node.SourceLocation
 import graphql.schema.GraphQLObjectType
 import graphql.schema.idl.RuntimeWiring
 import spock.lang.Specification

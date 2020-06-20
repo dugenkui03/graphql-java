@@ -1,5 +1,7 @@
 package graphql
 
+import graphql.error.AssertException
+import graphql.util.Assert
 import spock.lang.Specification
 
 class AssertTest extends Specification {

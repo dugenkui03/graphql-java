@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation.fieldvalidation;
 
-import graphql.GraphQLError;
-import graphql.PublicApi;
+import graphql.error.GraphQLError;
+import graphql.masker.PublicApi;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionPath;
 
@@ -40,7 +40,7 @@ public interface FieldValidationEnvironment {
 
     /**
      * This helper method allows you to make error messages to be passed back out in case of validation failure.  Note you
-     * don't NOT have to use this helper.  Any implementation of {@link graphql.GraphQLError} is valid
+     * don't NOT have to use this helper.  Any implementation of {@link GraphQLError} is valid
      *
      * @param msg the error message
      *
@@ -50,7 +50,7 @@ public interface FieldValidationEnvironment {
 
     /**
      * This helper method allows you to make error messages to be passed back out in case of validation failure.  Note you
-     * don't NOT have to use this helper.  Any implementation of {@link graphql.GraphQLError} is valid
+     * don't NOT have to use this helper.  Any implementation of {@link GraphQLError} is valid
      *
      * @param msg               the error message
      * @param fieldAndArguments the field in error

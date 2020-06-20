@@ -1,13 +1,13 @@
 package graphql.schema;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.util.TraversalControl.CONTINUE;
 
 @Internal

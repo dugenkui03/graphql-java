@@ -1,10 +1,10 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.TestUtil
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
 import org.dataloader.DataLoaderRegistry
 import spock.lang.Specification
 import spock.lang.Unroll

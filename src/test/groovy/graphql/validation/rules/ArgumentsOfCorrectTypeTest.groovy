@@ -1,13 +1,13 @@
 package graphql.validation.rules
 
-import graphql.language.Argument
-import graphql.language.ArrayValue
-import graphql.language.BooleanValue
-import graphql.language.NullValue
-import graphql.language.ObjectField
-import graphql.language.ObjectValue
-import graphql.language.StringValue
-import graphql.language.VariableReference
+import graphql.language.node.Argument
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.NullValue
+import graphql.language.node.ObjectField
+import graphql.language.node.ObjectValue
+import graphql.language.node.StringValue
+import graphql.language.node.VariableReference
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
@@ -18,9 +18,9 @@ import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBigDecimal
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBigDecimal
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.StarWarsSchema.starWarsSchema
 
 class ArgumentsOfCorrectTypeTest extends Specification {

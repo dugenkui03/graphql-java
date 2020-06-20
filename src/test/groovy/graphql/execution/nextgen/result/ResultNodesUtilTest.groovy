@@ -1,6 +1,6 @@
 package graphql.execution.nextgen.result
 
-import graphql.SerializationError
+import graphql.error.SerializationError
 import graphql.execution.ExecutionPath
 import graphql.execution.ExecutionStepInfo
 import graphql.execution.MergedField

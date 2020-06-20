@@ -1,21 +1,21 @@
 package graphql.validation;
 
 
-import graphql.Assert;
-import graphql.Internal;
+import graphql.util.Assert;
+import graphql.masker.Internal;
 import graphql.execution.TypeFromAST;
-import graphql.language.Argument;
-import graphql.language.ArrayValue;
-import graphql.language.Directive;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.InlineFragment;
-import graphql.language.Node;
-import graphql.language.ObjectField;
-import graphql.language.OperationDefinition;
-import graphql.language.SelectionSet;
-import graphql.language.TypeName;
-import graphql.language.VariableDefinition;
+import graphql.language.node.Argument;
+import graphql.language.node.ArrayValue;
+import graphql.language.node.Directive;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.InlineFragment;
+import graphql.language.node.Node;
+import graphql.language.node.ObjectField;
+import graphql.language.node.definition.OperationDefinition;
+import graphql.language.node.SelectionSet;
+import graphql.language.node.TypeName;
+import graphql.language.node.definition.VariableDefinition;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLDirective;
@@ -32,7 +32,6 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLUnionType;
 import graphql.schema.GraphQLUnmodifiedType;
-import graphql.schema.SchemaUtil;
 
 import java.util.ArrayList;
 import java.util.List;

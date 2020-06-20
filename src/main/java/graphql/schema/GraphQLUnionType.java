@@ -1,10 +1,10 @@
 package graphql.schema;
 
 
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.UnionTypeDefinition;
-import graphql.language.UnionTypeExtensionDefinition;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.UnionTypeDefinition;
+import graphql.language.node.definition.extension.UnionTypeExtensionDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotEmpty;
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotEmpty;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.schema.SchemaElementChildrenContainer.newSchemaElementChildrenContainer;
 import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;

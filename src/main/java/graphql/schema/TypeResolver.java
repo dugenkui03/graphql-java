@@ -1,8 +1,8 @@
 package graphql.schema;
 
 
-import graphql.PublicSpi;
-import graphql.TypeResolutionEnvironment;
+import graphql.masker.PublicSpi;
+import graphql.execution.TypeResolutionEnvironment;
 
 /**
  * This is called during type resolution to work out what concrete {@link graphql.schema.GraphQLObjectType} should be used

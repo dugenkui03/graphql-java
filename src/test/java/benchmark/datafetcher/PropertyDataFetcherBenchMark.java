@@ -1,6 +1,5 @@
 package benchmark.datafetcher;
 
-import graphql.Assert;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;

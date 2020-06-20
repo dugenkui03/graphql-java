@@ -1,7 +1,7 @@
 package graphql.language
 
 import graphql.TestUtil
-import graphql.execution.UnknownOperationException
+import graphql.execution.exception.UnknownOperationException
 import spock.lang.Specification
 
 class NodeUtilTest extends Specification {

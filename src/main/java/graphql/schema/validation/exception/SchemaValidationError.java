@@ -1,6 +1,6 @@
 package graphql.schema.validation.exception;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 public class SchemaValidationError {
 

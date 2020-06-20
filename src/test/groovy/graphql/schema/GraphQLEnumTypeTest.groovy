@@ -1,8 +1,8 @@
 package graphql.schema
 
-import graphql.AssertException
-import graphql.language.EnumValue
-import graphql.language.StringValue
+import graphql.error.AssertException
+import graphql.language.node.EnumValue
+import graphql.language.node.StringValue
 import spock.lang.Specification
 
 import static graphql.schema.GraphQLEnumType.newEnum

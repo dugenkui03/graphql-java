@@ -1,17 +1,15 @@
 package readme;
 
 import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
-import graphql.Scalars;
+import graphql.schema.Scalars;
+import graphql.execution.DataFetcher;
 import graphql.schema.*;
 import graphql.schema.idl.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 

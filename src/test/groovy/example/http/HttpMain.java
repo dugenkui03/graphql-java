@@ -1,14 +1,14 @@
 package example.http;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
 import graphql.StarWarsData;
 import graphql.execution.instrumentation.ChainedInstrumentation;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.TypeResolver;
@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.Directives.DeferDirective;
-import static graphql.ExecutionInput.newExecutionInput;
+import static graphql.schema.Directives.DeferDirective;
+import static graphql.execution.ExecutionInput.newExecutionInput;
 import static graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentationOptions.newOptions;
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 import static java.util.Arrays.asList;

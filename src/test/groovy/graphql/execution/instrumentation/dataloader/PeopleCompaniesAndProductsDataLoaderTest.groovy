@@ -1,13 +1,13 @@
 package graphql.execution.instrumentation.dataloader
 
 import com.github.javafaker.Faker
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.TestUtil
 import graphql.execution.instrumentation.dataloader.models.Company
 import graphql.execution.instrumentation.dataloader.models.Person
 import graphql.execution.instrumentation.dataloader.models.Product
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.idl.RuntimeWiring
 import org.dataloader.BatchLoader
@@ -18,7 +18,6 @@ import spock.lang.Specification
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.stream.Collectors
-import java.util.stream.IntStream
 
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring
 

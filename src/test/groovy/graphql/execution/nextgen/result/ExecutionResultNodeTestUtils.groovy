@@ -1,6 +1,6 @@
 package graphql.execution.nextgen.result
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.execution.ExecutionStepInfo
 
 import static graphql.execution.ExecutionStepInfo.newExecutionStepInfo

@@ -1,14 +1,14 @@
 package graphql.execution;
 
-import graphql.Internal;
-import graphql.VisibleForTesting;
-import graphql.language.Directive;
+import graphql.masker.Internal;
+import graphql.masker.VisibleForTesting;
+import graphql.language.node.Directive;
 
 import java.util.List;
 import java.util.Map;
 
-import static graphql.Directives.IncludeDirective;
-import static graphql.Directives.SkipDirective;
+import static graphql.schema.Directives.IncludeDirective;
+import static graphql.schema.Directives.SkipDirective;
 import static graphql.language.NodeUtil.directivesByName;
 
 

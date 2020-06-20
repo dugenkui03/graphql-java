@@ -1,6 +1,6 @@
 package graphql.schema
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.TestUtil
 import graphql.schema.somepackage.ClassWithDFEMethods
 import graphql.schema.somepackage.ClassWithInterfaces

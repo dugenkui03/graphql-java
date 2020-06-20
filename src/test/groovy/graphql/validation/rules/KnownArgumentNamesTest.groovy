@@ -1,8 +1,8 @@
 package graphql.validation.rules
 
-import graphql.language.Argument
-import graphql.language.BooleanValue
-import graphql.language.StringValue
+import graphql.language.node.Argument
+import graphql.language.node.BooleanValue
+import graphql.language.node.StringValue
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -11,8 +11,8 @@ import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLString
 
 class KnownArgumentNamesTest extends Specification {
 

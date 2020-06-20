@@ -1,8 +1,8 @@
 package graphql.validation.rules;
 
 
-import graphql.Internal;
-import graphql.language.Value;
+import graphql.masker.Internal;
+import graphql.language.node.Value;
 import graphql.schema.GraphQLType;
 
 import static graphql.schema.GraphQLNonNull.nonNull;

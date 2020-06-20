@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.ForkJoinPool;
 
-import static graphql.Assert.assertNotEmpty;
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotEmpty;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 import static graphql.util.NodeZipper.ModificationType.REPLACE;
 import static graphql.util.TraversalControl.ABORT;
 import static graphql.util.TraversalControl.CONTINUE;

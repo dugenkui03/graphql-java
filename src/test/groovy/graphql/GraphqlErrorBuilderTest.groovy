@@ -1,16 +1,19 @@
 package graphql
 
+import graphql.error.AssertException
+import graphql.error.ErrorType
+import graphql.error.GraphqlErrorBuilder
 import graphql.execution.ExecutionPath
-import graphql.language.SourceLocation
-import graphql.schema.DataFetcher
+import graphql.language.node.SourceLocation
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.DataFetchingEnvironmentImpl
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.execution.ExecutionStepInfo.newExecutionStepInfo
 import static graphql.execution.MergedField.newMergedField
-import static graphql.language.Field.newField
+import static graphql.language.node.Field.newField
 
 class GraphqlErrorBuilderTest extends Specification {
     def location = new SourceLocation(6, 9)

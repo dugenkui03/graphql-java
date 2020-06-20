@@ -1,7 +1,7 @@
 package graphql.validation;
 
-import graphql.Scalars;
-import graphql.TypeResolutionEnvironment;
+import graphql.schema.Scalars;
+import graphql.execution.TypeResolutionEnvironment;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLEnumType;

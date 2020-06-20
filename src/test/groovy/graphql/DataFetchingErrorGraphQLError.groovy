@@ -1,6 +1,8 @@
 package graphql
 
-import graphql.language.SourceLocation
+import graphql.error.ErrorType
+import graphql.error.GraphQLError
+import graphql.language.node.SourceLocation
 
 class DataFetchingErrorGraphQLError implements GraphQLError {
 

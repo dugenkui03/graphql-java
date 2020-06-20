@@ -1,7 +1,7 @@
 package graphql.validation.rules;
 
 
-import graphql.language.Field;
+import graphql.language.node.Field;
 import graphql.schema.GraphQLOutputType;
 import graphql.validation.AbstractRule;
 import graphql.validation.ValidationContext;

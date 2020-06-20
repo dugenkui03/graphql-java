@@ -1,13 +1,16 @@
 package graphql
 
-import graphql.execution.InputMapDefinesTooManyFieldsException
-import graphql.execution.NonNullableValueCoercedAsNullException
+import graphql.error.ErrorType
+import graphql.error.GraphQLException
+import graphql.execution.ExecutionResult
+import graphql.execution.exception.InputMapDefinesTooManyFieldsException
+import graphql.execution.exception.NonNullableValueCoercedAsNullException
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 
 /*
  * Taken from http://facebook.github.io/graphql/#sec-Input-Objects

@@ -1,7 +1,7 @@
 package graphql.schema
 
-import graphql.Scalars
-import graphql.TypeResolutionEnvironment
+
+import graphql.execution.TypeResolutionEnvironment
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import spock.lang.Specification

@@ -1,6 +1,7 @@
 package graphql.language
 
 import graphql.TestUtil
+import graphql.language.operation.AstPrinter
 import spock.lang.Specification
 
 class DocumentTest extends Specification {

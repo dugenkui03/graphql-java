@@ -1,6 +1,7 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
@@ -14,7 +15,7 @@ public class DataFetcherFactories {
     /**
      * 返回创建参数类型DataFetcher的工厂。
      *
-     * Creates a {@link graphql.schema.DataFetcherFactory} that always returns the provided {@link graphql.schema.DataFetcher}
+     * Creates a {@link graphql.schema.DataFetcherFactory} that always returns the provided {@link DataFetcher}
      *
      * @param dataFetcher the data fetcher to always return
      * @param <T>         the type of the data fetcher

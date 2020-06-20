@@ -2,9 +2,9 @@ package graphql.schema
 
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLBoolean
+import static Scalars.GraphQLInt
+import static Scalars.GraphQLString
 import static graphql.introspection.Introspection.DirectiveLocation.ARGUMENT_DEFINITION
 import static graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import static graphql.introspection.Introspection.DirectiveLocation.INTERFACE

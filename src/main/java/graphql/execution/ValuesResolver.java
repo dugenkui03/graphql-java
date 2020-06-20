@@ -1,15 +1,17 @@
 package graphql.execution;
 
 
-import graphql.Internal;
-import graphql.language.Argument;
-import graphql.language.ArrayValue;
-import graphql.language.NullValue;
-import graphql.language.ObjectField;
-import graphql.language.ObjectValue;
-import graphql.language.Value;
-import graphql.language.VariableDefinition;
-import graphql.language.VariableReference;
+import graphql.masker.Internal;
+import graphql.execution.exception.InputMapDefinesTooManyFieldsException;
+import graphql.execution.exception.NonNullableValueCoercedAsNullException;
+import graphql.language.node.Argument;
+import graphql.language.node.ArrayValue;
+import graphql.language.node.NullValue;
+import graphql.language.node.ObjectField;
+import graphql.language.node.ObjectValue;
+import graphql.language.node.Value;
+import graphql.language.node.definition.VariableDefinition;
+import graphql.language.node.VariableReference;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.GraphQLArgument;
@@ -30,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertShouldNeverHappen;
 import static graphql.schema.GraphQLTypeUtil.isList;
 import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.unwrapOne;

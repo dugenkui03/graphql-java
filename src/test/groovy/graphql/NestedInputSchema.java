@@ -9,8 +9,8 @@ import graphql.schema.GraphQLSchema;
 
 import java.util.Map;
 
-import static graphql.Scalars.GraphQLBoolean;
-import static graphql.Scalars.GraphQLInt;
+import static graphql.schema.Scalars.GraphQLBoolean;
+import static graphql.schema.Scalars.GraphQLInt;
 
 public class NestedInputSchema {
 

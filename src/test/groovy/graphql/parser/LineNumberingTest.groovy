@@ -1,8 +1,8 @@
 package graphql.parser
 
-import graphql.language.Field
-import graphql.language.FragmentDefinition
-import graphql.language.OperationDefinition
+import graphql.language.node.Field
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.definition.OperationDefinition
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -27,7 +27,7 @@ fragment X on Book {
 '''
 
         when:
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         def queryOp = document.getDefinitionsOfType(OperationDefinition.class)[0]
         then:
         queryOp.getSourceLocation().getLine() == 1
@@ -63,7 +63,7 @@ fragment X on Book {
                 .build()
 
         when:
-        def document = new Parser().parseDocument(msr)
+        def document = new DocumentParser().parseDocument(msr)
         then:
         document.getSourceLocation().getLine() == 1
         document.getSourceLocation().getColumn() == 1
@@ -118,7 +118,7 @@ fragment X on Book {
         expect:
         def e
         try {
-            new Parser().parseDocument(badQuery)
+            new DocumentParser().parseDocument(badQuery)
             assert false, "Should have barfed"
         } catch (InvalidSyntaxException ise) {
             e = ise

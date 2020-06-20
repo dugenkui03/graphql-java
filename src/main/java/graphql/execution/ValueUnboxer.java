@@ -1,6 +1,6 @@
 package graphql.execution;
 
-import graphql.PublicSpi;
+import graphql.masker.PublicSpi;
 
 //todo 可以将所有fetcher结果 to Map的逻辑放到这儿呀。
 @PublicSpi

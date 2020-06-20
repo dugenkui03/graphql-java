@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.TraversalContext
@@ -44,7 +44,7 @@ class NoUnusedFragmentsTest extends Specification {
                 }
                 """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -78,7 +78,7 @@ class NoUnusedFragmentsTest extends Specification {
             }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -119,7 +119,7 @@ class NoUnusedFragmentsTest extends Specification {
                 }
                 """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -164,7 +164,7 @@ class NoUnusedFragmentsTest extends Specification {
         }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:

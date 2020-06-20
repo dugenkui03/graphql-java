@@ -4,7 +4,7 @@ package graphql.schema;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.DirectivesUtil.directivesByName;
+import static graphql.schema.DirectivesUtil.directivesByName;
 
 /**
  * Represents a graphql object that can have {@link graphql.schema.GraphQLDirective}s

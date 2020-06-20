@@ -1,10 +1,9 @@
 package graphql.execution
 
-import graphql.ExecutionInput
-import graphql.Scalars
+
+import graphql.schema.Scalars
 import graphql.TestUtil
-import graphql.language.Field
-import graphql.schema.DataFetcher
+import graphql.language.node.Field
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
@@ -18,7 +17,7 @@ import spock.lang.Specification
 import java.util.function.Function
 
 import static ExecutionStepInfo.newExecutionStepInfo
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.TestUtil.mergedField
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLList.list

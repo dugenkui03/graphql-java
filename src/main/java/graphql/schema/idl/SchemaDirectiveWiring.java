@@ -1,6 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLEnumValueDefinition;
@@ -21,7 +22,7 @@ import graphql.schema.GraphQLUnionType;
  * <p>
  *    他可以增强graphql元素运行时的行为，例如通过改变DataFetcher；
  * It can enhance the graphql runtime element and add new behaviour for example by changing
- * the fields {@link graphql.schema.DataFetcher}
+ * the fields {@link DataFetcher}
  * <p>
  *     根据注册，顺序调用SchemaDirectiveWiring对象
  * The SchemaDirectiveWiring objects are called in a specific order based on registration:

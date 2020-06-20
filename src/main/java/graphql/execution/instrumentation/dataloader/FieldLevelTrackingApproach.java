@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.dataloader;
 
-import graphql.Assert;
-import graphql.ExecutionResult;
-import graphql.Internal;
+import graphql.util.Assert;
+import graphql.execution.ExecutionResult;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionPath;
 import graphql.execution.FieldValueInfo;
 import graphql.execution.MergedField;

@@ -1,9 +1,9 @@
 package graphql.schema
 
-import graphql.AssertException
+import graphql.error.AssertException
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLString
 
 class GraphQLNonNullTest extends Specification {
 

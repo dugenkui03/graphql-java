@@ -1,6 +1,6 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.MergedField;
 import graphql.execution.MergedSelectionSet;

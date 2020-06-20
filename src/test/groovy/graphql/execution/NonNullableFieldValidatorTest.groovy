@@ -1,8 +1,9 @@
 package graphql.execution
 
+import graphql.execution.exception.NonNullableFieldWasNullException
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLNonNull.nonNull
 
 class NonNullableFieldValidatorTest extends Specification {

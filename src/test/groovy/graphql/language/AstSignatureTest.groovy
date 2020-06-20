@@ -1,9 +1,10 @@
 package graphql.language
 
 import graphql.TestUtil
+import graphql.language.operation.AstSignature
 import spock.lang.Specification
 
-import static graphql.language.AstPrinter.printAst
+import static graphql.language.operation.AstPrinter.printAst
 
 class AstSignatureTest extends Specification {
 

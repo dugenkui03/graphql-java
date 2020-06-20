@@ -1,6 +1,6 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.nextgen.result.ExecutionResultNode;
@@ -14,8 +14,8 @@ import graphql.util.NodeZipper;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.execution.Async.each;
-import static graphql.execution.Async.mapCompose;
+import static graphql.execution.utils.AsyncUtil.each;
+import static graphql.execution.utils.AsyncUtil.mapCompose;
 import static graphql.util.FpKit.map;
 
 @Internal

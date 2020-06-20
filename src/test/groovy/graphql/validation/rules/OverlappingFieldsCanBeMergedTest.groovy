@@ -1,10 +1,10 @@
 package graphql.validation.rules
 
 import graphql.TestUtil
-import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionEnvironment
 import graphql.language.Document
-import graphql.language.SourceLocation
-import graphql.parser.Parser
+import graphql.language.node.SourceLocation
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.TypeResolver
@@ -14,8 +14,8 @@ import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull
@@ -37,7 +37,7 @@ class OverlappingFieldsCanBeMergedTest extends Specification {
             schema = GraphQLSchema.newSchema().query(objectType).build()
         }
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         ValidationContext validationContext = new ValidationContext(schema, document)
         OverlappingFieldsCanBeMerged overlappingFieldsCanBeMerged = new OverlappingFieldsCanBeMerged(validationContext, errorCollector)
         LanguageTraversal languageTraversal = new LanguageTraversal()

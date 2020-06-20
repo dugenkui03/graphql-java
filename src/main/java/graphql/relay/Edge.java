@@ -1,6 +1,6 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * Represents an edge in Relay which is essentially a node of data T and the cursor for that node.

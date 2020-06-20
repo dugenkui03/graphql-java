@@ -2,7 +2,7 @@ package graphql.validation.rules
 
 import graphql.TestUtil
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.ValidationContext
@@ -17,7 +17,7 @@ class NoUndefinedVariablesTest extends Specification {
 
 
     def traverse(String query) {
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         ValidationContext validationContext = new ValidationContext(TestUtil.dummySchema, document)
         NoUndefinedVariables noUndefinedVariables = new NoUndefinedVariables(validationContext, errorCollector)
         LanguageTraversal languageTraversal = new LanguageTraversal()

@@ -1,10 +1,10 @@
 package graphql.execution.preparsed
 
-import graphql.AssertException
-import graphql.GraphQLError
-import graphql.InvalidSyntaxError
+import graphql.error.AssertException
+import graphql.error.GraphQLError
+import graphql.error.InvalidSyntaxError
 import graphql.language.Document
-import graphql.language.SourceLocation
+import graphql.language.node.SourceLocation
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

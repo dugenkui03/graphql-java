@@ -1,7 +1,8 @@
 package graphql
 
-import graphql.language.SourceLocation
-import graphql.schema.DataFetcher
+import graphql.error.ErrorType
+import graphql.language.node.SourceLocation
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import spock.lang.Specification
 

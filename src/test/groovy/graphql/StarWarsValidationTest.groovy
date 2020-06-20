@@ -1,6 +1,7 @@
 package graphql
 
-import graphql.parser.Parser
+
+import graphql.parser.DocumentParser
 import graphql.validation.ValidationError
 import graphql.validation.Validator
 import spock.lang.Specification
@@ -9,7 +10,7 @@ class StarWarsValidationTest extends Specification {
 
 
     List<ValidationError> validate(String query) {
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         return new Validator().validateDocument(StarWarsSchema.starWarsSchema, document)
     }
 

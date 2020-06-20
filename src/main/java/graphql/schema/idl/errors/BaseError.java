@@ -1,11 +1,11 @@
 package graphql.schema.idl.errors;
 
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.GraphQLException;
-import graphql.GraphqlErrorHelper;
-import graphql.language.Node;
-import graphql.language.SourceLocation;
+import graphql.error.ErrorType;
+import graphql.error.GraphQLError;
+import graphql.error.GraphQLException;
+import graphql.error.GraphqlErrorHelper;
+import graphql.language.node.Node;
+import graphql.language.node.SourceLocation;
 
 import java.util.Collections;
 import java.util.List;

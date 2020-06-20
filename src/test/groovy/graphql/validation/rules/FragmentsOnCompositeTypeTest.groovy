@@ -1,9 +1,9 @@
 package graphql.validation.rules
 
 import graphql.StarWarsSchema
-import graphql.language.FragmentDefinition
-import graphql.language.InlineFragment
-import graphql.language.TypeName
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.InlineFragment
+import graphql.language.node.TypeName
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType

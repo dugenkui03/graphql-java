@@ -2,7 +2,7 @@ package graphql.execution.instrumentation.parameters;
 
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStepInfo;
-import graphql.execution.ExecutionStrategyParameters;
+import graphql.execution.strategy.ExecutionStrategyParameters;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.schema.GraphQLFieldDefinition;
 

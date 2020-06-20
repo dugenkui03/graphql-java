@@ -1,6 +1,6 @@
 package graphql.schema.transform;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.schema.GraphQLNamedSchemaElement;
 import graphql.schema.GraphQLSchemaElement;
 

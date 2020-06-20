@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation.parameters;
 
-import graphql.ExecutionInput;
+import graphql.execution.ExecutionInput;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.language.Document;

@@ -1,17 +1,17 @@
 package graphql.schema.idl;
 
-import graphql.Internal;
-import graphql.language.AstPrinter;
-import graphql.language.ListType;
-import graphql.language.NonNullType;
-import graphql.language.Type;
-import graphql.language.TypeName;
+import graphql.masker.Internal;
+import graphql.language.operation.AstPrinter;
+import graphql.language.node.ListType;
+import graphql.language.node.NonNullType;
+import graphql.language.node.Type;
+import graphql.language.node.TypeName;
 import graphql.schema.GraphQLType;
 
 import java.util.Objects;
 import java.util.Stack;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.schema.GraphQLList.list;
 import static graphql.schema.GraphQLNonNull.nonNull;
 

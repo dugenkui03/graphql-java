@@ -1,9 +1,9 @@
 package graphql.schema.idl
 
-import graphql.language.EnumTypeDefinition
-import graphql.language.InterfaceTypeDefinition
-import graphql.language.ObjectTypeDefinition
-import graphql.language.ScalarTypeDefinition
+import graphql.language.node.definition.EnumTypeDefinition
+import graphql.language.node.definition.InterfaceTypeDefinition
+import graphql.language.node.definition.ObjectTypeDefinition
+import graphql.language.node.definition.ScalarTypeDefinition
 import graphql.schema.idl.errors.SchemaProblem
 import spock.lang.Specification
 import spock.lang.Unroll

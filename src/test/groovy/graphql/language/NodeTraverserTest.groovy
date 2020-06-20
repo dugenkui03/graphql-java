@@ -1,5 +1,11 @@
 package graphql.language
 
+import graphql.language.node.Field
+import graphql.language.node.Node
+import graphql.language.node.SelectionSet
+import graphql.language.traverser.NodeTraverser
+import graphql.language.traverser.NodeVisitor
+import graphql.language.traverser.NodeVisitorStub
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import spock.lang.Specification

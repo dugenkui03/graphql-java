@@ -1,9 +1,9 @@
 package graphql.validation.rules
 
-import graphql.language.Argument
-import graphql.language.Directive
-import graphql.language.Field
-import graphql.language.StringValue
+import graphql.language.node.Argument
+import graphql.language.node.Directive
+import graphql.language.node.Field
+import graphql.language.node.StringValue
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -13,7 +13,7 @@ import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 
 class ProvidedNonNullArgumentsTest extends Specification {
 

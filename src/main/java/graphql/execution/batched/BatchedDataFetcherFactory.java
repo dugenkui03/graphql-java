@@ -1,6 +1,7 @@
 package graphql.execution.batched;
 
-import graphql.schema.DataFetcher;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import java.lang.reflect.Method;
@@ -13,7 +14,7 @@ import java.lang.reflect.Method;
  * on each source. Note that this forgoes any performance benefits of batching,
  * so regular DataFetchers should normally only be used if they are in-memory.
  *
- * @deprecated This has been deprecated in favour of using {@link graphql.execution.AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
+ * @deprecated This has been deprecated in favour of using {@link AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
  */
 @Deprecated
 public class BatchedDataFetcherFactory {

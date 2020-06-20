@@ -2,10 +2,10 @@ package graphql.validation.rules
 
 import graphql.StarWarsSchema
 import graphql.TestUtil
-import graphql.language.ListType
-import graphql.language.NonNullType
-import graphql.language.TypeName
-import graphql.language.VariableDefinition
+import graphql.language.node.ListType
+import graphql.language.node.NonNullType
+import graphql.language.node.TypeName
+import graphql.language.node.definition.VariableDefinition
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType

@@ -1,15 +1,16 @@
 package graphql.schema
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.TestUtil
-import graphql.language.ArrayValue
-import graphql.language.BooleanValue
-import graphql.language.FloatValue
-import graphql.language.IntValue
-import graphql.language.NullValue
-import graphql.language.ObjectValue
-import graphql.language.StringValue
-import graphql.language.VariableReference
+import graphql.execution.DataFetcher
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.FloatValue
+import graphql.language.node.IntValue
+import graphql.language.node.NullValue
+import graphql.language.node.ObjectValue
+import graphql.language.node.StringValue
+import graphql.language.node.VariableReference
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.TypeRuntimeWiring
 import spock.lang.Specification

@@ -1,13 +1,12 @@
 package graphql.execution;
 
-import graphql.ExecutionResult;
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 @PublicApi
 public class FieldValueInfo {

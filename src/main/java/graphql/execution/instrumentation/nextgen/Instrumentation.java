@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.nextgen;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.Internal;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
+import graphql.masker.Internal;
 import graphql.execution.instrumentation.DocumentAndVariables;
 import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.InstrumentationState;

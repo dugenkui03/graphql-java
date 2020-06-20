@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 @Internal
 public abstract class TraverserState<T> {

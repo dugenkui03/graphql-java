@@ -1,6 +1,7 @@
 package graphql
 
 import graphql.execution.DataFetcherResult
+import graphql.execution.ExecutionInput
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.TypeRuntimeWiring
 import spock.lang.Specification

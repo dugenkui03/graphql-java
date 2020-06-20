@@ -1,8 +1,8 @@
 package graphql.schema
 
 import graphql.GraphQL
-import graphql.Scalars
 import graphql.TestUtil
+import graphql.execution.DataFetcher
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaPrinter
 import graphql.util.TraversalControl

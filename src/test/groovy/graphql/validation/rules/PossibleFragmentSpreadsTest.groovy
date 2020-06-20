@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.ValidationContext
@@ -14,7 +14,7 @@ class PossibleFragmentSpreadsTest extends Specification {
     ValidationErrorCollector errorCollector = new ValidationErrorCollector()
 
     def traverse(String query) {
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         ValidationContext validationContext = new ValidationContext(Harness.Schema, document)
         PossibleFragmentSpreads possibleFragmentSpreads = new PossibleFragmentSpreads(validationContext, errorCollector)
         LanguageTraversal languageTraversal = new LanguageTraversal()

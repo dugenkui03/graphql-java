@@ -1,13 +1,14 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.Node;
-import graphql.language.NodeTraverser;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.Node;
+import graphql.language.traverser.NodeTraverser;
 import graphql.language.NodeUtil;
-import graphql.language.OperationDefinition;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
@@ -18,8 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertShouldNeverHappen;
 import static java.util.Collections.singletonList;
 
 /**

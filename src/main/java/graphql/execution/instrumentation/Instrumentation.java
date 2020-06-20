@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
 import graphql.execution.ExecutionContext;
 import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationDeferredFieldParameters;
@@ -12,12 +12,11 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldComplete
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters;
+import graphql.execution.strategy.ExecutionStrategy;
 import graphql.language.Document;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.PropertyDataFetcher;
 import graphql.validation.ValidationError;
-import org.omg.CORBA.TIMEOUT;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -105,7 +104,7 @@ public interface Instrumentation {
     InstrumentationContext<ExecutionResult> beginExecuteOperation(InstrumentationExecuteOperationParameters parameters);
 
     /**
-     * This is called each time an {@link graphql.execution.ExecutionStrategy} is invoked, which may be multiple times
+     * This is called each time an {@link ExecutionStrategy} is invoked, which may be multiple times
      * per query as the engine recursively descends down over the query.
      *
      * @param parameters the parameters to this step
@@ -167,7 +166,7 @@ public interface Instrumentation {
     /**
      * 在入参进行解析、验证和执行前，对其进行调整并返回：上下文包含schema和InstrumentationState
      *
-     * This is called to instrument a {@link graphql.ExecutionInput} before it is used to parse, validate
+     * This is called to instrument a {@link ExecutionInput} before it is used to parse, validate
      * and execute a query, allowing you to adjust what query input parameters are used
      *
      * @param executionInput the execution input to be used
@@ -182,7 +181,7 @@ public interface Instrumentation {
     /**
      * 在使用Document对象和变量之前、允许你对他们进行调整
      *
-     * This is called to instrument a {@link graphql.language.Document} and variables before it is used allowing you to adjust the query AST if you so desire
+     * This is called to instrument a {@link Document} and variables before it is used allowing you to adjust the query AST if you so desire
      *
      * @param documentAndVariables the document and variables to be used
      * @param parameters           the parameters describing the execution

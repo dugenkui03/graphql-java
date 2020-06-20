@@ -1,9 +1,13 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
-import graphql.language.NamedNode;
+import graphql.masker.PublicApi;
+import graphql.error.AssertException;
+import graphql.execution.DataFetcher;
+import graphql.language.node.NamedNode;
 import graphql.language.NodeParentTree;
-import graphql.schema.DataFetcher;
+import graphql.language.node.Argument;
+import graphql.language.node.definition.FieldDefinition;
+import graphql.language.node.definition.ObjectTypeDefinition;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLDirectiveContainer;
@@ -69,9 +73,9 @@ public interface SchemaDirectiveWiringEnvironment<T extends GraphQLDirectiveCont
     boolean containsDirective(String directiveName);
 
     /**
-     * The node hierarchy depends on the element in question.  For example {@link graphql.language.ObjectTypeDefinition} nodes
-     * have no parent, however a {@link graphql.language.Argument} might be on a {@link graphql.language.FieldDefinition}
-     * which in turn might be on a {@link graphql.language.ObjectTypeDefinition} say
+     * The node hierarchy depends on the element in question.  For example {@link ObjectTypeDefinition} nodes
+     * have no parent, however a {@link Argument} might be on a {@link FieldDefinition}
+     * which in turn might be on a {@link ObjectTypeDefinition} say
      *
      * @return hierarchical graphql language node information
      */
@@ -114,9 +118,9 @@ public interface SchemaDirectiveWiringEnvironment<T extends GraphQLDirectiveCont
     /**
      * This is useful as a shortcut to get the current fields existing data fetcher
      *
-     * @return a {@link graphql.schema.DataFetcher} when the element is as field or is contained within one
+     * @return a {@link DataFetcher} when the element is as field or is contained within one
      *
-     * @throws graphql.AssertException if there is not field in context at the time of the directive wiring callback
+     * @throws AssertException if there is not field in context at the time of the directive wiring callback
      */
     DataFetcher getFieldDataFetcher();
 
@@ -131,7 +135,7 @@ public interface SchemaDirectiveWiringEnvironment<T extends GraphQLDirectiveCont
      *
      * @return the environments {@link #getFieldDefinition()} to allow for a more fluent code style
      *
-     * @throws graphql.AssertException if there is not field in context at the time of the directive wiring callback
+     * @throws AssertException if there is not field in context at the time of the directive wiring callback
      */
     GraphQLFieldDefinition setFieldDataFetcher(DataFetcher newDataFetcher);
 

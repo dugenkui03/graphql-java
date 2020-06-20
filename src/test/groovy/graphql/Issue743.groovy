@@ -1,5 +1,7 @@
 package graphql
 
+import graphql.error.ErrorType
+import graphql.execution.ExecutionInput
 import spock.lang.Specification
 
 class Issue743 extends Specification {

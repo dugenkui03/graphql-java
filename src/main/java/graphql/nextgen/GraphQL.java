@@ -1,11 +1,11 @@
 package graphql.nextgen;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.Internal;
-import graphql.ParseResult;
-import graphql.execution.AbortExecutionException;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.masker.Internal;
+import graphql.language.ParseResult;
+import graphql.execution.exception.AbortExecutionException;
 import graphql.execution.ExecutionId;
 import graphql.execution.ExecutionIdProvider;
 import graphql.execution.instrumentation.DocumentAndVariables;
@@ -22,8 +22,8 @@ import graphql.execution.preparsed.NoOpPreparsedDocumentProvider;
 import graphql.execution.preparsed.PreparsedDocumentEntry;
 import graphql.execution.preparsed.PreparsedDocumentProvider;
 import graphql.language.Document;
+import graphql.parser.DocumentParser;
 import graphql.parser.InvalidSyntaxException;
-import graphql.parser.Parser;
 import graphql.schema.GraphQLSchema;
 import graphql.util.LogKit;
 import graphql.validation.ValidationError;
@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.execution.instrumentation.DocumentAndVariables.newDocumentAndVariables;
 
 @SuppressWarnings("Duplicates")
@@ -220,11 +220,11 @@ public class GraphQL {
         InstrumentationExecutionParameters parameters = new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
         InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);
 
-        Parser parser = new Parser();
+        DocumentParser documentParser = new DocumentParser();
         Document document;
         DocumentAndVariables documentAndVariables;
         try {
-            document = parser.parseDocument(executionInput.getQuery());
+            document = documentParser.parseDocument(executionInput.getQuery());
             documentAndVariables = newDocumentAndVariables()
                     .document(document).variables(executionInput.getVariables()).build();
             documentAndVariables = instrumentation.instrumentDocumentAndVariables(documentAndVariables, parameters);

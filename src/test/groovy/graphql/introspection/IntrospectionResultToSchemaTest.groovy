@@ -1,25 +1,24 @@
 package graphql.introspection
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.language.AstPrinter
 import graphql.language.Document
-import graphql.language.EnumTypeDefinition
-import graphql.language.InputObjectTypeDefinition
-import graphql.language.InterfaceTypeDefinition
-import graphql.language.ObjectTypeDefinition
-import graphql.language.UnionTypeDefinition
+import graphql.language.node.definition.EnumTypeDefinition
+import graphql.language.node.definition.InputObjectTypeDefinition
+import graphql.language.node.definition.InterfaceTypeDefinition
+import graphql.language.node.definition.ObjectTypeDefinition
+import graphql.language.node.definition.UnionTypeDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
 import groovy.json.JsonSlurper
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.introspection.IntrospectionQuery.INTROSPECTION_QUERY
-import static graphql.language.AstPrinter.printAst
+import static graphql.language.operation.AstPrinter.printAst
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 
 class IntrospectionResultToSchemaTest extends Specification {

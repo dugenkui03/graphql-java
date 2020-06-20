@@ -1,10 +1,10 @@
 package graphql.schema
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
-import graphql.Scalars
 import graphql.TestUtil
-import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionEnvironment
+import graphql.execution.DataFetcher
 import graphql.schema.visibility.GraphqlFieldVisibility
 import spock.lang.Specification
 

@@ -1,8 +1,7 @@
 package graphql.schema
 
-import graphql.AssertException
-import graphql.Directives
-import graphql.ExecutionInput
+import graphql.error.AssertException
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.TestUtil
 import graphql.schema.idl.RuntimeWiring
@@ -11,7 +10,7 @@ import spock.lang.Specification
 
 import java.util.function.UnaryOperator
 
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLString
 import static graphql.StarWarsSchema.characterInterface
 import static graphql.StarWarsSchema.droidType
 import static graphql.StarWarsSchema.humanType

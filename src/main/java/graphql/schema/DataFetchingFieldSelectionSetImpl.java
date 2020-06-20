@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionContext;
 import graphql.execution.FieldCollector;
 import graphql.execution.FieldCollectorParameters;
@@ -8,8 +8,8 @@ import graphql.execution.MergedField;
 import graphql.execution.MergedSelectionSet;
 import graphql.execution.ValuesResolver;
 import graphql.introspection.Introspection;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 

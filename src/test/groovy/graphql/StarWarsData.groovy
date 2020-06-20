@@ -1,6 +1,7 @@
 package graphql
 
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
+import graphql.execution.TypeResolutionEnvironment
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLObjectType
 import graphql.schema.TypeResolver

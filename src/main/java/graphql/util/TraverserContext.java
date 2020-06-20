@@ -1,6 +1,7 @@
 package graphql.util;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.error.AssertException;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public interface TraverserContext<T> {
      * Throws Exception if the node is deleted.
      * @return current node traverser is visiting. 遍历者正在访问的节点
      *
-     * @throws graphql.AssertException if the current node is deleted 如果当前节点已经被删除、则抛异常
+     * @throws AssertException if the current node is deleted 如果当前节点已经被删除、则抛异常
      */
     T thisNode();
 

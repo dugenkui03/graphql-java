@@ -1,14 +1,14 @@
 package graphql.schema
 
-import graphql.Scalars
+
 import graphql.TestUtil
 import graphql.execution.ExecutionContextBuilder
 import graphql.execution.ExecutionId
 import graphql.language.Document
-import graphql.language.Field
-import graphql.language.FragmentDefinition
+import graphql.language.node.Field
+import graphql.language.node.definition.FragmentDefinition
 import graphql.language.NodeUtil
-import graphql.language.OperationDefinition
+import graphql.language.node.definition.OperationDefinition
 import spock.lang.Specification
 
 import static graphql.TestUtil.mergedField

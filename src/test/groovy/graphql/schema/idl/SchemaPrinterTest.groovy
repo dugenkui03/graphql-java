@@ -1,9 +1,9 @@
 package graphql.schema.idl
 
 import graphql.GraphQL
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.TestUtil
-import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionEnvironment
 import graphql.introspection.IntrospectionQuery
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.Coercing
@@ -24,8 +24,8 @@ import spock.lang.Specification
 
 import java.util.function.UnaryOperator
 
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.TestUtil.mockScalar
 import static graphql.TestUtil.mockTypeRuntimeWiring
 import static graphql.schema.GraphQLArgument.newArgument

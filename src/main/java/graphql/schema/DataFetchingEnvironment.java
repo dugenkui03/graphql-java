@@ -1,15 +1,17 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.execution.ExecutionInput;
+import graphql.masker.PublicApi;
 import graphql.cachecontrol.CacheControl;
+import graphql.execution.DataFetcher;
 import graphql.execution.ExecutionId;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.MergedField;
 import graphql.execution.directives.QueryDirectives;
 import graphql.language.Document;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.OperationDefinition;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.definition.OperationDefinition;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 
@@ -70,7 +72,7 @@ public interface DataFetchingEnvironment {
     <T> T getArgumentOrDefault(String name, T defaultValue);
 
     /**
-     * Returns a context argument that is set up when the {@link graphql.GraphQL#execute(graphql.ExecutionInput)} )} method
+     * Returns a context argument that is set up when the {@link graphql.GraphQL#execute(ExecutionInput)} )} method
      * is invoked.
      * <p>
      * This is a info object which is provided to all DataFetchers, but never used by graphql-java itself.

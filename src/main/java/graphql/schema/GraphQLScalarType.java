@@ -1,10 +1,10 @@
 package graphql.schema;
 
 
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.ScalarTypeDefinition;
-import graphql.language.ScalarTypeExtensionDefinition;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.ScalarTypeDefinition;
+import graphql.language.node.definition.extension.ScalarTypeExtensionDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.schema.SchemaElementChildrenContainer.newSchemaElementChildrenContainer;
 import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;
@@ -32,9 +32,9 @@ import static java.util.Collections.emptyList;
  * From the spec : http://facebook.github.io/graphql/#sec-Scalars
  * </blockquote>
  *
- * graphql-java ships with a set of predefined scalar types via {@link graphql.Scalars}
+ * graphql-java ships with a set of predefined scalar types via {@link Scalars}
  *
- * @see graphql.Scalars
+ * @see Scalars
  */
 public class GraphQLScalarType implements GraphQLNamedInputType, GraphQLNamedOutputType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLDirectiveContainer {
 

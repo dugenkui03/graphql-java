@@ -1,5 +1,41 @@
 package graphql.language
 
+import graphql.language.node.Argument
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.Directive
+import graphql.language.node.NonNullType
+import graphql.language.node.NullValue
+import graphql.language.node.ObjectField
+import graphql.language.node.ObjectValue
+import graphql.language.node.SelectionSet
+import graphql.language.node.TypeName
+import graphql.language.node.VariableReference
+import graphql.language.node.definition.DirectiveDefinition
+import graphql.language.node.DirectiveLocation
+import graphql.language.node.definition.EnumTypeDefinition
+import graphql.language.node.EnumValue
+import graphql.language.node.definition.EnumValueDefinition
+import graphql.language.node.Field
+import graphql.language.node.definition.FieldDefinition
+import graphql.language.node.FloatValue
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.FragmentSpread
+import graphql.language.node.InlineFragment
+import graphql.language.node.definition.InputObjectTypeDefinition
+import graphql.language.node.definition.InputValueDefinition
+import graphql.language.node.IntValue
+import graphql.language.node.definition.InterfaceTypeDefinition
+import graphql.language.node.ListType
+import graphql.language.node.StringValue
+import graphql.language.node.definition.ObjectTypeDefinition
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.definition.OperationTypeDefinition
+import graphql.language.node.definition.ScalarTypeDefinition
+import graphql.language.node.definition.SchemaDefinition
+import graphql.language.node.definition.UnionTypeDefinition
+import graphql.language.node.definition.VariableDefinition
+import graphql.language.traverser.NodeVisitorStub
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import spock.lang.Specification
@@ -44,15 +80,15 @@ class NodeVisitorStubTest extends Specification {
 
         where:
         node                                             | visitMethod
-        FloatValue.newFloatValue().build()               | 'visitFloatValue'
-        ArrayValue.newArrayValue().build()               | 'visitArrayValue'
-        IntValue.newIntValue().build()                   | 'visitIntValue'
-        new BooleanValue(true)                           | 'visitBooleanValue'
-        NullValue.newNullValue().build()                 | 'visitNullValue'
-        ObjectValue.newObjectValue().build()             | 'visitObjectValue'
+        FloatValue.newFloatValue().build() | 'visitFloatValue'
+        ArrayValue.newArrayValue().build() | 'visitArrayValue'
+        IntValue.newIntValue().build()     | 'visitIntValue'
+        new BooleanValue(true)             | 'visitBooleanValue'
+        NullValue.newNullValue().build()     | 'visitNullValue'
+        ObjectValue.newObjectValue().build() | 'visitObjectValue'
         VariableReference.newVariableReference().build() | 'visitVariableReference'
-        EnumValue.newEnumValue().build()                 | 'visitEnumValue'
-        StringValue.newStringValue().build()             | 'visitStringValue'
+        EnumValue.newEnumValue().build()   | 'visitEnumValue'
+        StringValue.newStringValue().build() | 'visitStringValue'
     }
 
     @Unroll
@@ -71,9 +107,9 @@ class NodeVisitorStubTest extends Specification {
         where:
         node                                                 | visitMethod
         OperationDefinition.newOperationDefinition().build() | 'visitOperationDefinition'
-        FragmentDefinition.newFragmentDefinition().build()   | 'visitFragmentDefinition'
-        new DirectiveDefinition("")                          | 'visitDirectiveDefinition'
-        SchemaDefinition.newSchemaDefinition().build()       | 'visitSchemaDefinition'
+        FragmentDefinition.newFragmentDefinition().build() | 'visitFragmentDefinition'
+        new DirectiveDefinition("")                        | 'visitDirectiveDefinition'
+        SchemaDefinition.newSchemaDefinition().build() | 'visitSchemaDefinition'
     }
 
     @Unroll
@@ -90,12 +126,12 @@ class NodeVisitorStubTest extends Specification {
 
         where:
         node                                                         | visitMethod
-        new UnionTypeDefinition("")                                  | 'visitUnionTypeDefinition'
+        new UnionTypeDefinition("")  | 'visitUnionTypeDefinition'
         InputObjectTypeDefinition.newInputObjectDefinition().build() | 'visitInputObjectTypeDefinition'
-        new ScalarTypeDefinition("")                                 | 'visitScalarTypeDefinition'
+        new ScalarTypeDefinition("") | 'visitScalarTypeDefinition'
         new InterfaceTypeDefinition("")                              | 'visitInterfaceTypeDefinition'
         new EnumTypeDefinition("")                                   | 'visitEnumTypeDefinition'
-        new ObjectTypeDefinition("")                                 | 'visitObjectTypeDefinition'
+        new ObjectTypeDefinition("") | 'visitObjectTypeDefinition'
     }
 
     @Unroll
@@ -113,8 +149,8 @@ class NodeVisitorStubTest extends Specification {
         where:
         node                                 | visitMethod
         NonNullType.newNonNullType().build() | 'visitNonNullType'
-        ListType.newListType().build()       | 'visitListType'
-        new TypeName("")                     | 'visitTypeName'
+        ListType.newListType().build() | 'visitListType'
+        new TypeName("") | 'visitTypeName'
 
     }
 
@@ -132,18 +168,18 @@ class NodeVisitorStubTest extends Specification {
 
         where:
         node                                                         | visitMethod
-        new Argument("", null)                                       | 'visitArgument'
-        new Directive("", emptyList())                               | 'visitDirective'
-        new DirectiveLocation("")                                    | 'visitDirectiveLocation'
-        Document.newDocument().build()                               | 'visitDocument'
-        new EnumValueDefinition("")                                  | 'visitEnumValueDefinition'
-        FieldDefinition.newFieldDefinition().build()                 | 'visitFieldDefinition'
+        new Argument("", null) | 'visitArgument'
+        new Directive("", emptyList())                         | 'visitDirective'
+        new DirectiveLocation("")                              | 'visitDirectiveLocation'
+        Document.newDocument().build()                         | 'visitDocument'
+        new EnumValueDefinition("")                            | 'visitEnumValueDefinition'
+        FieldDefinition.newFieldDefinition().build()           | 'visitFieldDefinition'
+        InputValueDefinition.newInputValueDefinition().build() | 'visitInputValueDefinition'
         InputValueDefinition.newInputValueDefinition().build()       | 'visitInputValueDefinition'
-        InputValueDefinition.newInputValueDefinition().build()       | 'visitInputValueDefinition'
-        new ObjectField("", null)                                    | 'visitObjectField'
+        new ObjectField("", null) | 'visitObjectField'
         OperationTypeDefinition.newOperationTypeDefinition().build() | 'visitOperationTypeDefinition'
         OperationTypeDefinition.newOperationTypeDefinition().build() | 'visitOperationTypeDefinition'
-        SelectionSet.newSelectionSet().build()                       | 'visitSelectionSet'
+        SelectionSet.newSelectionSet().build() | 'visitSelectionSet'
         VariableDefinition.newVariableDefinition().build()           | 'visitVariableDefinition'
         new StringValue("")                                          | 'visitValue'
         OperationDefinition.newOperationDefinition().build()         | 'visitDefinition'

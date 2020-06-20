@@ -7,7 +7,7 @@ import GraphqlSDL, GraphqlOperation, GraphqlCommon;
 
 //生成类的包路径
 @header {
-    package graphql.parser.antlr;
+    package graphql.documentParser.antlr;
 }
 
 //document由各种定义组层

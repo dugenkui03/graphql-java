@@ -1,7 +1,8 @@
 package graphql.analysis;
 
-import graphql.Internal;
-import graphql.language.SelectionSetContainer;
+import graphql.masker.Internal;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
+import graphql.language.node.container.SelectionSetContainer;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLTypeUtil;

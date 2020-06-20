@@ -4,9 +4,9 @@ package graphql.execution
 import spock.lang.Specification
 
 import static ExecutionStepInfo.newExecutionStepInfo
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.TestUtil.mergedSelectionSet
-import static graphql.execution.ExecutionStrategyParameters.newParameters
+import static graphql.execution.strategy.ExecutionStrategyParameters.newParameters
 
 class ExecutionStrategyParametersTest extends Specification {
 

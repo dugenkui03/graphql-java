@@ -2,10 +2,10 @@ package graphql.execution
 
 import graphql.TestUtil
 import graphql.language.Document
-import graphql.language.Field
-import graphql.language.InlineFragment
-import graphql.language.OperationDefinition
-import graphql.parser.Parser
+import graphql.language.node.Field
+import graphql.language.node.InlineFragment
+import graphql.language.node.definition.OperationDefinition
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLObjectType
 import spock.lang.Specification
 
@@ -29,7 +29,7 @@ class FieldCollectorTest extends Specification {
                 .schema(schema)
                 .objectType(objectType)
                 .build()
-        Document document = new Parser().parseDocument("{foo {bar1 bar2 }}")
+        Document document = new DocumentParser().parseDocument("{foo {bar1 bar2 }}")
         Field field = ((OperationDefinition) document.children[0]).selectionSet.selections[0] as Field
 
         def bar1 = field.selectionSet.selections[0]
@@ -62,7 +62,7 @@ class FieldCollectorTest extends Specification {
                 .schema(schema)
                 .objectType(object)
                 .build()
-        Document document = new Parser().parseDocument("{bar1 { ...on Test {fieldOnInterface}}}")
+        Document document = new DocumentParser().parseDocument("{bar1 { ...on Test {fieldOnInterface}}}")
         Field bar1Field = ((OperationDefinition) document.children[0]).selectionSet.selections[0] as Field
 
         def inlineFragment = bar1Field.selectionSet.selections[0] as InlineFragment

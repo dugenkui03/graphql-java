@@ -1,13 +1,17 @@
 package graphql.language
 
 import graphql.TestUtil
+import graphql.language.node.Field
+import graphql.language.node.Node
+import graphql.language.node.SelectionSet
+import graphql.language.node.definition.OperationDefinition
 import graphql.util.Breadcrumb
 import graphql.util.NodeLocation
 import graphql.util.NodeMultiZipper
 import graphql.util.NodeZipper
 import spock.lang.Specification
 
-import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER
+import static graphql.language.operation.AstNodeAdapter.AST_NODE_ADAPTER
 
 
 class AstMultiZipperTest extends Specification {

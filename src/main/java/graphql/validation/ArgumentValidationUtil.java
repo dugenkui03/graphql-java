@@ -1,9 +1,9 @@
 package graphql.validation;
 
-import graphql.GraphQLError;
-import graphql.language.Argument;
-import graphql.language.ObjectField;
-import graphql.language.Value;
+import graphql.error.GraphQLError;
+import graphql.language.node.Argument;
+import graphql.language.node.ObjectField;
+import graphql.language.node.Value;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLInputObjectType;
 import graphql.schema.GraphQLScalarType;

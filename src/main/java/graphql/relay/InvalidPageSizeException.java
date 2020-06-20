@@ -1,13 +1,13 @@
 package graphql.relay;
 
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.GraphqlErrorHelper;
-import graphql.language.SourceLocation;
+import graphql.error.ErrorType;
+import graphql.error.GraphQLError;
+import graphql.error.GraphqlErrorHelper;
+import graphql.language.node.SourceLocation;
 
 import java.util.List;
 
-import static graphql.ErrorType.DataFetchingException;
+import static graphql.error.ErrorType.DataFetchingException;
 
 public class InvalidPageSizeException extends RuntimeException implements GraphQLError {
 

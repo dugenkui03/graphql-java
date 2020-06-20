@@ -1,6 +1,6 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * Represents pagination information in Relay about {@link graphql.relay.Edge edges} when used

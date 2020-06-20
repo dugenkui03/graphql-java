@@ -1,5 +1,6 @@
 package graphql.schema;
 
+import graphql.execution.DataFetcher;
 import graphql.execution.MergedSelectionSet;
 
 import java.util.List;

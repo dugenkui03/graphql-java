@@ -1,6 +1,6 @@
 package readme;
 
-import graphql.language.StringValue;
+import graphql.language.node.StringValue;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;

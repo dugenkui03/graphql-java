@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation;
 
-import graphql.ExecutionResult;
+import graphql.execution.ExecutionResult;
 import graphql.execution.FieldValueInfo;
 
 public interface DeferredFieldInstrumentationContext extends InstrumentationContext<ExecutionResult> {

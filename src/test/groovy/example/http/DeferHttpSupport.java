@@ -1,7 +1,7 @@
 package example.http;
 
-import graphql.DeferredExecutionResult;
-import graphql.ExecutionResult;
+import graphql.execution.defer.DeferredExecutionResult;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

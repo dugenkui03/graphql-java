@@ -1,9 +1,9 @@
 package graphql
 
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.AsyncSerialExecutionStrategy
-import graphql.execution.ExecutorServiceExecutionStrategy
-import graphql.language.SourceLocation
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.ExecutorServiceExecutionStrategy
+import graphql.language.node.SourceLocation
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.RuntimeWiring
@@ -12,8 +12,8 @@ import spock.lang.Unroll
 
 import java.util.concurrent.CompletableFuture
 
-import static graphql.ExecutionInput.newExecutionInput
-import static graphql.Scalars.GraphQLString
+import static graphql.execution.ExecutionInput.newExecutionInput
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.execution.DataFetcherResult.newResult
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLObjectType.newObject

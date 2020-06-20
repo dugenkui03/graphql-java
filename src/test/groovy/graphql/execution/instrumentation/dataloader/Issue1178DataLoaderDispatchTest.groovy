@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.TestUtil
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.StaticDataFetcher
 import graphql.schema.idl.RuntimeWiring

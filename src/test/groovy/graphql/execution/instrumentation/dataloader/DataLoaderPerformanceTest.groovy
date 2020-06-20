@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.DeferredExecutionResult
-import graphql.ExecutionInput
+import graphql.execution.defer.DeferredExecutionResult
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.execution.defer.CapturingSubscriber
 import graphql.execution.instrumentation.Instrumentation

@@ -1,7 +1,7 @@
 package benchmark;
 
 import graphql.language.Document;
-import graphql.parser.Parser;
+import graphql.parser.DocumentParser;
 
 public class CommonTest {
     public static void main(String[] args) {
@@ -17,8 +17,8 @@ public class CommonTest {
                 "  }\n" +
                 "}";
 
-        Parser parser=new Parser();
-        Document document = parser.parseDocument(dsl);
+        DocumentParser documentParser =new DocumentParser();
+        Document document = documentParser.parseDocument(dsl);
 
         System.out.println(document);
     }

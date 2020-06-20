@@ -1,6 +1,8 @@
 package graphql
 
-import graphql.schema.DataFetcher
+import graphql.error.UnresolvedTypeError
+import graphql.execution.DataFetcher
+import graphql.execution.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -12,7 +14,7 @@ import graphql.schema.idl.UnionWiringEnvironment
 import graphql.schema.idl.WiringFactory
 import spock.lang.Specification
 
-import static graphql.Assert.assertShouldNeverHappen
+import static graphql.util.Assert.assertShouldNeverHappen
 import static graphql.schema.GraphQLTypeUtil.unwrapAll
 
 class TypeResolverExecutionTest extends Specification {

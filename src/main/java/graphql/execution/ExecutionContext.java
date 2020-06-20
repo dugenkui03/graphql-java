@@ -1,16 +1,16 @@
 package graphql.execution;
 
 
-import graphql.GraphQLError;
-import graphql.PublicApi;
+import graphql.error.GraphQLError;
+import graphql.masker.PublicApi;
 import graphql.cachecontrol.CacheControl;
 import graphql.execution.defer.DeferSupport;
-import graphql.execution.defer.DeferredErrorSupport;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.InstrumentationState;
+import graphql.execution.strategy.ExecutionStrategy;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
-import graphql.language.OperationDefinition;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.definition.OperationDefinition;
 import graphql.schema.GraphQLSchema;
 import org.dataloader.DataLoaderRegistry;
 

@@ -1,6 +1,6 @@
 package readme;
 
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import java.time.LocalDateTime;

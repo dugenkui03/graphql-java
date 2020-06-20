@@ -2,7 +2,9 @@ package graphql
 
 import graphql.cachecontrol.CacheControl
 import graphql.execution.ExecutionId
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionInputContext
 import org.dataloader.DataLoaderRegistry
 import spock.lang.Specification
 
@@ -43,14 +45,14 @@ class ExecutionInputTest extends Specification {
                 .context({ builder -> builder.of("k1", "v1") } as UnaryOperator)
                 .build()
         then:
-        (executionInput.context as GraphQLContext).get("k1") == "v1"
+        (executionInput.context as ExecutionInputContext).get("k1") == "v1"
 
         when:
         executionInput = ExecutionInput.newExecutionInput().query(query)
-                .context(GraphQLContext.newContext().of("k2", "v2"))
+                .context(ExecutionInputContext.newContext().of("k2", "v2"))
                 .build()
         then:
-        (executionInput.context as GraphQLContext).get("k2") == "v2"
+        (executionInput.context as ExecutionInputContext).get("k2") == "v2"
     }
 
     def "context is defaulted"() {
@@ -58,7 +60,7 @@ class ExecutionInputTest extends Specification {
         def executionInput = ExecutionInput.newExecutionInput().query(query)
                 .build()
         then:
-        executionInput.context instanceof GraphQLContext
+        executionInput.context instanceof ExecutionInputContext
     }
 
     def "transform works and copies values"() {

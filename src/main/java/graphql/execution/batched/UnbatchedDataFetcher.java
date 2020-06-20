@@ -1,8 +1,9 @@
 package graphql.execution.batched;
 
 
-import graphql.execution.Async;
-import graphql.schema.DataFetcher;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.utils.AsyncUtil;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import static graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironm
  * uses that fetcher in a batched context by iterating through each source value and calling
  * the delegate.
  *
- * @deprecated This has been deprecated in favour of using {@link graphql.execution.AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
+ * @deprecated This has been deprecated in favour of using {@link AsyncExecutionStrategy} and {@link graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation}
  */
 @Deprecated
 public class UnbatchedDataFetcher implements BatchedDataFetcher {
@@ -36,9 +37,9 @@ public class UnbatchedDataFetcher implements BatchedDataFetcher {
 
             DataFetchingEnvironment singleEnv = newDataFetchingEnvironment(environment)
                     .source(source).build();
-            CompletableFuture<Object> cf = Async.toCompletableFuture(delegate.get(singleEnv));
+            CompletableFuture<Object> cf = AsyncUtil.toCompletableFuture(delegate.get(singleEnv));
             results.add(cf);
         }
-        return Async.each(results);
+        return AsyncUtil.each(results);
     }
 }

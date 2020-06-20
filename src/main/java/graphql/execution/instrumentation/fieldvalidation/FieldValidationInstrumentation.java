@@ -1,16 +1,16 @@
 package graphql.execution.instrumentation.fieldvalidation;
 
-import graphql.ExecutionResult;
-import graphql.GraphQLError;
-import graphql.PublicApi;
-import graphql.execution.AbortExecutionException;
+import graphql.execution.ExecutionResult;
+import graphql.error.GraphQLError;
+import graphql.masker.PublicApi;
+import graphql.execution.exception.AbortExecutionException;
 import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters;
 
 import java.util.List;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 /**
  * This {@link graphql.execution.instrumentation.Instrumentation} allows you to validate the fields

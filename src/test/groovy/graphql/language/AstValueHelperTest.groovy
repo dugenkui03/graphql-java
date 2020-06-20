@@ -1,16 +1,25 @@
 package graphql.language
 
+import graphql.language.node.ArrayValue
+import graphql.language.node.BooleanValue
+import graphql.language.node.EnumValue
+import graphql.language.node.FloatValue
+import graphql.language.node.IntValue
+import graphql.language.node.ObjectField
+import graphql.language.node.ObjectValue
+import graphql.language.node.StringValue
+import graphql.language.operation.AstValueHelper
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLInputObjectType
 import spock.lang.Specification
 
-import static AstValueHelper.astFromValue
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLFloat
-import static graphql.Scalars.GraphQLID
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
-import static graphql.language.BooleanValue.newBooleanValue
+import static graphql.language.operation.AstValueHelper.astFromValue
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLFloat
+import static graphql.schema.Scalars.GraphQLID
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
+import static graphql.language.node.BooleanValue.newBooleanValue
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull
 

@@ -1,10 +1,10 @@
 package graphql.execution.nextgen.result;
 
-import graphql.Assert;
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.util.Assert;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionStepInfo;
-import graphql.execution.NonNullableFieldWasNullException;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 
 import java.util.ArrayList;
 import java.util.Collections;

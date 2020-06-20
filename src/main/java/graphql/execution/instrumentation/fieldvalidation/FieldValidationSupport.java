@@ -1,15 +1,15 @@
 package graphql.execution.instrumentation.fieldvalidation;
 
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.Internal;
+import graphql.error.ErrorType;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
 import graphql.analysis.QueryTraverser;
-import graphql.analysis.QueryVisitorFieldEnvironment;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
 import graphql.analysis.QueryVisitorStub;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionPath;
-import graphql.language.Field;
-import graphql.language.SourceLocation;
+import graphql.language.node.Field;
+import graphql.language.node.SourceLocation;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLFieldDefinition;
 

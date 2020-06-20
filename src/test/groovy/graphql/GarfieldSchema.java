@@ -1,6 +1,7 @@
 package graphql;
 
 
+import graphql.execution.TypeResolutionEnvironment;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
@@ -12,8 +13,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static graphql.Scalars.GraphQLBoolean;
-import static graphql.Scalars.GraphQLString;
+import static graphql.schema.Scalars.GraphQLBoolean;
+import static graphql.schema.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static graphql.schema.GraphQLList.list;

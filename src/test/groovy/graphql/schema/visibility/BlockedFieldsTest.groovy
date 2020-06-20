@@ -8,7 +8,7 @@ import spock.lang.Unroll
 
 import java.util.stream.Collectors
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField
 import static graphql.schema.GraphQLList.list
 

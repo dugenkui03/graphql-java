@@ -1,14 +1,15 @@
 package graphql
 
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.AsyncSerialExecutionStrategy
-import graphql.execution.ExecutorServiceExecutionStrategy
+import graphql.execution.ExecutionInput
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.ExecutorServiceExecutionStrategy
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull

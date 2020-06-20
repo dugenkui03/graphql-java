@@ -1,6 +1,6 @@
 package graphql.execution
 
-import graphql.InvalidSyntaxError
+import graphql.error.InvalidSyntaxError
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

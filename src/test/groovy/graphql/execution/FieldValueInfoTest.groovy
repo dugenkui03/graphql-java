@@ -1,6 +1,6 @@
 package graphql.execution
 
-import graphql.AssertException
+import graphql.error.AssertException
 import spock.lang.Specification
 
 

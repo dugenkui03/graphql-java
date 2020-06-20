@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation.tracing;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.schema.DataFetchingEnvironment;

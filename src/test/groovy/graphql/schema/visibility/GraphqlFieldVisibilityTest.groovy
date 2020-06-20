@@ -1,11 +1,11 @@
 package graphql.schema.visibility
 
 import graphql.GraphQL
-import graphql.GraphQLException
+import graphql.error.GraphQLException
 import graphql.StarWarsSchema
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.introspection.IntrospectionQuery
-import graphql.language.Field
+import graphql.language.node.Field
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
@@ -14,7 +14,7 @@ import graphql.schema.idl.SchemaPrinter
 import spock.lang.Specification
 
 import static BlockedFields.newBlock
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLArgument.newArgument
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField

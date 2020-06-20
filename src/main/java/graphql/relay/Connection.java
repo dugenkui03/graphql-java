@@ -1,6 +1,6 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.List;
 

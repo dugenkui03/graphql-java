@@ -1,7 +1,7 @@
 package graphql.execution.nextgen;
 
-import graphql.ExecutionInput;
-import graphql.Internal;
+import graphql.execution.ExecutionInput;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionId;
 import graphql.execution.ExecutionPath;
@@ -12,10 +12,10 @@ import graphql.execution.MergedSelectionSet;
 import graphql.execution.ValuesResolver;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.language.Document;
-import graphql.language.FragmentDefinition;
+import graphql.language.node.definition.FragmentDefinition;
 import graphql.language.NodeUtil;
-import graphql.language.OperationDefinition;
-import graphql.language.VariableDefinition;
+import graphql.language.node.definition.OperationDefinition;
+import graphql.language.node.definition.VariableDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 

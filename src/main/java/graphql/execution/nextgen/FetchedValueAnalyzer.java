@@ -1,17 +1,17 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
-import graphql.SerializationError;
-import graphql.TypeMismatchError;
-import graphql.UnresolvedTypeError;
+import graphql.masker.Internal;
+import graphql.error.SerializationError;
+import graphql.error.TypeMismatchError;
+import graphql.error.UnresolvedTypeError;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.ExecutionStepInfoFactory;
 import graphql.execution.FetchedValue;
 import graphql.execution.MergedField;
-import graphql.execution.NonNullableFieldWasNullException;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 import graphql.execution.ResolveType;
-import graphql.execution.UnresolvedTypeException;
+import graphql.execution.exception.UnresolvedTypeException;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLObjectType;

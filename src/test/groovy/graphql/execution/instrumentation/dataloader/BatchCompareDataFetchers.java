@@ -4,7 +4,7 @@ import graphql.execution.batched.Batched;
 import graphql.execution.instrumentation.dataloader.models.Department;
 import graphql.execution.instrumentation.dataloader.models.Product;
 import graphql.execution.instrumentation.dataloader.models.Shop;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;

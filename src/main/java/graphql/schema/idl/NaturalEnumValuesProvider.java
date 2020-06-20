@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.Assert;
-import graphql.PublicApi;
+import graphql.util.Assert;
+import graphql.masker.PublicApi;
 
 /**
  * Simple EnumValuesProvided which maps the GraphQL Enum name to the Java Enum instance.

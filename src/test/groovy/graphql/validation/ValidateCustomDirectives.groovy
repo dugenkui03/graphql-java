@@ -1,7 +1,7 @@
 package graphql.validation
 
 import graphql.introspection.Introspection.DirectiveLocation
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import spock.lang.Specification
@@ -54,7 +54,7 @@ query {
     }
 
     List<ValidationError> validate(String query) {
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         return new Validator().validateDocument(customDirectiveSchema, document)
     }
 }

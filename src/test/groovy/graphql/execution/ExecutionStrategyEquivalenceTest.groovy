@@ -1,8 +1,11 @@
 package graphql.execution
 
-import graphql.ExecutionInput
+
 import graphql.GraphQL
 import graphql.StarWarsSchema
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.ExecutorServiceExecutionStrategy
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -133,8 +136,8 @@ class ExecutionStrategyEquivalenceTest extends Specification {
         where:
 
         strategyType      | strategyUnderTest                       | expectedQueriesAndResults
-        "async"           | new AsyncExecutionStrategy()            | standardQueriesAndResults()
-        "asyncSerial"     | new AsyncSerialExecutionStrategy()      | standardQueriesAndResults()
+        "async"           | new AsyncExecutionStrategy()       | standardQueriesAndResults()
+        "asyncSerial"     | new AsyncSerialExecutionStrategy() | standardQueriesAndResults()
         "breadthFirst"    | new BreadthFirstExecutionTestStrategy() | standardQueriesAndResults()
         "executorService" | executorServiceStrategy()               | standardQueriesAndResults()
         "breadthFirst"    | new BreadthFirstTestStrategy()          | standardQueriesAndResults()

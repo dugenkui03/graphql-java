@@ -1,11 +1,11 @@
 package graphql.execution;
 
 
-import graphql.Internal;
-import graphql.language.ListType;
-import graphql.language.NonNullType;
-import graphql.language.Type;
-import graphql.language.TypeName;
+import graphql.masker.Internal;
+import graphql.language.node.ListType;
+import graphql.language.node.NonNullType;
+import graphql.language.node.Type;
+import graphql.language.node.TypeName;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
 

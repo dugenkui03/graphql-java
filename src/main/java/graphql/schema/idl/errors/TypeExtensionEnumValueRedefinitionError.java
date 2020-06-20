@@ -1,7 +1,7 @@
 package graphql.schema.idl.errors;
 
-import graphql.language.EnumValueDefinition;
-import graphql.language.TypeDefinition;
+import graphql.language.node.definition.EnumValueDefinition;
+import graphql.language.node.definition.TypeDefinition;
 
 import static java.lang.String.format;
 

@@ -1,7 +1,7 @@
 package graphql.schema;
 
-import graphql.PublicApi;
-import graphql.language.Node;
+import graphql.masker.PublicApi;
+import graphql.language.node.Node;
 
 /**
  * A Schema element which has a name and also a description and AST Node which it is based on.

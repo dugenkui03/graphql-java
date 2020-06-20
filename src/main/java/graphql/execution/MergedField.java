@@ -1,15 +1,15 @@
 package graphql.execution;
 
-import graphql.PublicApi;
-import graphql.language.Argument;
-import graphql.language.Field;
+import graphql.masker.PublicApi;
+import graphql.language.node.Argument;
+import graphql.language.node.Field;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotEmpty;
+import static graphql.util.Assert.assertNotEmpty;
 import static java.util.Collections.unmodifiableList;
 
 /**

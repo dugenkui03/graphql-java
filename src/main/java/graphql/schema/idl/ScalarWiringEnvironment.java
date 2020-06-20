@@ -1,8 +1,8 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
-import graphql.language.ScalarTypeDefinition;
-import graphql.language.ScalarTypeExtensionDefinition;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.ScalarTypeDefinition;
+import graphql.language.node.definition.extension.ScalarTypeExtensionDefinition;
 
 import java.util.List;
 

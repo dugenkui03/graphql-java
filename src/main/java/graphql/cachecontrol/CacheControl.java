@@ -1,31 +1,31 @@
 package graphql.cachecontrol;
 
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.PublicApi;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 import graphql.execution.ExecutionPath;
 import graphql.schema.DataFetchingEnvironment;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.util.FpKit.map;
 
 /**
  * This class implements the graphql Cache Control specification as outlined in https://github.com/apollographql/apollo-cache-control
  * <p>
- * To best use this class you need to pass a CacheControl object to each {@link graphql.schema.DataFetcher} and have them decide on
+ * To best use this class you need to pass a CacheControl object to each {@link DataFetcher} and have them decide on
  * the caching hint values.
  * <p>
- * The easiest why to do this is create a CacheControl object at query start and pass it in as a "context" object via {@link graphql.ExecutionInput#getContext()} and then have
- * each {@link graphql.schema.DataFetcher} thats wants to make cache control hints use that.
+ * The easiest why to do this is create a CacheControl object at query start and pass it in as a "context" object via {@link ExecutionInput#getContext()} and then have
+ * each {@link DataFetcher} thats wants to make cache control hints use that.
  * <p>
- * Then at the end of the query you would call {@link #addTo(graphql.ExecutionResult)} to record the cache control hints into the {@link graphql.ExecutionResult}
+ * Then at the end of the query you would call {@link #addTo(ExecutionResult)} to record the cache control hints into the {@link ExecutionResult}
  * extensions map as per the specification.
  */
 @PublicApi
@@ -164,7 +164,7 @@ public class CacheControl {
     }
 
     /**
-     * This will record the values in the cache control object into the provided execution result object which creates a new {@link graphql.ExecutionResult}
+     * This will record the values in the cache control object into the provided execution result object which creates a new {@link ExecutionResult}
      * object back out
      *
      * @param executionResult the starting execution result object

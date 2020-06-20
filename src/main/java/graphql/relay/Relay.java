@@ -1,7 +1,7 @@
 package graphql.relay;
 
-import graphql.PublicApi;
-import graphql.schema.DataFetcher;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLInputObjectField;
@@ -15,10 +15,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static graphql.Scalars.GraphQLBoolean;
-import static graphql.Scalars.GraphQLID;
-import static graphql.Scalars.GraphQLInt;
-import static graphql.Scalars.GraphQLString;
+import static graphql.schema.Scalars.GraphQLBoolean;
+import static graphql.schema.Scalars.GraphQLID;
+import static graphql.schema.Scalars.GraphQLInt;
+import static graphql.schema.Scalars.GraphQLString;
 import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;

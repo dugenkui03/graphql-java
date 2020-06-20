@@ -1,12 +1,13 @@
 package graphql.schema
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.StarWarsData
 import graphql.TestUtil
+import graphql.execution.DataFetcher
 import graphql.execution.FieldCollector
-import graphql.language.AstPrinter
-import graphql.language.Field
+import graphql.language.operation.AstPrinter
+import graphql.language.node.Field
 import graphql.schema.idl.MapEnumValuesProvider
 import graphql.schema.idl.RuntimeWiring
 import spock.lang.Specification

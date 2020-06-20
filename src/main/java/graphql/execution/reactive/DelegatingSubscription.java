@@ -2,7 +2,7 @@ package graphql.execution.reactive;
 
 import org.reactivestreams.Subscription;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 
 /**
  * A simple subscription that delegates to another

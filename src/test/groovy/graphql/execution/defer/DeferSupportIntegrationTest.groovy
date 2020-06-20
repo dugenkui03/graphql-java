@@ -1,13 +1,13 @@
 package graphql.execution.defer
 
-import graphql.DeferredExecutionResult
-import graphql.ErrorType
-import graphql.Directives
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+
+import graphql.error.ErrorType
+import graphql.schema.Directives
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.idl.RuntimeWiring
 import graphql.validation.ValidationError

@@ -1,9 +1,10 @@
 package graphql.schema;
 
 
-import graphql.Assert;
-import graphql.PublicApi;
-import graphql.TrivialDataFetcher;
+import graphql.util.Assert;
+import graphql.masker.PublicApi;
+import graphql.execution.TrivialDataFetcher;
+import graphql.execution.DataFetcher;
 
 import java.util.function.Function;
 
@@ -28,7 +29,7 @@ import java.util.function.Function;
  * You can write your own data fetchers to get data from some other backing system
  * if you need highly customised behaviour.
  *
- * @see graphql.schema.DataFetcher
+ * @see DataFetcher
  */
 @PublicApi
 public class PropertyDataFetcher<T> implements DataFetcher<T>, TrivialDataFetcher<T> {

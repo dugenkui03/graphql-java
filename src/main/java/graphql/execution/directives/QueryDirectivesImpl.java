@@ -1,9 +1,9 @@
 package graphql.execution.directives;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.MergedField;
-import graphql.language.Directive;
-import graphql.language.Field;
+import graphql.language.node.Directive;
+import graphql.language.node.Field;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLSchema;
 

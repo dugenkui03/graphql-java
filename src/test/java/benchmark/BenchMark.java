@@ -2,7 +2,7 @@ package benchmark;
 
 import graphql.GraphQL;
 import graphql.execution.instrumentation.tracing.TracingInstrumentation;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;

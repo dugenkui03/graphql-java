@@ -4,7 +4,7 @@ package graphql.execution.preparsed
 import graphql.language.Document
 import spock.lang.Specification
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 
 class NoOpPreparsedDocumentProviderTest extends Specification {
     def "NoOp always returns result of compute function"() {

@@ -1,6 +1,6 @@
 package graphql.schema.validation
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema

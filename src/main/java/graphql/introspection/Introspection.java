@@ -1,12 +1,12 @@
 package graphql.introspection;
 
 
-import graphql.Assert;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.AstPrinter;
-import graphql.language.AstValueHelper;
-import graphql.schema.DataFetcher;
+import graphql.util.Assert;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.operation.AstPrinter;
+import graphql.language.operation.AstValueHelper;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLArgument;
@@ -38,9 +38,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.Assert.assertTrue;
-import static graphql.Scalars.GraphQLBoolean;
-import static graphql.Scalars.GraphQLString;
+import static graphql.util.Assert.assertTrue;
+import static graphql.schema.Scalars.GraphQLBoolean;
+import static graphql.schema.Scalars.GraphQLString;
 import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.schema.FieldCoordinates.systemCoordinates;
 import static graphql.schema.GraphQLArgument.newArgument;

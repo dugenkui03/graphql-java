@@ -1,5 +1,10 @@
 package graphql.language
 
+import graphql.language.node.AbstractNode
+import graphql.language.node.IgnoredChars
+import graphql.language.node.Node
+import graphql.language.node.container.NodeChildrenContainer
+import graphql.language.traverser.NodeVisitor
 import graphql.util.Breadcrumb
 import graphql.util.NodeLocation
 import graphql.util.NodeZipper
@@ -7,7 +12,7 @@ import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import spock.lang.Specification
 
-import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER
+import static graphql.language.operation.AstNodeAdapter.AST_NODE_ADAPTER
 import static java.util.Arrays.asList
 import static java.util.Collections.emptyList
 

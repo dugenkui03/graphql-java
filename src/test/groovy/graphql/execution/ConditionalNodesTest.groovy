@@ -1,9 +1,9 @@
 package graphql.execution
 
-import graphql.Directives
-import graphql.language.Argument
-import graphql.language.BooleanValue
-import graphql.language.Directive
+import graphql.schema.Directives
+import graphql.language.node.Argument
+import graphql.language.node.BooleanValue
+import graphql.language.node.Directive
 import spock.lang.Specification
 
 class ConditionalNodesTest extends Specification {

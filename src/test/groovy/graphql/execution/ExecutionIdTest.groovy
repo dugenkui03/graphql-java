@@ -1,8 +1,10 @@
 package graphql.execution
 
-import graphql.ExecutionResult
+
 import graphql.GraphQL
 import graphql.StarWarsSchema
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.ExecutionStrategyParameters
 import spock.lang.Specification
 
 import java.util.concurrent.CompletableFuture

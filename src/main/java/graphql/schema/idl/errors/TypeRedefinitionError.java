@@ -1,6 +1,6 @@
 package graphql.schema.idl.errors;
 
-import graphql.language.TypeDefinition;
+import graphql.language.node.definition.TypeDefinition;
 
 import static java.lang.String.format;
 

@@ -1,10 +1,10 @@
 package graphql.execution.preparsed
 
-import graphql.ErrorType
-import graphql.ExecutionInput
+import graphql.error.ErrorType
+import graphql.execution.ExecutionInput
 import graphql.GraphQL
 import graphql.StarWarsSchema
-import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.TestingInstrumentation

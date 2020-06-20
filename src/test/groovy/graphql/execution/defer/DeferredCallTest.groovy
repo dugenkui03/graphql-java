@@ -1,7 +1,7 @@
 package graphql.execution.defer
 
 
-import graphql.ExecutionResultImpl
+import graphql.execution.ExecutionResultImpl
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

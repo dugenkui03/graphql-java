@@ -1,7 +1,7 @@
 package graphql.execution.directives;
 
-import graphql.PublicApi;
-import graphql.language.Field;
+import graphql.masker.PublicApi;
+import graphql.language.node.Field;
 import graphql.schema.GraphQLDirective;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public interface QueryDirectives {
     /**
      * 按照查询字段分组
      *
-     * This will return a map of the {@link graphql.language.Field}s inside a {@link graphql.execution.MergedField}
+     * This will return a map of the {@link Field}s inside a {@link graphql.execution.MergedField}
      * and the immediate directives that are on each specific field
      *
      * @return a map of all directives on each field inside this

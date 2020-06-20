@@ -1,12 +1,14 @@
 package graphql.analysis
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 import graphql.TestUtil
-import graphql.execution.AbortExecutionException
+import graphql.analysis.instrumentation.MaxQueryComplexityInstrumentation
+import graphql.analysis.instrumentation.QueryComplexityInfo
+import graphql.execution.exception.AbortExecutionException
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
@@ -16,7 +18,7 @@ import java.util.function.Function
 class MaxQueryComplexityInstrumentationTest extends Specification {
 
     Document createQuery(String query) {
-        Parser parser = new Parser()
+        DocumentParser parser = new DocumentParser()
         parser.parseDocument(query)
     }
 

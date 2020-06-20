@@ -1,8 +1,8 @@
 package graphql.relay;
 
-import graphql.PublicApi;
-import graphql.TrivialDataFetcher;
-import graphql.schema.DataFetcher;
+import graphql.masker.PublicApi;
+import graphql.execution.TrivialDataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import java.nio.charset.StandardCharsets;
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 import static java.lang.String.format;
 import static java.util.Base64.getDecoder;
 import static java.util.Base64.getEncoder;

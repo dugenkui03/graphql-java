@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * fixme 编辑控制值：继续、推出、中断

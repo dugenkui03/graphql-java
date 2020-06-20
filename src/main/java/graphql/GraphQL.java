@@ -1,6 +1,10 @@
 package graphql;
 
+import graphql.error.AssertException;
+import graphql.error.GraphQLException;
 import graphql.execution.*;
+import graphql.execution.exception.AbortExecutionException;
+import graphql.execution.exception.UnresolvedTypeException;
 import graphql.execution.instrumentation.ChainedInstrumentation;
 import graphql.execution.instrumentation.DocumentAndVariables;
 import graphql.execution.instrumentation.Instrumentation;
@@ -14,9 +18,16 @@ import graphql.execution.instrumentation.parameters.InstrumentationValidationPar
 import graphql.execution.preparsed.NoOpPreparsedDocumentProvider;
 import graphql.execution.preparsed.PreparsedDocumentEntry;
 import graphql.execution.preparsed.PreparsedDocumentProvider;
+import graphql.execution.strategy.AsyncExecutionStrategy;
+import graphql.execution.strategy.AsyncSerialExecutionStrategy;
+import graphql.execution.strategy.ExecutionStrategy;
+import graphql.execution.strategy.SubscriptionExecutionStrategy;
 import graphql.language.Document;
+import graphql.language.ParseResult;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 import graphql.parser.InvalidSyntaxException;
-import graphql.parser.Parser;
+import graphql.parser.DocumentParser;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.validation.exception.InvalidSchemaException;
 import graphql.validation.ValidationError;
@@ -32,7 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static graphql.execution.ExecutionIdProvider.DEFAULT_EXECUTION_ID_PROVIDER;
 import static graphql.execution.instrumentation.DocumentAndVariables.newDocumentAndVariables;
 
@@ -45,7 +56,7 @@ import static graphql.execution.instrumentation.DocumentAndVariables.newDocument
  *
  * This class is where all graphql-java query execution begins.  It combines the objects that are needed
  * to make a successful graphql query, with the most important being the {@link graphql.schema.GraphQLSchema schema}
- * and the {@link graphql.execution.ExecutionStrategy execution strategy}
+ * and the {@link ExecutionStrategy execution strategy}
  *
  * Building this object is very cheap and can be done on each execution if necessary.  Building the schema is often not
  * as cheap, especially if its parsed from graphql IDL schema format via {@link graphql.schema.idl.SchemaParser}.
@@ -62,7 +73,7 @@ import static graphql.execution.instrumentation.DocumentAndVariables.newDocument
  * a String value being coerced as an Int.
  * </li>
  *
- * <li>{@link graphql.execution.UnresolvedTypeException} - is thrown if a {@link graphql.schema.TypeResolver} fails to provide a concrete
+ * <li>{@link UnresolvedTypeException} - is thrown if a {@link graphql.schema.TypeResolver} fails to provide a concrete
  * object type given a interface or union type.
  * </li>
  *
@@ -70,11 +81,11 @@ import static graphql.execution.instrumentation.DocumentAndVariables.newDocument
  * {@link graphql.schema.GraphQLSchema.Builder#build()}
  * </li>
  *
- * <li>{@link graphql.GraphQLException} - is thrown as a general purpose runtime exception, for example if the code cant
+ * <li>{@link GraphQLException} - is thrown as a general purpose runtime exception, for example if the code cant
  * access a named field when examining a POJO.
  * </li>
  *
- * <li>{@link graphql.AssertException} - is thrown as a low level code assertion exception for truly unexpected code conditions
+ * <li>{@link AssertException} - is thrown as a low level code assertion exception for truly unexpected code conditions
  * </li>
  *
  * </ul>
@@ -568,12 +579,12 @@ public class GraphQL {
         InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);
 
         //创建解析器：调用了antlr、将文本映射到文档对象上？
-        Parser parser = new Parser();
+        DocumentParser documentParser = new DocumentParser();
         Document document;
         DocumentAndVariables documentAndVariables;
         try {
             //解析的文档
-            document = parser.parseDocument(executionInput.getQuery());
+            document = documentParser.parseDocument(executionInput.getQuery());
             //包含文档和变量的对象
             documentAndVariables = newDocumentAndVariables()
                     .document(document).variables(executionInput.getVariables()).build();

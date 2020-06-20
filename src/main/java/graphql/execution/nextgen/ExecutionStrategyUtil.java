@@ -1,7 +1,7 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
-import graphql.execution.Async;
+import graphql.masker.Internal;
+import graphql.execution.utils.AsyncUtil;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.ExecutionStepInfoFactory;
@@ -54,7 +54,7 @@ public class ExecutionStrategyUtil {
     }
 
     private List<CompletableFuture<ExecutionResultNode>> fetchedValueAnalysisToNodesAsync(List<CompletableFuture<FetchedValueAnalysis>> list) {
-        return Async.map(list, fetchedValueAnalysis -> resultNodesCreator.createResultNode(fetchedValueAnalysis));
+        return AsyncUtil.map(list, fetchedValueAnalysis -> resultNodesCreator.createResultNode(fetchedValueAnalysis));
     }
 
     public List<ExecutionResultNode> fetchedValueAnalysisToNodes(List<FetchedValueAnalysis> fetchedValueAnalysisList) {

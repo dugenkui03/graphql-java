@@ -1,8 +1,8 @@
 package graphql.execution;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.introspection.Introspection;
-import graphql.language.Argument;
+import graphql.language.node.Argument;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;

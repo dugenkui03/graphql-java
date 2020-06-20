@@ -1,5 +1,6 @@
 package graphql
 
+import graphql.error.TypeMismatchError
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLInputObjectType
@@ -7,6 +8,7 @@ import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLUnionType
+import graphql.schema.Scalars
 import graphql.schema.TypeResolverProxy
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -23,7 +25,7 @@ class TypeMismatchErrorTest extends Specification {
 
         where:
         type                                                                                  || typeKind
-        list(Scalars.GraphQLInt)                                                              || Introspection.TypeKind.LIST
+        list(Scalars.GraphQLInt) || Introspection.TypeKind.LIST
         Scalars.GraphQLInt                                                                    || Introspection.TypeKind.SCALAR
         new GraphQLObjectType("myObject", "...", [], [])                                      || Introspection.TypeKind.OBJECT
         new GraphQLEnumType("myEnum", "...", [])                                              || Introspection.TypeKind.ENUM

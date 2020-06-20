@@ -3,9 +3,9 @@ package graphql.schema
 import graphql.cachecontrol.CacheControl
 import graphql.execution.ExecutionId
 import graphql.execution.ExecutionStepInfo
-import graphql.language.FragmentDefinition
-import graphql.language.OperationDefinition
-import graphql.language.TypeName
+import graphql.language.node.definition.FragmentDefinition
+import graphql.language.node.definition.OperationDefinition
+import graphql.language.node.TypeName
 import org.dataloader.BatchLoader
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry

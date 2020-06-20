@@ -1,12 +1,8 @@
 package graphql
 
 import graphql.execution.DataFetcherResult
-import graphql.schema.DataFetcher
-import graphql.schema.DataFetchingEnvironment
+import graphql.execution.ExecutionInput
 import graphql.schema.idl.RuntimeWiring
-import graphql.schema.idl.TypeRuntimeWiring
-import graphql.validation.ValidationError
-import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
 class Issue1559 extends Specification {

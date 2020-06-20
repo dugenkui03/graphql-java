@@ -1,11 +1,11 @@
 package graphql.execution.nextgen;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.execution.Async;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.execution.utils.AsyncUtil;
 import graphql.execution.ExecutionId;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.nextgen.result.ResultNodesUtil;
@@ -32,7 +32,7 @@ public class Execution {
             if (rte instanceof GraphQLError) {
                 return CompletableFuture.completedFuture(new ExecutionResultImpl((GraphQLError) rte));
             }
-            return Async.exceptionallyCompletedFuture(rte);
+            return AsyncUtil.exceptionallyCompletedFuture(rte);
         }
 
         try {

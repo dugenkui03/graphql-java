@@ -1,21 +1,21 @@
 package graphql.schema.idl;
 
-import graphql.Assert;
-import graphql.PublicApi;
-import graphql.language.AstPrinter;
-import graphql.language.AstValueHelper;
-import graphql.language.Description;
+import graphql.util.Assert;
+import graphql.masker.PublicApi;
+import graphql.language.operation.AstPrinter;
+import graphql.language.operation.AstValueHelper;
+import graphql.language.node.Description;
 import graphql.language.Document;
-import graphql.language.EnumTypeDefinition;
-import graphql.language.EnumValueDefinition;
-import graphql.language.FieldDefinition;
-import graphql.language.InputObjectTypeDefinition;
-import graphql.language.InputValueDefinition;
-import graphql.language.InterfaceTypeDefinition;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.ScalarTypeDefinition;
-import graphql.language.TypeDefinition;
-import graphql.language.UnionTypeDefinition;
+import graphql.language.node.definition.EnumTypeDefinition;
+import graphql.language.node.definition.EnumValueDefinition;
+import graphql.language.node.definition.FieldDefinition;
+import graphql.language.node.definition.InputObjectTypeDefinition;
+import graphql.language.node.definition.InputValueDefinition;
+import graphql.language.node.definition.InterfaceTypeDefinition;
+import graphql.language.node.definition.ObjectTypeDefinition;
+import graphql.language.node.definition.ScalarTypeDefinition;
+import graphql.language.node.definition.TypeDefinition;
+import graphql.language.node.definition.UnionTypeDefinition;
 import graphql.schema.DefaultGraphqlTypeComparatorRegistry;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLDirective;
@@ -52,7 +52,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static graphql.Directives.DeprecatedDirective;
+import static graphql.schema.Directives.DeprecatedDirective;
 import static graphql.introspection.Introspection.DirectiveLocation.ENUM_VALUE;
 import static graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
@@ -193,7 +193,7 @@ public class SchemaPrinter {
         }
 
         /**
-         * This flag controls whether schema printer will use the {@link graphql.schema.GraphQLType}'s original Ast {@link graphql.language.TypeDefinition}s when printing the type.  This
+         * This flag controls whether schema printer will use the {@link graphql.schema.GraphQLType}'s original Ast {@link TypeDefinition}s when printing the type.  This
          * allows access to any `extend type` declarations that might have been originally made.
          *
          * @param flag whether to print via AST type definitions
@@ -252,7 +252,7 @@ public class SchemaPrinter {
      * This can print an in memory GraphQL IDL document back to a logical schema definition.
      * If you want to turn a Introspection query result into a Document (and then into a printed
      * schema) then use {@link graphql.introspection.IntrospectionResultToSchema#createSchemaDefinition(java.util.Map)}
-     * first to get the {@link graphql.language.Document} and then print that.
+     * first to get the {@link Document} and then print that.
      *
      * @param schemaIDL the parsed schema IDL
      * @return the logical schema definition

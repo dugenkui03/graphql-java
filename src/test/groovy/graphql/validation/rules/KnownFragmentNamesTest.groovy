@@ -1,6 +1,6 @@
 package graphql.validation.rules
 
-import graphql.language.FragmentSpread
+import graphql.language.node.FragmentSpread
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType

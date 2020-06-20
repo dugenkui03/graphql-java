@@ -1,7 +1,7 @@
 package graphql.validation;
 
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.language.Document;
 import graphql.schema.GraphQLSchema;
 import graphql.validation.rules.ArgumentsOfCorrectType;

@@ -1,6 +1,7 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.execution.DataFetcher;
 import graphql.schema.visibility.GraphqlFieldVisibility;
 
 import java.util.HashMap;
@@ -8,9 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
+import static graphql.util.Assert.assertValidName;
 import static graphql.schema.DataFetcherFactoryEnvironment.newDataFetchingFactoryEnvironment;
 import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
@@ -20,7 +21,7 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
  * fixme：字段对应的DataFetcher
  *
  * The {@link graphql.schema.GraphQLCodeRegistry} holds that execution code that is associated with graphql types, namely
- * the {@link graphql.schema.DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
+ * the {@link DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
  * abstract types and the {@link graphql.schema.visibility.GraphqlFieldVisibility}
  *
  * For legacy reasons these code functions can still exist on the original type objects but this will be removed in a future version.  Once

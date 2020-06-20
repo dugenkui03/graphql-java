@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.Scalars;
-import graphql.language.ScalarTypeDefinition;
+import graphql.schema.Scalars;
+import graphql.language.node.definition.ScalarTypeDefinition;
 import graphql.schema.GraphQLScalarType;
 
 import java.util.ArrayList;

@@ -1,9 +1,9 @@
 package graphql.schema.idl;
 
-import graphql.Internal;
-import graphql.Scalars;
+import graphql.masker.Internal;
+import graphql.schema.Scalars;
 import graphql.schema.Coercing;
-import graphql.schema.DataFetcher;
+import graphql.execution.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLScalarType;

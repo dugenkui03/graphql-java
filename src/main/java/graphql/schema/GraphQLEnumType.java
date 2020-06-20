@@ -1,12 +1,12 @@
 package graphql.schema;
 
 
-import graphql.AssertException;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.EnumTypeDefinition;
-import graphql.language.EnumTypeExtensionDefinition;
-import graphql.language.EnumValue;
+import graphql.error.AssertException;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.EnumTypeDefinition;
+import graphql.language.node.definition.extension.EnumTypeExtensionDefinition;
+import graphql.language.node.EnumValue;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.schema.GraphQLEnumValueDefinition.newEnumValueDefinition;
 import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;

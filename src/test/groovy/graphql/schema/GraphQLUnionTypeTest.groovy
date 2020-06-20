@@ -1,9 +1,9 @@
 package graphql.schema
 
-import graphql.AssertException
+import graphql.error.AssertException
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLBoolean
+import static Scalars.GraphQLBoolean
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLObjectType.newObject
 import static graphql.schema.GraphQLUnionType.newUnionType

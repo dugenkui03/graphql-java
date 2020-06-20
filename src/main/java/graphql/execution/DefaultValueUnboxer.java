@@ -1,7 +1,7 @@
 package graphql.execution;
 
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 
 import java.util.Optional;
 import java.util.OptionalDouble;

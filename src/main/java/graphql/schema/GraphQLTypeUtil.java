@@ -1,11 +1,11 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.Stack;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertShouldNeverHappen;
 
 /**
  * A utility class that helps work with {@link graphql.schema.GraphQLType}s

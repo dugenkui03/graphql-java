@@ -1,6 +1,7 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
 
 /**
  * Used by {@link QueryTraverser} to reduce the fields of a Document (or part of it) to a single value.

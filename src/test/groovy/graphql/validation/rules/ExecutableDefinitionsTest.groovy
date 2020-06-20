@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
-import graphql.language.SourceLocation
-import graphql.parser.Parser
+import graphql.language.node.SourceLocation
+import graphql.parser.DocumentParser
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import graphql.validation.Validator
@@ -116,7 +116,7 @@ class ExecutableDefinitionsTest extends Specification {
     }
 
     List<ValidationError> validate(String query) {
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         return new Validator().validateDocument(Harness.Schema, document)
     }
 }

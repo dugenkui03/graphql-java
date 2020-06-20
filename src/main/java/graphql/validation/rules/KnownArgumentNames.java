@@ -1,6 +1,6 @@
 package graphql.validation.rules;
 
-import graphql.language.Argument;
+import graphql.language.node.Argument;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLDirective;
 import graphql.schema.GraphQLFieldDefinition;

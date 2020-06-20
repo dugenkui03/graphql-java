@@ -1,11 +1,11 @@
 package graphql.relay;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.Collections;
 import java.util.List;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.Collections.unmodifiableList;
 
 /**

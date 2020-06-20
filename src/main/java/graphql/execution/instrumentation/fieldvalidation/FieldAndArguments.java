@@ -1,8 +1,8 @@
 package graphql.execution.instrumentation.fieldvalidation;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.execution.ExecutionPath;
-import graphql.language.Field;
+import graphql.language.node.Field;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLFieldDefinition;
 

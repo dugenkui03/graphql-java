@@ -2,7 +2,7 @@ package graphql.validation.rules
 
 import graphql.StarWarsSchema
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.TraversalContext
@@ -11,7 +11,7 @@ import graphql.validation.ValidationErrorCollector
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLNonNull.nonNull
 
@@ -40,7 +40,7 @@ class DeferredDirectiveOnQueryOperationTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -58,7 +58,7 @@ class DeferredDirectiveOnQueryOperationTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:

@@ -1,7 +1,7 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
-import graphql.execution.Async;
+import graphql.masker.Internal;
+import graphql.execution.utils.AsyncUtil;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.ExecutionStepInfoFactory;
@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static graphql.Assert.assertNotEmpty;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotEmpty;
+import static graphql.util.Assert.assertTrue;
 import static graphql.execution.nextgen.result.ResultNodeAdapter.RESULT_NODE_ADAPTER;
 import static graphql.util.FpKit.flatList;
 import static graphql.util.FpKit.map;
@@ -43,7 +43,7 @@ public class BatchedExecutionStrategy implements ExecutionStrategy {
 
     @Override
     public CompletableFuture<RootExecutionResultNode> execute(ExecutionContext executionContext, FieldSubSelection fieldSubSelection) {
-        CompletableFuture<RootExecutionResultNode> rootCF = Async.each(util.fetchSubSelection(executionContext, fieldSubSelection))
+        CompletableFuture<RootExecutionResultNode> rootCF = AsyncUtil.each(util.fetchSubSelection(executionContext, fieldSubSelection))
                 .thenApply(RootExecutionResultNode::new);
 
         return rootCF.thenCompose(rootNode -> {
@@ -68,7 +68,7 @@ public class BatchedExecutionStrategy implements ExecutionStrategy {
     private CompletableFuture<NodeMultiZipper<ExecutionResultNode>> resolveNodes(ExecutionContext executionContext, List<NodeMultiZipper<ExecutionResultNode>> unresolvedNodes) {
         assertNotEmpty(unresolvedNodes, "unresolvedNodes can't be empty");
         ExecutionResultNode commonRoot = unresolvedNodes.get(0).getCommonRoot();
-        CompletableFuture<List<List<NodeZipper<ExecutionResultNode>>>> listListCF = Async.flatMap(unresolvedNodes,
+        CompletableFuture<List<List<NodeZipper<ExecutionResultNode>>>> listListCF = AsyncUtil.flatMap(unresolvedNodes,
                 executionResultMultiZipper -> fetchAndAnalyze(executionContext, executionResultMultiZipper.getZippers()));
 
         return flatList(listListCF).thenApply(zippers -> new NodeMultiZipper<ExecutionResultNode>(commonRoot, zippers, RESULT_NODE_ADAPTER));
@@ -95,7 +95,7 @@ public class BatchedExecutionStrategy implements ExecutionStrategy {
     }
 
     private CompletableFuture<List<NodeZipper<ExecutionResultNode>>> mapBatchedResultsBack(List<NodeZipper<ExecutionResultNode>> unresolvedNodes, List<CompletableFuture<List<FetchedValueAnalysis>>> fetchedValues) {
-        return Async.each(fetchedValues).thenApply(fetchedValuesMatrix -> {
+        return AsyncUtil.each(fetchedValues).thenApply(fetchedValuesMatrix -> {
             List<NodeZipper<ExecutionResultNode>> result = new ArrayList<>();
             List<List<FetchedValueAnalysis>> newChildsPerNode = transposeMatrix(fetchedValuesMatrix);
 

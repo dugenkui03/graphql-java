@@ -1,9 +1,9 @@
 package graphql.execution.defer;
 
-import graphql.ExceptionWhileDataFetching;
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.execution.ExecutionStrategyParameters;
+import graphql.execution.ExceptionWhileDataFetching;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.execution.strategy.ExecutionStrategyParameters;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

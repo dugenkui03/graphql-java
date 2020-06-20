@@ -1,7 +1,7 @@
 package graphql.schema.idl.errors;
 
-import graphql.language.Directive;
-import graphql.language.TypeDefinition;
+import graphql.language.node.Directive;
+import graphql.language.node.definition.TypeDefinition;
 
 import static java.lang.String.format;
 

@@ -1,7 +1,7 @@
 package graphql.execution.instrumentation
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
+import graphql.execution.ExecutionInput
+import graphql.execution.ExecutionResult
 import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.parameters.InstrumentationDeferredFieldParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
@@ -12,7 +12,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters
 import graphql.language.Document
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import graphql.validation.ValidationError

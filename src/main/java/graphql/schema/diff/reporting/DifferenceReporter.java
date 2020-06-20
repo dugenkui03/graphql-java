@@ -1,6 +1,6 @@
 package graphql.schema.diff.reporting;
 
-import graphql.PublicSpi;
+import graphql.masker.PublicSpi;
 import graphql.schema.diff.DiffEvent;
 
 /**

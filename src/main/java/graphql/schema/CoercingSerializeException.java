@@ -1,9 +1,9 @@
 package graphql.schema;
 
-import graphql.ErrorClassification;
-import graphql.ErrorType;
-import graphql.GraphqlErrorException;
-import graphql.PublicApi;
+import graphql.error.ErrorClassification;
+import graphql.error.ErrorType;
+import graphql.error.GraphqlErrorException;
+import graphql.masker.PublicApi;
 
 @PublicApi
 public class CoercingSerializeException extends GraphqlErrorException {

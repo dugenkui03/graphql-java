@@ -1,6 +1,6 @@
 package graphql.execution;
 
-import graphql.Assert;
+import graphql.util.Assert;
 
 import java.util.UUID;
 

@@ -1,7 +1,7 @@
 package graphql.schema;
 
-import graphql.GraphQLException;
-import graphql.Internal;
+import graphql.error.GraphQLException;
+import graphql.masker.Internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import static graphql.Scalars.GraphQLBoolean;
+import static graphql.schema.Scalars.GraphQLBoolean;
 import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.unwrapOne;
 

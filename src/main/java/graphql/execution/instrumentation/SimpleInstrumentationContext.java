@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;

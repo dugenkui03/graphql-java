@@ -1,6 +1,6 @@
 package graphql.execution;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLNonNull;
@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 import static graphql.schema.GraphQLTypeUtil.isList;
 
 /**

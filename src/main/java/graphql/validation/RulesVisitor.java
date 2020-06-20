@@ -8,20 +8,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import graphql.Internal;
-import graphql.language.Argument;
-import graphql.language.Directive;
+import graphql.masker.Internal;
+import graphql.language.node.Argument;
+import graphql.language.node.Directive;
 import graphql.language.Document;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.FragmentSpread;
-import graphql.language.InlineFragment;
-import graphql.language.Node;
-import graphql.language.OperationDefinition;
-import graphql.language.SelectionSet;
-import graphql.language.TypeName;
-import graphql.language.VariableDefinition;
-import graphql.language.VariableReference;
+import graphql.language.node.Field;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.FragmentSpread;
+import graphql.language.node.InlineFragment;
+import graphql.language.node.Node;
+import graphql.language.node.definition.OperationDefinition;
+import graphql.language.node.SelectionSet;
+import graphql.language.node.TypeName;
+import graphql.language.node.definition.VariableDefinition;
+import graphql.language.node.VariableReference;
 
 @Internal
 public class RulesVisitor implements DocumentVisitor {

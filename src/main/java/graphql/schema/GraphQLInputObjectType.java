@@ -1,10 +1,10 @@
 package graphql.schema;
 
-import graphql.AssertException;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.language.InputObjectTypeDefinition;
-import graphql.language.InputObjectTypeExtensionDefinition;
+import graphql.error.AssertException;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.InputObjectTypeDefinition;
+import graphql.language.node.definition.extension.InputObjectTypeExtensionDefinition;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertValidName;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertValidName;
 import static graphql.util.FpKit.getByName;
 import static java.util.Collections.emptyList;
 

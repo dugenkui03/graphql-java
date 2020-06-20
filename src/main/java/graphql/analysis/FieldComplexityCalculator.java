@@ -1,6 +1,7 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
+import graphql.analysis.instrumentation.MaxQueryComplexityInstrumentation;
 
 /**
  * Used to calculate the complexity of a field. Used by {@link MaxQueryComplexityInstrumentation}.

@@ -1,11 +1,11 @@
 package graphql.validation.rules
 
-import graphql.language.BooleanValue
+import graphql.language.node.BooleanValue
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLList.list
 import static graphql.schema.GraphQLNonNull.nonNull
 

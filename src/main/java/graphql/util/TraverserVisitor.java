@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 //定义进入节点时的操作、退出节点时的操作 和 再次访问该节点时的操作
 @Internal

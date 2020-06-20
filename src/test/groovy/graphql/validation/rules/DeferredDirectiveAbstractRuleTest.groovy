@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
-import graphql.Directives
-import graphql.language.Directive
+import graphql.schema.Directives
+import graphql.language.node.Directive
 import graphql.validation.ValidationContext
 import graphql.validation.ValidationErrorCollector
 import spock.lang.Specification

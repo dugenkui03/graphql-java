@@ -1,6 +1,6 @@
 package graphql.schema.validation
 
-import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.TypeResolver
@@ -10,9 +10,9 @@ import graphql.schema.validation.rules.ObjectsImplementInterfaces
 import spock.lang.Specification
 
 import static graphql.schema.validation.exception.SchemaValidationErrorType.ObjectDoesNotImplementItsInterfaces
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 import static graphql.schema.GraphQLArgument.newArgument
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition
 import static graphql.schema.GraphQLInterfaceType.newInterface

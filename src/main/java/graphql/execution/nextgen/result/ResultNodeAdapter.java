@@ -1,6 +1,6 @@
 package graphql.execution.nextgen.result;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.util.NodeAdapter;
 import graphql.util.NodeLocation;
 
@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 
 @PublicApi
 public class ResultNodeAdapter implements NodeAdapter<ExecutionResultNode> {

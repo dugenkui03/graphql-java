@@ -1,12 +1,12 @@
 package graphql.schema.idl
 
-import graphql.GraphQLError
+import graphql.error.GraphQLError
 import graphql.TestUtil
-import graphql.TypeResolutionEnvironment
-import graphql.language.StringValue
+import graphql.execution.TypeResolutionEnvironment
+import graphql.language.node.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
 import graphql.schema.TypeResolver

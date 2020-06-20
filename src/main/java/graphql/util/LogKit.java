@@ -1,6 +1,6 @@
 package graphql.util;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

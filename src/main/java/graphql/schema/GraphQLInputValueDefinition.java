@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * Named schema elements that contain input type information.

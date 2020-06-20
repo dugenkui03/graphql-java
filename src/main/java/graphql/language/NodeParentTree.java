@@ -1,7 +1,9 @@
 package graphql.language;
 
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.NamedNode;
+import graphql.language.node.Node;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -10,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.util.Assert.assertTrue;
 
 /**
  * This represents a hierarchy from a graphql language node upwards to its
@@ -66,7 +68,7 @@ public class NodeParentTree<T extends Node> {
     }
 
     /**
-     * @return a path of names for nodes thar are {@link graphql.language.NamedNode}s
+     * @return a path of names for nodes thar are {@link NamedNode}s
      */
     public List<String> getPath() {
         return path;

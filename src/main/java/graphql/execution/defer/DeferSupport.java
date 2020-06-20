@@ -1,12 +1,11 @@
 package graphql.execution.defer;
 
-import graphql.DeferredExecutionResult;
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.MergedField;
 import graphql.execution.ValuesResolver;
 import graphql.execution.reactive.SingleSubscriberPublisher;
-import graphql.language.Directive;
-import graphql.language.Field;
+import graphql.language.node.Directive;
+import graphql.language.node.Field;
 import org.reactivestreams.Publisher;
 
 import java.util.Deque;
@@ -15,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static graphql.Directives.*;
+import static graphql.schema.Directives.*;
 
 /**
  * fixme 提供了对字段上指令 defer 的支持，这表示该字段的值将会在其他字段值返回后，通过Publisher stream返回。

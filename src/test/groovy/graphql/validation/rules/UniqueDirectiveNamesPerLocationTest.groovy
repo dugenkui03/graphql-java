@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
 
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.SpecValidationSchema
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
@@ -147,7 +147,7 @@ class UniqueDirectiveNamesPerLocationTest extends Specification {
     }
 
     List<ValidationError> validate(String query) {
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         return new Validator().validateDocument(SpecValidationSchema.specValidationSchema, document)
     }
 }

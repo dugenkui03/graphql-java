@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 import graphql.introspection.Introspection;
 import graphql.util.Breadcrumb;
 import graphql.util.FpKit;
@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static graphql.Assert.assertNotEmpty;
-import static graphql.Assert.assertShouldNeverHappen;
+import static graphql.util.Assert.assertNotEmpty;
+import static graphql.util.Assert.assertShouldNeverHappen;
 import static graphql.schema.GraphQLSchemaElementAdapter.SCHEMA_ELEMENT_ADAPTER;
 import static graphql.schema.SchemaElementChildrenContainer.newSchemaElementChildrenContainer;
 import static graphql.util.NodeZipper.ModificationType.REPLACE;

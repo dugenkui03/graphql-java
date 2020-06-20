@@ -174,7 +174,7 @@ method call should be on a new line:
 Every class/interface should have its one file in general. 
 Inner classes are almost never ok (especially public ones). Every class should have its own file to make it easier to read and explore the code.
 
-### Use `graphql.Assert` instead of `Objects`
+### Use `graphql.util.Assert` instead of `Objects`
 We maintain our own small set of Assert util methods. Don't use `Objects.requireNonNull` and others in order
 to be consistent.
 

@@ -1,11 +1,19 @@
 package graphql.language
 
 import graphql.TestUtil
+import graphql.language.node.Argument
+import graphql.language.node.Directive
+import graphql.language.node.Field
+import graphql.language.node.IntValue
+import graphql.language.node.Node
+import graphql.language.node.SelectionSet
+import graphql.language.traverser.AstTransformer
+import graphql.language.traverser.NodeVisitorStub
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import spock.lang.Specification
 
-import static graphql.language.AstPrinter.printAstCompact
+import static graphql.language.operation.AstPrinter.printAstCompact
 import static graphql.util.TreeTransformerUtil.changeNode
 import static graphql.util.TreeTransformerUtil.deleteNode
 import static graphql.util.TreeTransformerUtil.insertAfter

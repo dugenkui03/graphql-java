@@ -1,12 +1,13 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
-import graphql.TrivialDataFetcher;
+import graphql.masker.PublicApi;
+import graphql.execution.TrivialDataFetcher;
+import graphql.execution.DataFetcher;
 
 /**
  * 总是返回相同值的DataFetcher
- * A {@link graphql.schema.DataFetcher} that always returns the same value
+ * A {@link DataFetcher} that always returns the same value
  */
 @PublicApi
 public class StaticDataFetcher implements DataFetcher, TrivialDataFetcher {

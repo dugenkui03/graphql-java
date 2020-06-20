@@ -1,9 +1,11 @@
 package graphql.language
 
-import graphql.GraphQLError
-import graphql.InvalidSyntaxError
+import graphql.error.GraphQLError
+import graphql.error.InvalidSyntaxError
 import graphql.TestUtil
 import graphql.execution.preparsed.PreparsedDocumentEntry
+import graphql.language.node.SourceLocation
+import graphql.language.operation.AstPrinter
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
 import spock.lang.Specification

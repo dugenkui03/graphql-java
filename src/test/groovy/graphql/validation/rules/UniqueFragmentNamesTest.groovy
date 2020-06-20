@@ -1,7 +1,7 @@
 package graphql.validation.rules
 
-import graphql.language.SourceLocation
-import graphql.parser.Parser
+import graphql.language.node.SourceLocation
+import graphql.parser.DocumentParser
 import graphql.validation.SpecValidationSchema
 import graphql.validation.ValidationErrorType
 import graphql.validation.Validator
@@ -26,7 +26,7 @@ class UniqueFragmentNamesTest extends Specification {
         }
         """.stripIndent()
         when:
-        def document = Parser.parse(query)
+        def document = DocumentParser.parse(query)
         def validationErrors = new Validator().validateDocument(SpecValidationSchema.specValidationSchema, document)
 
         then:

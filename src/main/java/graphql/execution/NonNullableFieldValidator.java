@@ -1,7 +1,9 @@
 package graphql.execution;
 
 
-import graphql.Internal;
+import graphql.masker.Internal;
+import graphql.execution.exception.NonNullableFieldWasNullError;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 
 /**
  * 如果类型定义一个字段必须是非空的、而其是空的，则抛异常NonNullableFieldWasNullException

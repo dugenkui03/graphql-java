@@ -1,7 +1,7 @@
 package graphql.execution;
 
-import graphql.Assert;
-import graphql.PublicApi;
+import graphql.util.Assert;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

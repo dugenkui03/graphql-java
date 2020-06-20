@@ -1,7 +1,7 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * Input types represent those set of types that are allowed to be accepted as graphql mutation input, as opposed

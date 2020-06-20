@@ -1,8 +1,8 @@
 package graphql.validation.rules;
 
 
-import graphql.language.FragmentDefinition;
-import graphql.language.InlineFragment;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.InlineFragment;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLType;
 import graphql.validation.AbstractRule;

@@ -1,8 +1,9 @@
 package graphql
 
-import graphql.language.IntValue
+import graphql.execution.ExecutionInput
+import graphql.language.node.IntValue
 import graphql.schema.Coercing
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLScalarType
 import graphql.schema.idl.RuntimeWiring

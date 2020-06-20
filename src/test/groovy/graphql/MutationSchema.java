@@ -7,7 +7,7 @@ import graphql.schema.GraphQLSchema;
 import java.util.ArrayList;
 import java.util.List;
 
-import static graphql.Scalars.GraphQLInt;
+import static graphql.schema.Scalars.GraphQLInt;
 import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLSchema.newSchema;

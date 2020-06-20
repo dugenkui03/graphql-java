@@ -1,10 +1,11 @@
 package graphql.execution.instrumentation.dataloader;
 
-import graphql.ExecutionResult;
-import graphql.ExecutionResultImpl;
-import graphql.execution.AsyncExecutionStrategy;
+import graphql.execution.ExecutionResult;
+import graphql.execution.ExecutionResultImpl;
+import graphql.execution.DataFetcher;
+import graphql.execution.strategy.AsyncExecutionStrategy;
 import graphql.execution.ExecutionContext;
-import graphql.execution.ExecutionStrategy;
+import graphql.execution.strategy.ExecutionStrategy;
 import graphql.execution.instrumentation.DeferredFieldInstrumentationContext;
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext;
 import graphql.execution.instrumentation.InstrumentationContext;
@@ -17,8 +18,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperat
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
-import graphql.language.OperationDefinition;
-import graphql.schema.DataFetcher;
+import graphql.language.node.definition.OperationDefinition;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 import org.dataloader.stats.Statistics;
@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * fixme 允许你在dataLoader中使用dataload来优化数据的加载
  *
- * This allows you to use {@link org.dataloader.DataLoader}s in your {@link graphql.schema.DataFetcher}s
+ * This allows you to use {@link org.dataloader.DataLoader}s in your {@link DataFetcher}s
  * to optimal loading of data.
  * <p>
  *     fixme 该instrument是GrapQL的默认instrument；

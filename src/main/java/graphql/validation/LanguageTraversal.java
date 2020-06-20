@@ -4,8 +4,8 @@ package graphql.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import graphql.Internal;
-import graphql.language.Node;
+import graphql.masker.Internal;
+import graphql.language.node.Node;
 
 @Internal
 public class LanguageTraversal {

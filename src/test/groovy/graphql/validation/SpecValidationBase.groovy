@@ -1,6 +1,7 @@
 package graphql.validation
 
-import graphql.parser.Parser
+
+import graphql.parser.DocumentParser
 import spock.lang.Specification
 
 /**
@@ -12,7 +13,7 @@ import spock.lang.Specification
 class SpecValidationBase extends Specification {
 
     List<ValidationError> validate(String query) {
-        def document = new Parser().parseDocument(query)
+        def document = new DocumentParser().parseDocument(query)
         return new Validator().validateDocument(SpecValidationSchema.specValidationSchema, document)
     }
 }

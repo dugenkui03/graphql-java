@@ -1,11 +1,12 @@
 package graphql.execution
 
-import graphql.ErrorType
-import graphql.ExecutionInput
-import graphql.GraphQLError
+import graphql.error.ErrorType
+import graphql.error.GraphQLError
 import graphql.TestUtil
-import graphql.language.SourceLocation
-import graphql.schema.DataFetcher
+import graphql.execution.exception.handler.DataFetcherExceptionHandler
+import graphql.execution.exception.handler.DataFetcherExceptionHandlerResult
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.language.node.SourceLocation
 import spock.lang.Specification
 
 class DataFetcherExceptionHandlerTest extends Specification {

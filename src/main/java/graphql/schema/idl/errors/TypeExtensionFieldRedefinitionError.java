@@ -1,9 +1,9 @@
 package graphql.schema.idl.errors;
 
-import graphql.language.AbstractNode;
-import graphql.language.FieldDefinition;
-import graphql.language.InputValueDefinition;
-import graphql.language.TypeDefinition;
+import graphql.language.node.AbstractNode;
+import graphql.language.node.definition.FieldDefinition;
+import graphql.language.node.definition.InputValueDefinition;
+import graphql.language.node.definition.TypeDefinition;
 
 import static java.lang.String.format;
 

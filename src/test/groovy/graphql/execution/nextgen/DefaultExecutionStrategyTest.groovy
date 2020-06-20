@@ -1,14 +1,14 @@
 package graphql.execution.nextgen
 
-import graphql.ExceptionWhileDataFetching
+import graphql.execution.ExceptionWhileDataFetching
 import graphql.nextgen.GraphQL
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import spock.lang.Specification
 
 import java.util.concurrent.CompletableFuture
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 import static graphql.TestUtil.schema
 import static graphql.execution.DataFetcherResult.newResult
 

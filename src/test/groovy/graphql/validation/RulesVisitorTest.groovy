@@ -2,7 +2,7 @@ package graphql.validation
 
 import graphql.TestUtil
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.rules.NoUnusedVariables
 import spock.lang.Specification
 
@@ -10,7 +10,7 @@ class RulesVisitorTest extends Specification {
     ValidationErrorCollector errorCollector = new ValidationErrorCollector()
 
     def traverse(String query) {
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         ValidationContext validationContext = new ValidationContext(TestUtil.dummySchema, document)
         LanguageTraversal languageTraversal = new LanguageTraversal()
         // this is one of the rules which checks inside fragment spreads, so it's needed to test this

@@ -1,20 +1,20 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.ExecutionInput
+import graphql.execution.ExecutionInput
 
-import graphql.ExecutionResult
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.AsyncSerialExecutionStrategy
+import graphql.execution.strategy.AsyncExecutionStrategy
+import graphql.execution.strategy.AsyncSerialExecutionStrategy
 import graphql.execution.ExecutionContext
-import graphql.execution.ExecutionStrategyParameters
-import graphql.execution.ExecutorServiceExecutionStrategy
+import graphql.execution.strategy.ExecutionStrategyParameters
+import graphql.execution.strategy.ExecutorServiceExecutionStrategy
 import graphql.execution.batched.BatchedExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.SimpleInstrumentation
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import org.dataloader.BatchLoader
 import org.dataloader.DataLoader
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ForkJoinPool
 
-import static graphql.ExecutionInput.newExecutionInput
+import static graphql.execution.ExecutionInput.newExecutionInput
 import static graphql.StarWarsSchema.starWarsSchema
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring

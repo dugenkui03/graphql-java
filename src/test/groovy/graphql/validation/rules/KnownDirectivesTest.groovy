@@ -2,7 +2,7 @@ package graphql.validation.rules
 
 import graphql.StarWarsSchema
 import graphql.language.Document
-import graphql.parser.Parser
+import graphql.parser.DocumentParser
 import graphql.validation.LanguageTraversal
 import graphql.validation.RulesVisitor
 import graphql.validation.TraversalContext
@@ -32,7 +32,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -51,7 +51,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -70,7 +70,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -90,7 +90,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -111,7 +111,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -134,7 +134,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -159,7 +159,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -180,7 +180,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -201,7 +201,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:
@@ -223,7 +223,7 @@ class KnownDirectivesTest extends Specification {
               }
         """
 
-        Document document = new Parser().parseDocument(query)
+        Document document = new DocumentParser().parseDocument(query)
         LanguageTraversal languageTraversal = new LanguageTraversal()
 
         when:

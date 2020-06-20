@@ -1,12 +1,17 @@
 package graphql
 
+import graphql.error.ErrorType
+import graphql.error.GraphQLError
+import graphql.error.InvalidSyntaxError
+import graphql.error.SerializationError
+import graphql.execution.ExceptionWhileDataFetching
 import graphql.execution.ExecutionPath
 import graphql.execution.ExecutionStepInfo
-import graphql.execution.MissingRootTypeException
-import graphql.execution.NonNullableFieldWasNullError
-import graphql.execution.NonNullableFieldWasNullException
+import graphql.execution.exception.MissingRootTypeException
+import graphql.execution.exception.NonNullableFieldWasNullError
+import graphql.execution.exception.NonNullableFieldWasNullException
 import graphql.introspection.Introspection
-import graphql.language.SourceLocation
+import graphql.language.node.SourceLocation
 import graphql.schema.CoercingSerializeException
 import graphql.validation.ValidationError
 import graphql.validation.ValidationErrorType
@@ -38,7 +43,7 @@ class GraphQLErrorTest extends Specification {
                         extensions:[classification:"OperationNotSupported"],
                 ]
 
-        new InvalidSyntaxError(mkLocations(), "Not good syntax m'kay")                                 |
+        new InvalidSyntaxError(mkLocations(), "Not good syntax m'kay")                   |
                 [
                         locations: [[line: 666, column: 999], [line: 333, column: 0]],
                         message  : "Not good syntax m'kay",
@@ -52,14 +57,14 @@ class GraphQLErrorTest extends Specification {
                         extensions:[classification:"DataFetchingException"],
                 ]
 
-        new SerializationError(mkPath(), new CoercingSerializeException("Bad coercing"))               |
+        new SerializationError(mkPath(), new CoercingSerializeException("Bad coercing")) |
                 [
                         message: "Can't serialize value (/heroes[0]/abilities/speed[4]) : Bad coercing",
                         path   : ["heroes", 0, "abilities", "speed", 4],
                         extensions:[classification:"DataFetchingException"],
                 ]
 
-        new ExceptionWhileDataFetching(mkPath(), new RuntimeException("Bang"), mkLocation(666, 999))   |
+        new ExceptionWhileDataFetching(mkPath(), new RuntimeException("Bang"), mkLocation(666, 999)) |
                 [locations: [[line: 666, column: 999]],
                  message  : "Exception while fetching data (/heroes[0]/abilities/speed[4]) : Bang",
                  path     : ["heroes", 0, "abilities", "speed", 4],

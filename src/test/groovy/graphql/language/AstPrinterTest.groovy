@@ -1,12 +1,16 @@
 package graphql.language
 
-import graphql.parser.Parser
+
+import graphql.language.node.Node
+import graphql.language.node.StringValue
+import graphql.language.operation.AstPrinter
+import graphql.parser.DocumentParser
 import spock.lang.Specification
 
 class AstPrinterTest extends Specification {
 
     Document parse(String input) {
-        new Parser().parseDocument(input)
+        new DocumentParser().parseDocument(input)
     }
 
     String printAst(String input) {

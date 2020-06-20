@@ -1,15 +1,14 @@
 package graphql.execution;
 
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.PublicApi;
-import graphql.schema.DataFetcher;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static graphql.Assert.assertNotNull;
+import static graphql.util.Assert.assertNotNull;
 import static java.util.Collections.unmodifiableList;
 
 

@@ -2,8 +2,8 @@ package graphql.schema
 
 import spock.lang.Specification
 
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static Scalars.GraphQLInt
+import static Scalars.GraphQLString
 import static graphql.schema.GraphQLDirective.newDirective
 
 class GraphQLArgumentTest extends Specification {

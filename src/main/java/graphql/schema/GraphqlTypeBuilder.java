@@ -1,6 +1,6 @@
 package graphql.schema;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 
 import java.util.Comparator;
 import java.util.List;

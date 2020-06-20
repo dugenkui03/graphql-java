@@ -1,6 +1,6 @@
 package graphql.execution.instrumentation.dataloader
 
-import graphql.Directives
+import graphql.schema.Directives
 import graphql.GraphQL
 import graphql.execution.instrumentation.Instrumentation
 import graphql.schema.GraphQLSchema

@@ -1,8 +1,16 @@
 package graphql.language;
 
 
-import graphql.Internal;
-import graphql.PublicApi;
+import graphql.masker.Internal;
+import graphql.masker.PublicApi;
+import graphql.language.node.AbstractNode;
+import graphql.language.node.Comment;
+import graphql.language.node.IgnoredChars;
+import graphql.language.node.Node;
+import graphql.language.node.NodeBuilder;
+import graphql.language.node.SourceLocation;
+import graphql.language.node.container.NodeChildrenContainer;
+import graphql.language.traverser.NodeVisitor;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -13,8 +21,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.language.node.container.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
 @PublicApi

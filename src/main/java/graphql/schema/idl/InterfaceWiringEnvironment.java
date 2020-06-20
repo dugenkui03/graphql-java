@@ -1,7 +1,7 @@
 package graphql.schema.idl;
 
-import graphql.PublicApi;
-import graphql.language.InterfaceTypeDefinition;
+import graphql.masker.PublicApi;
+import graphql.language.node.definition.InterfaceTypeDefinition;
 
 @PublicApi
 public class InterfaceWiringEnvironment extends WiringEnvironment {

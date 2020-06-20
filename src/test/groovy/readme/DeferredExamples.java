@@ -1,9 +1,9 @@
 package readme;
 
-import graphql.DeferredExecutionResult;
-import graphql.Directives;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
+import graphql.execution.defer.DeferredExecutionResult;
+import graphql.schema.Directives;
+import graphql.execution.ExecutionInput;
+import graphql.execution.ExecutionResult;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import org.reactivestreams.Publisher;

@@ -1,6 +1,6 @@
 package graphql.schema.diff;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * A classification of difference events.

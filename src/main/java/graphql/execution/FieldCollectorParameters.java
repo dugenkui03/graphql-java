@@ -1,8 +1,8 @@
 package graphql.execution;
 
-import graphql.Assert;
-import graphql.Internal;
-import graphql.language.FragmentDefinition;
+import graphql.util.Assert;
+import graphql.masker.Internal;
+import graphql.language.node.definition.FragmentDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 

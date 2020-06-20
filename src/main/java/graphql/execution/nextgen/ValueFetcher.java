@@ -1,12 +1,12 @@
 package graphql.execution.nextgen;
 
 
-import graphql.Assert;
-import graphql.ExceptionWhileDataFetching;
-import graphql.GraphQLError;
-import graphql.Internal;
-import graphql.execution.AbsoluteGraphQLError;
-import graphql.execution.Async;
+import graphql.util.Assert;
+import graphql.execution.ExceptionWhileDataFetching;
+import graphql.error.GraphQLError;
+import graphql.masker.Internal;
+import graphql.execution.exception.AbsoluteGraphQLError;
+import graphql.execution.utils.AsyncUtil;
 import graphql.execution.DataFetcherResult;
 import graphql.execution.DefaultValueUnboxer;
 import graphql.execution.ExecutionContext;
@@ -17,8 +17,8 @@ import graphql.execution.FetchedValue;
 import graphql.execution.MergedField;
 import graphql.execution.ValuesResolver;
 import graphql.execution.directives.QueryDirectivesImpl;
-import graphql.language.Field;
-import graphql.schema.DataFetcher;
+import graphql.language.node.Field;
+import graphql.execution.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.DataFetchingFieldSelectionSetImpl;
@@ -69,7 +69,7 @@ public class ValueFetcher {
             for (int i = 0; i < sources.size(); i++) {
                 fetchedValues.add(fetchValue(executionContext, sources.get(i), todoLocalContext, field, executionInfos.get(i)));
             }
-            return Async.each(fetchedValues);
+            return AsyncUtil.each(fetchedValues);
         }
     }
 

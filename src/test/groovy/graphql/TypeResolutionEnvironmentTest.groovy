@@ -1,7 +1,10 @@
 package graphql
 
-import graphql.language.Field
+import graphql.error.GraphQLException
+import graphql.execution.TypeResolutionEnvironment
+import graphql.language.node.Field
 import graphql.schema.GraphQLObjectType
+import graphql.schema.Scalars
 import graphql.schema.TypeResolver
 import spock.lang.Specification
 

@@ -1,10 +1,10 @@
 package graphql.execution.defer
 
-import graphql.DeferredExecutionResult
-import graphql.Directives
-import graphql.ExecutionResult
+
+import graphql.schema.Directives
+import graphql.execution.ExecutionResult
 import graphql.GraphQL
-import graphql.schema.DataFetcher
+import graphql.execution.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import org.reactivestreams.Publisher
 import spock.lang.Specification

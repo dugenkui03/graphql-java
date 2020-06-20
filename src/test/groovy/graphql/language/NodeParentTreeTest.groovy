@@ -1,6 +1,12 @@
 package graphql.language
 
-import graphql.AssertException
+import graphql.error.AssertException
+import graphql.language.node.Argument
+import graphql.language.node.definition.FieldDefinition
+import graphql.language.node.NamedNode
+import graphql.language.node.Node
+import graphql.language.node.StringValue
+import graphql.language.node.definition.ObjectTypeDefinition
 import spock.lang.Specification
 
 class NodeParentTreeTest extends Specification {

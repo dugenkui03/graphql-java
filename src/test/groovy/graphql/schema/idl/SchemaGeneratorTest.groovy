@@ -28,10 +28,10 @@ import spock.lang.Specification
 
 import java.util.function.UnaryOperator
 
-import static graphql.Scalars.GraphQLBoolean
-import static graphql.Scalars.GraphQLFloat
-import static graphql.Scalars.GraphQLInt
-import static graphql.Scalars.GraphQLString
+import static graphql.schema.Scalars.GraphQLBoolean
+import static graphql.schema.Scalars.GraphQLFloat
+import static graphql.schema.Scalars.GraphQLInt
+import static graphql.schema.Scalars.GraphQLString
 
 class SchemaGeneratorTest extends Specification {
 

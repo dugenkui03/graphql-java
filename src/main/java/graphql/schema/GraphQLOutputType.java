@@ -1,7 +1,7 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  *      Output types represent those set of types that are allowed to be sent back as a graphql response

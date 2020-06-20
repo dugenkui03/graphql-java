@@ -1,7 +1,7 @@
 package graphql.schema;
 
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * 输入对象表示可以作为 更新操作 的输入，对应的输出对象GraphQLOutputType可以作为查询的响应输出。

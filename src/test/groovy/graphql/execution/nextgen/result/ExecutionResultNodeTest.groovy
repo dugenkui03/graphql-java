@@ -1,11 +1,11 @@
 package graphql.execution.nextgen.result
 
-import graphql.Scalars
+import graphql.schema.Scalars
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static graphql.GraphqlErrorBuilder.newError
+import static graphql.error.GraphqlErrorBuilder.newError
 import static graphql.execution.ExecutionStepInfo.newExecutionStepInfo
 
 class ExecutionResultNodeTest extends Specification {

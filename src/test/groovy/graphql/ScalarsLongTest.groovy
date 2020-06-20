@@ -1,11 +1,12 @@
 package graphql
 
-import graphql.language.FloatValue
-import graphql.language.IntValue
-import graphql.language.StringValue
+import graphql.language.node.FloatValue
+import graphql.language.node.IntValue
+import graphql.language.node.StringValue
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
+import graphql.schema.Scalars
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll

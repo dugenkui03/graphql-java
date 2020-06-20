@@ -1,8 +1,8 @@
 package graphql.execution.nextgen;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.ExecutionStepInfo;
-import graphql.execution.NonNullableFieldWasNullException;
+import graphql.execution.exception.NonNullableFieldWasNullException;
 import graphql.execution.nextgen.result.ExecutionResultNode;
 import graphql.execution.nextgen.result.LeafExecutionResultNode;
 import graphql.execution.nextgen.result.ListExecutionResultNode;

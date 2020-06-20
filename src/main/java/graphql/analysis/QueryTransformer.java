@@ -1,8 +1,9 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
-import graphql.language.FragmentDefinition;
-import graphql.language.Node;
+import graphql.masker.PublicApi;
+import graphql.analysis.environment.QueryVisitorFieldEnvironment;
+import graphql.language.node.definition.FragmentDefinition;
+import graphql.language.node.Node;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLSchema;
 import graphql.util.TraversalControl;
@@ -13,8 +14,8 @@ import graphql.util.TreeTransformer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static graphql.Assert.assertNotNull;
-import static graphql.language.AstNodeAdapter.AST_NODE_ADAPTER;
+import static graphql.util.Assert.assertNotNull;
+import static graphql.language.operation.AstNodeAdapter.AST_NODE_ADAPTER;
 
 /**
  * fixme 用来遍历、转换Document的工具类。

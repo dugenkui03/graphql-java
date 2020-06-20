@@ -1,7 +1,7 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
-import graphql.language.Field;
+import graphql.masker.PublicApi;
+import graphql.language.node.Field;
 import graphql.schema.GraphQLCompositeType;
 import graphql.schema.GraphQLFieldDefinition;
 

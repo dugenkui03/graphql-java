@@ -1,6 +1,6 @@
 package graphql.validation.rules
 
-import graphql.language.Field
+import graphql.language.node.Field
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.validation.ValidationContext

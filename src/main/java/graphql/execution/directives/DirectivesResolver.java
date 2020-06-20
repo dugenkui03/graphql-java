@@ -1,8 +1,8 @@
 package graphql.execution.directives;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.execution.ValuesResolver;
-import graphql.language.Directive;
+import graphql.language.node.Directive;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLDirective;

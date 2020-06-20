@@ -1,7 +1,9 @@
 package graphql.schema;
 
 
-import graphql.PublicSpi;
+import graphql.masker.PublicSpi;
+import graphql.language.node.Value;
+import graphql.language.node.VariableReference;
 
 import java.util.Map;
 
@@ -67,7 +69,7 @@ public interface Coercing<I, O> {
 
     /**
      * Called during query validation to convert a query input AST node into a Java object acceptable for the scalar type.  The input
-     * object will be an instance of {@link graphql.language.Value}.
+     * object will be an instance of {@link Value}.
      * <p>
      * Note : You should not allow {@link java.lang.RuntimeException}s to come out of your parseLiteral method, but rather
      * catch them and fire them as {@link graphql.schema.CoercingParseLiteralException} instead as per the method contract.
@@ -82,12 +84,12 @@ public interface Coercing<I, O> {
 
     /**
      * Called during query execution to convert a query input AST node into a Java object acceptable for the scalar type.  The input
-     * object will be an instance of {@link graphql.language.Value}.
+     * object will be an instance of {@link Value}.
      * <p>
      * Note : You should not allow {@link java.lang.RuntimeException}s to come out of your parseLiteral method, but rather
      * catch them and fire them as {@link graphql.schema.CoercingParseLiteralException} instead as per the method contract.
      * <p>
-     * Many scalar types don't need to implement this method because they don't take AST {@link graphql.language.VariableReference}
+     * Many scalar types don't need to implement this method because they don't take AST {@link VariableReference}
      * objects and convert them into actual values.  But for those scalar types that want to do this, then this
      * method should be implemented.
      *

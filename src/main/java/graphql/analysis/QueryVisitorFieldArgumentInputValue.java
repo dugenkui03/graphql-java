@@ -1,7 +1,7 @@
 package graphql.analysis;
 
-import graphql.PublicApi;
-import graphql.language.Value;
+import graphql.masker.PublicApi;
+import graphql.language.node.Value;
 import graphql.schema.GraphQLInputType;
 import graphql.schema.GraphQLInputValueDefinition;
 

@@ -1,6 +1,6 @@
 package graphql.schema.diff;
 
-import graphql.PublicApi;
+import graphql.masker.PublicApi;
 
 /**
  * This is the level of difference between graphql APIs

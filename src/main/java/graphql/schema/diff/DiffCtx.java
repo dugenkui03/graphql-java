@@ -1,9 +1,9 @@
 package graphql.schema.diff;
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.language.Document;
-import graphql.language.Type;
-import graphql.language.TypeDefinition;
+import graphql.language.node.Type;
+import graphql.language.node.definition.TypeDefinition;
 import graphql.schema.diff.reporting.DifferenceReporter;
 
 import java.util.ArrayDeque;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
 
 /*
  * A helper class that represents diff state (eg visited types) as well as helpers

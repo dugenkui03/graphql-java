@@ -1,7 +1,7 @@
 package graphql.schema;
 
-import graphql.AssertException;
-import graphql.Internal;
+import graphql.error.AssertException;
+import graphql.masker.Internal;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 

@@ -1,6 +1,6 @@
 package graphql.execution.batched;
 
-import graphql.GraphQLException;
+import graphql.error.GraphQLException;
 
 
 @Deprecated

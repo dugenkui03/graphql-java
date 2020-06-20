@@ -1,13 +1,14 @@
 package graphql.execution
 
-import graphql.ExecutionInput
-import graphql.ExecutionResult
-import graphql.ExecutionResultImpl
+
 import graphql.MutationSchema
+import graphql.execution.exception.NonNullableFieldWasNullException
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
-import graphql.parser.Parser
+import graphql.execution.strategy.ExecutionStrategy
+import graphql.execution.strategy.ExecutionStrategyParameters
+import graphql.parser.DocumentParser
 import spock.lang.Specification
 
 import java.util.concurrent.CompletableFuture
@@ -31,7 +32,7 @@ class ExecutionTest extends Specification {
         }
     }
 
-    def parser = new Parser()
+    def parser = new DocumentParser()
     def subscriptionStrategy = new CountingExecutionStrategy()
     def mutationStrategy = new CountingExecutionStrategy()
     def queryStrategy = new CountingExecutionStrategy()

@@ -1,7 +1,7 @@
 package graphql.schema;
 
 
-import graphql.Internal;
+import graphql.masker.Internal;
 import graphql.introspection.Introspection;
 
 import java.util.ArrayList;
