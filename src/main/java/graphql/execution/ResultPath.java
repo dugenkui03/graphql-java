@@ -15,26 +15,36 @@ import static java.lang.String.format;
 
 
 /**
- * As a graphql query is executed, each field forms a hierarchical path from parent field to child field and this
- * class represents that path as a series of segments.
+ * fixme
+ *      在查询执行过程中，每个字段都会构造 父亲->孩子的层级结构，此类表示这种层级结构。
+ *      比如 Animal.Person.name中，name的parent是 animal.person
+ *
+ * As a graphql query is executed,
+ * each field forms a hierarchical path from parent field to child field
+ * and this class represents that path as a series of segments.
  */
 @PublicApi
 public class ResultPath {
-    private static final ResultPath ROOT_PATH = new ResultPath();
 
     /**
      * All paths start from here
-     *
-     * @return the root path
      */
+    private static final ResultPath ROOT_PATH = new ResultPath();
     public static ResultPath rootPath() {
         return ROOT_PATH;
     }
 
-    private final ResultPath parent;
+    /**
+     * 是数字、则表示是list，例如 /pets[0]；
+     *
+     * 是String，则表示是一个命名的变量。
+     */
     private final Object segment;
+    private final ResultPath parent;
 
-    // hash is effective immutable but lazily initialized similar to the hash code of java.lang.String
+    // hash is effective(有效的) immutable(不可变的) but lazily initialized(懒加载),
+    // similar to the hash code of java.lang.String
+    // 所谓的懒加载即、第一次使用的时候才会计算，此后一次使用缓存值
     private int hash;
 
     private ResultPath() {
@@ -268,6 +278,8 @@ public class ResultPath {
 
 
     /**
+     * 代表调用层级的字符串；
+     *
      * @return the path as a string which represents the call hierarchy
      */
     @Override

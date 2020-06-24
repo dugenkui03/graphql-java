@@ -568,28 +568,37 @@ public class Introspection {
      * and take precedence in field resolution
      *
      * @param schema     the schema to use
-     * @param parentType the type of the parent object
-     * @param fieldName  the field to look up
+     * @param parentType the type of the parent object 父亲类型
+     * @param fieldName  the field to look up fixme 字段的名称，不是别名
      *
      * @return a field definition otherwise throws an assertion exception if its null
      */
     public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
 
+        //如果是顶层类型，则可能是内省查询
         if (schema.getQueryType() == parentType) {
+            //判断是不是查询的 __schema，是这返回其对应的字段定义类型
             if (fieldName.equals(SchemaMetaFieldDef.getName())) {
                 return SchemaMetaFieldDef;
             }
+            //如果是根据 name 查询 __type 信息
             if (fieldName.equals(TypeMetaFieldDef.getName())) {
                 return TypeMetaFieldDef;
             }
         }
+
+        //如果是 __typename，则返回其定义。fixme，注意、这里是用的是字段名称、而非别名，所以如果实体没有定义 __ 开始的字段，理论上不会有印象的
         if (fieldName.equals(TypeNameMetaFieldDef.getName())) {
             return TypeNameMetaFieldDef;
         }
 
         assertTrue(parentType instanceof GraphQLFieldsContainer, () -> String.format("should not happen : parent type must be an object or interface %s", parentType));
         GraphQLFieldsContainer fieldsContainer = (GraphQLFieldsContainer) parentType;
-        GraphQLFieldDefinition fieldDefinition = schema.getCodeRegistry().getFieldVisibility().getFieldDefinition(fieldsContainer, fieldName);
+
+        GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();
+        GraphqlFieldVisibility fieldVisibility = codeRegistry.getFieldVisibility();
+        //fixme 最终还是从 GraphQLFieldsContainer  里边获取名称为 fieldName的字段定义。提前对内省和可见性等内容做了检查
+        GraphQLFieldDefinition fieldDefinition = fieldVisibility.getFieldDefinition(fieldsContainer, fieldName);
         Assert.assertTrue(fieldDefinition != null, () -> String.format("Unknown field '%s'", fieldName));
         return fieldDefinition;
     }

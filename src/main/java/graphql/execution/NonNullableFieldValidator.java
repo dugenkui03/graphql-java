@@ -33,6 +33,7 @@ public class NonNullableFieldValidator {
      */
     public <T> T validate(ResultPath path, T result) throws NonNullableFieldWasNullException {
         if (result == null) {
+            //type字段是不是非空，即当前stepInfo的子节点；
             if (executionStepInfo.isNonNullType()) {
                 // see http://facebook.github.io/graphql/#sec-Errors-and-Non-Nullability
                 //

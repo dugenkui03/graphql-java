@@ -17,10 +17,32 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.directivesByName;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 内联片段
+ * <pre>
+ *   {@code
+ *query inlineFragmentNoType($expandedInfo: Boolean) {
+ *   user(handle: "zuck") {
+ *     id
+ *     name
+ *     ... @include(if: $expandedInfo) {
+ *       firstName
+ *       lastName
+ *       birthday
+ *     }
+ *   }
+ * }
+ *   }
+ * </pre>
+ */
 @PublicApi
-public class InlineFragment extends AbstractNode<InlineFragment> implements Selection<InlineFragment>, SelectionSetContainer<InlineFragment>, DirectivesContainer<InlineFragment> {
+public class InlineFragment extends AbstractNode<InlineFragment>
+        implements Selection<InlineFragment>, SelectionSetContainer<InlineFragment>, DirectivesContainer<InlineFragment> {
+    //所在类型名称
     private final TypeName typeCondition;
+    //使用的指令
     private final List<Directive> directives;
+    //代表的字段集合
     private final SelectionSet selectionSet;
 
     public static final String CHILD_TYPE_CONDITION = "typeCondition";

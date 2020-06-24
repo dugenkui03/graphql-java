@@ -55,7 +55,14 @@ public class Execution {
         this.valueUnboxer = valueUnboxer;
     }
 
-    public CompletableFuture<ExecutionResult> execute(Document document, GraphQLSchema graphQLSchema, ExecutionId executionId, ExecutionInput executionInput, InstrumentationState instrumentationState) {
+
+    public CompletableFuture<ExecutionResult> execute(Document document, //查询文档
+                                                      GraphQLSchema graphQLSchema, //schema
+                                                      ExecutionId executionId, //inputId
+                                                      ExecutionInput executionInput, //请求数据：变量、上下文等
+                                                      //全局 InstrumentationState，保存各种请求状态使用
+                                                      InstrumentationState instrumentationState) {
+
 
         NodeUtil.GetOperationResult getOperationResult = NodeUtil.getOperation(document, executionInput.getOperationName());
         Map<String, FragmentDefinition> fragmentsByName = getOperationResult.fragmentsByName;
@@ -106,7 +113,8 @@ public class Execution {
     }
 
 
-    private CompletableFuture<ExecutionResult> executeOperation(ExecutionContext executionContext, InstrumentationExecutionParameters instrumentationExecutionParameters, Object root, OperationDefinition operationDefinition) {
+    private CompletableFuture<ExecutionResult> executeOperation(ExecutionContext executionContext, InstrumentationExecutionParameters instrumentationExecutionParameters
+            , Object root, OperationDefinition operationDefinition) {
 
         InstrumentationExecuteOperationParameters instrumentationParams = new InstrumentationExecuteOperationParameters(executionContext);
         InstrumentationContext<ExecutionResult> executeOperationCtx = instrumentation.beginExecuteOperation(instrumentationParams);
@@ -135,17 +143,34 @@ public class Execution {
                 .variables(executionContext.getVariables())
                 .build();
 
-        MergedSelectionSet fields = fieldCollector.collectFields(collectorParameters, operationDefinition.getSelectionSet());
 
+        /**收集要获取的字段：包括对片段的分析，结果对象是有一个map属性。
+         * 该层的 Selection k-v集合，k是该层的字段名字，value是名字对应的MergedField
+         *  MergedField 包含 List<Field>、字段名称、字段别名、第一个Field对象等信息
+         *      具体不同的字段、参数、指令不同，可在list中获取到
+         */
+        MergedSelectionSet mergedSelectionSet = fieldCollector.collectFields(collectorParameters, operationDefinition.getSelectionSet());
+
+        //根字段，segment和parent都是null
         ResultPath path = ResultPath.rootPath();
-        ExecutionStepInfo executionStepInfo = newExecutionStepInfo().type(operationRootType).path(path).build();
+        //开始的stepInfo：类型肯定是查询类型，path的segment和parent就是null
+        //但是开始请求第一个字段的时候就不是了
+        ExecutionStepInfo executionStepInfo =
+                newExecutionStepInfo()
+                        .type(operationRootType)
+                        .path(path).build();
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
 
-        ExecutionStrategyParameters parameters = newParameters()
+        //获取策略上下文
+        ExecutionStrategyParameters strategyParameters = newParameters()
+                //path的segment、parent都是null，type是查询类型
                 .executionStepInfo(executionStepInfo)
+                //input里边的root属性
                 .source(root)
+                //input里边的localContext属性
                 .localContext(executionContext.getLocalContext())
-                .fields(fields)
+                //该层需要获取的字段、按照别名分组
+                .fields(mergedSelectionSet)
                 .nonNullFieldValidator(nonNullableFieldValidator)
                 .path(path)
                 .build();
@@ -163,7 +188,7 @@ public class Execution {
             if (logNotSafe.isDebugEnabled()) {
                 logNotSafe.debug("Executing '{}' query operation: '{}' using '{}' execution strategy", executionContext.getExecutionId(), operation, executionStrategy.getClass().getName());
             }
-            result = executionStrategy.execute(executionContext, parameters);
+            result = executionStrategy.execute(executionContext, strategyParameters);
         } catch (NonNullableFieldWasNullException e) {
             // this means it was non null types all the way from an offending non null type
             // up to the root object type and there was a a null value some where.
@@ -172,6 +197,7 @@ public class Execution {
             //
             // http://facebook.github.io/graphql/#sec-Errors-and-Non-Nullability
             //
+            // Returns a new CompletableFuture that is already completed with the given value.
             result = completedFuture(new ExecutionResultImpl(null, executionContext.getErrors()));
         }
 

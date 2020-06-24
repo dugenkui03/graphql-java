@@ -34,23 +34,33 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
-    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
+    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
+                                                      ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, parameters);
+        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
 
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
-        MergedSelectionSet fields = parameters.getFields();
-        List<String> fieldNames = new ArrayList<>(fields.keySet());
+        //Map<aliasOrName,List<Field>>
+        MergedSelectionSet mergedSelectionSet = strategyParameters.getFields();
+        List<String> fieldNames = new ArrayList<>(mergedSelectionSet.keySet());
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
         List<String> resolvedFields = new ArrayList<>();
         for (String fieldName : fieldNames) {
-            MergedField currentField = fields.getSubField(fieldName);
+            //本质是个list
+            MergedField currentField = mergedSelectionSet.getSubField(fieldName);
 
-            ResultPath fieldPath = parameters.getPath().segment(mkNameForPath(currentField));
-            ExecutionStrategyParameters newParameters = parameters
-                    .transform(builder -> builder.field(currentField).path(fieldPath).parent(parameters));
+            //todo
+            ResultPath fieldPath = strategyParameters.getPath().segment(mkNameForPath(currentField));
+            ExecutionStrategyParameters newParameters = strategyParameters
+                    //fixme
+                    //  path(segment),this是parent、parent是当前节点
+                    //  field()：当前要调用dataFetcher获取的节点；
+                    //  parent()：父节点的策略函数。
+                    //      注：父节点的当前字段是中的list<Field>是顶层字段；
+                    //          path中的parent 和 segment 都是null；
+                    .transform(builder -> builder.field(currentField).path(fieldPath).parent(strategyParameters));
 
             resolvedFields.add(fieldName);
             CompletableFuture<FieldValueInfo> future = resolveFieldWithInfo(executionContext, newParameters);
@@ -60,7 +70,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         executionStrategyCtx.onDispatched(overallResult);
 
         Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
-            BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult, parameters);
+            BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult, strategyParameters);
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
                 return;

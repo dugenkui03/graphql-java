@@ -16,14 +16,21 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 
 /**
+ * 提供给DF的，所以是公共API
  * Provided to the DataFetcher, therefore public API
  */
 @PublicApi
-public class FragmentDefinition extends AbstractNode<FragmentDefinition> implements Definition<FragmentDefinition>, SelectionSetContainer<FragmentDefinition>, DirectivesContainer<FragmentDefinition>, NamedNode<FragmentDefinition> {
+public class FragmentDefinition extends AbstractNode<FragmentDefinition>
+        implements Definition<FragmentDefinition>, SelectionSetContainer<FragmentDefinition>,
+        DirectivesContainer<FragmentDefinition>, NamedNode<FragmentDefinition> {
 
+    //片段名称
     private final String name;
+    //片段类型名称
     private final TypeName typeCondition;
+    //片段上的指令
     private final List<Directive> directives;
+    //片段上的字段集合
     private final SelectionSet selectionSet;
 
     public static final String CHILD_TYPE_CONDITION = "typeCondition";

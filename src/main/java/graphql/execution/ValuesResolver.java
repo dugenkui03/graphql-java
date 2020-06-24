@@ -63,15 +63,18 @@ public class ValuesResolver {
             //根据抽象语法树解析的Type(NonNullType、ListType、TypeName)类型，获取其对应的GraphQL类型：根据typeName得到的，因为typeName是全局唯一的。
             GraphQLType variableType = TypeFromAST.getTypeFromAST(schema, variableDefinition.getType());
 
+            //如果变量定义没有对应的输入值
             //HashMap底层还是使用的hash查找、不可能遍历的
             if (!variableValues.containsKey(variableName)) {
                 //获取默认值
                 Value defaultValue = variableDefinition.getDefaultValue();
-                //如果默认值不为null，
+                //如果默认值不为null，则使用默认值作为输入值
                 if (defaultValue != null) {
                     Object coercedValue = coerceValueAst(fieldVisibility, variableType, variableDefinition.getDefaultValue(), null);
                     coercedValues.put(variableName, coercedValue);
-                } else if (isNonNull(variableType)) {
+                }
+                //如果输入为空、没有默认值、而且字段是非空，则抛出运行异常：nonNull类型的变量绑定了null值；
+                else if (isNonNull(variableType)) {
                     throw new NonNullableValueCoercedAsNullException(variableDefinition, variableType);
                 }
             }
@@ -89,8 +92,12 @@ public class ValuesResolver {
     }
 
     /**
+     * 根据变量定义、变量类型和变量值，获取转换后的变量值。
+     * fixme：
+     *      变量定义中的类型是nonNull、list和TypeName，
+     *      变量类型是代表具体的scalar、Enum或者input类型的GraphQL Type，这些类型的叶子字段包含序列化和反序列化的逻辑。
      *
-     * @param fieldVisibility 字段可见性
+     * @param fieldVisibility 忽略
      * @param variableDefinition 变量定义
      * @param variableType 变量类型，包括序列化、反序列化解析逻辑
      * @param value 入参对应的变量值
@@ -351,10 +358,12 @@ public class ValuesResolver {
         //返回输入对象的map定义：字段名称、字段值
         Map<String, ObjectField> inputValueFieldsByName = mapObjectValueFieldsByName(inputValue);
 
-        //返回这个输入可见的字段：感觉没啥实际意义啊、因为判断字段是否可见需要上下文呢！
+        //返回这个输入类型的所有可见字段：感觉没啥实际意义啊、因为判断字段是否可见需要上下文呢！
         List<GraphQLInputObjectField> inputFields = fieldVisibility.getFieldDefinitions(inputObjectType);
 
+        //遍历输入对象的所有可见字段、默认所有可见
         for (GraphQLInputObjectField inputTypeField : inputFields) {
+            //fixme: inputValueFieldsByName是输入值的map映射、inputFields是输入对象可见字段的映射
             if (inputValueFieldsByName.containsKey(inputTypeField.getName())) {
                 boolean putObjectInMap = true;
 

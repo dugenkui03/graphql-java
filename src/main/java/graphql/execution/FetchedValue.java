@@ -9,8 +9,11 @@ import java.util.function.Consumer;
 
 @Internal
 public class FetchedValue {
+    //拆箱后的结果
     private final Object fetchedValue;
+    //dataFetcher返回的data，如果没有Optional包装、和fetchedValue是一样的
     private final Object rawFetchedValue;
+
     private final Object localContext;
     private final List<GraphQLError> errors;
 

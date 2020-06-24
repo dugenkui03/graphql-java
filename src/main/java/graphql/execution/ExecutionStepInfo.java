@@ -17,6 +17,8 @@ import static graphql.Assert.assertTrue;
 import static graphql.schema.GraphQLTypeUtil.isList;
 
 /**
+ * fixme:
+ *      当前字段的详细信息，包括输出类型、定义类型、字段定义、参数父子段信息等。
  * As the graphql query executes, it forms a hierarchy from parent fields (and their type) to their child fields (and their type)
  * until a scalar type is encountered; this class captures that execution type information.
  * <p>
@@ -27,6 +29,10 @@ import static graphql.schema.GraphQLTypeUtil.isList;
 public class ExecutionStepInfo {
 
     /**
+     * fixme
+     *      ExecutionStepInfo代表一个字段、或者list元素类型;
+     *      永远不会代表list中的标量/枚举，因为这种情况执行引擎不会再递归。
+     *
      * An ExecutionStepInfo represent either a field or a list element inside a list of objects/interfaces/unions.
      *
      * A StepInfo never represent a Scalar/Enum inside a list (e.g. [String]) because GraphQL execution doesn't descend down
@@ -35,10 +41,36 @@ public class ExecutionStepInfo {
      */
 
     /**
-     * If this StepInfo represent a field the type is equal to fieldDefinition.getType()
+     * fixme 如果StepInfo表达一个字段，则type为fieldDefinition.getType()；
+     * <pre>If this StepInfo represent a field, the type is equal to fieldDefinition.getType()</pre>
+     *
+     * fixme: 如果是非空的类型，也会保留此信息，用于请求结果的验证
+     *
+     * fixme：如果StepInfo是一个list元素，比如查询一个嵌套的List，子元素是个接口 Pet，对于查询:
+     * <pre>
+     *     {@code
+     *          {
+     *              pets{
+     *                  name
+     *              }
+     *          }
+     *     }
+     *     查询结果是[[Dog1],[[Cat1]]
+     * </pre>
+     *
+     * 对应的StepInfo值为：
+     * <pre>
+     *     {@code
+     *        /pets：嵌套list的Pet，[[Pet]]；
+     *        /pets[1] 和  /pets[1]： [Pet]
+     *        /pets[0][0]：Dog
+     *        /pets[1][0]：Cat
+     *        /pets[0][0]/name 和 /pets[1][0]/name ：String，表示Dog.name或者Cat.name
+     *     }
+     * </pre>
      *
      * if this StepInfo is a list element this type is the actual current list element. For example:
-     * Query.pets: [[Pet]] with Pet either a Dog or Cat and the actual result is [[Dog1],[[Cat1]]
+     * Query.pets: [[Pet]] with Pet, either a Dog or Cat and the actual result is [[Dog1],[[Cat1]]
      * Then the type is (for a query "{pets{name}}"):
      * [[Pet]] for /pets (representing the field Query.pets, not a list element)
      * [Pet] fot /pets[0]
@@ -51,9 +83,16 @@ public class ExecutionStepInfo {
     private final GraphQLOutputType type;
 
     /**
+     * fixme
+     *      is characterized by 以 ..... 为特征;
+     *      是数字、则表示是list，例如 /pets[0]；
+     *      是String，则表示是一个命名的变量。
+     *
      * A list element is characterized by having a path ending with an index segment. (ResultPath.isListSegment())
      */
     private final ResultPath path;
+
+    //父类信息
     private final ExecutionStepInfo parent;
 
     /**
@@ -186,11 +225,10 @@ public class ExecutionStepInfo {
     }
 
     /**
-     * This allows you to morph a type into a more specialized form yet return the same
-     * parent and non-null ness, for example taking a {@link GraphQLInterfaceType}
-     * and turning it into a specific {@link graphql.schema.GraphQLObjectType}
+     * This allows you to morph(转变) a type into a more specialized form yet return the same
+     * parent and non-null ness,
+     * for example taking a {@link GraphQLInterfaceType} and turning it into a specific {@link graphql.schema.GraphQLObjectType}
      * after type resolution has occurred
-     *
      * @param newType the new type to be
      *
      * @return a new type info with the same
@@ -198,7 +236,14 @@ public class ExecutionStepInfo {
     public ExecutionStepInfo changeTypeWithPreservedNonNull(GraphQLOutputType newType) {
         assertTrue(!GraphQLTypeUtil.isNonNull(newType), () -> "newType can't be non null");
         if (isNonNullType()) {
-            return new ExecutionStepInfo(GraphQLNonNull.nonNull(newType), fieldDefinition, field, path, this.parent, arguments, this.fieldContainer);
+            return new ExecutionStepInfo(
+                    GraphQLNonNull.nonNull(newType),
+                    fieldDefinition,
+                    field,
+                    path,
+                    this.parent,
+                    arguments,
+                    this.fieldContainer);
         } else {
             return new ExecutionStepInfo(newType, fieldDefinition, field, path, this.parent, arguments, this.fieldContainer);
         }

@@ -581,7 +581,7 @@ class ExecutionStrategyTest extends Specification {
             }
         }) {
             @Override
-            CompletableFuture<ExecutionResult> execute(ExecutionContext ec, ExecutionStrategyParameters p) throws NonNullableFieldWasNullException {
+            CompletableFuture<ExecutionResult> execute(ExecutionContext ec, ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
                 null
             }
         }

@@ -13,9 +13,18 @@ import java.util.Map;
 @Internal
 public class ResolveType {
 
+    /**
+     * 对interface、union进行处理，type则直接返回
+     */
+    public GraphQLObjectType resolveType(ExecutionContext executionContext, //执行上下文
+                                         MergedField field, //当前字段
+                                         Object source, //结果
+                                         Map<String, Object> arguments, //该字段上的参数
+                                         GraphQLType fieldType) { //该字段的类型
 
-    public GraphQLObjectType resolveType(ExecutionContext executionContext, MergedField field, Object source, Map<String, Object> arguments, GraphQLType fieldType) {
         GraphQLObjectType resolvedType;
+
+        //如果是接口类型
         if (fieldType instanceof GraphQLInterfaceType) {
             TypeResolutionParameters resolutionParams = TypeResolutionParameters.newParameters()
                     .graphQLInterfaceType((GraphQLInterfaceType) fieldType)
@@ -25,8 +34,9 @@ public class ResolveType {
                     .context(executionContext.getContext())
                     .schema(executionContext.getGraphQLSchema()).build();
             resolvedType = resolveTypeForInterface(resolutionParams);
-
-        } else if (fieldType instanceof GraphQLUnionType) {
+        }
+        //如果是union类型
+        else if (fieldType instanceof GraphQLUnionType) {
             TypeResolutionParameters resolutionParams = TypeResolutionParameters.newParameters()
                     .graphQLUnionType((GraphQLUnionType) fieldType)
                     .field(field)
@@ -35,7 +45,9 @@ public class ResolveType {
                     .context(executionContext.getContext())
                     .schema(executionContext.getGraphQLSchema()).build();
             resolvedType = resolveTypeForUnion(resolutionParams);
-        } else {
+        }
+        //如果是Object类型
+        else {
             resolvedType = (GraphQLObjectType) fieldType;
         }
 

@@ -171,6 +171,7 @@ public class GraphqlAntlrToLanguage {
 
     }
 
+    //创建一个片段定义
     protected FragmentDefinition createFragmentDefinition(GraphqlParser.FragmentDefinitionContext ctx) {
         FragmentDefinition.Builder fragmentDefinition = FragmentDefinition.newFragmentDefinition();
         addCommonData(fragmentDefinition, ctx);

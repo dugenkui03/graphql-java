@@ -570,6 +570,7 @@ public class GraphQL {
             documentCF.complete(parseResult.getDocument());
             parseInstrumentation.onCompleted(parseResult.getDocument(), null);
 
+            //这里使用变量指令
             DocumentAndVariables documentAndVariables = parseResult.getDocumentAndVariables();
             documentAndVariables = instrumentation.instrumentDocumentAndVariables(documentAndVariables, parameters);
             return ParseAndValidateResult.newResult()

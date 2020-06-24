@@ -21,12 +21,16 @@ import static java.util.Collections.emptyMap;
  * This might change in the future.
  */
 @PublicApi
-public class Field extends AbstractNode<Field> implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
+public class Field extends AbstractNode<Field>
+        //选择集标识、List<Selection>、指令、名称
+        implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
 
+    //名称、别名、字段上的参数和指令
     private final String name;
     private final String alias;
     private final List<Argument> arguments;
     private final List<Directive> directives;
+    //唯一属性：List<Selection>
     private final SelectionSet selectionSet;
 
     public static final String CHILD_ARGUMENTS = "arguments";

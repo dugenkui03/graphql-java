@@ -17,9 +17,11 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
 @PublicApi
-public class FragmentSpread extends AbstractNode<FragmentSpread> implements Selection<FragmentSpread>, DirectivesContainer<FragmentSpread>, NamedNode<FragmentSpread> {
-
+public class FragmentSpread extends AbstractNode<FragmentSpread>
+        implements Selection<FragmentSpread>, DirectivesContainer<FragmentSpread>, NamedNode<FragmentSpread> {
+    //片段名称
     private final String name;
+    //片段上的指令
     private final List<Directive> directives;
 
     public static final String CHILD_DIRECTIVES = "directives";

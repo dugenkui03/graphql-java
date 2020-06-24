@@ -22,6 +22,7 @@ public class ExecutionStrategyParameters {
     private final ResultPath path;
     private final MergedField currentField;
     private final int listSize;
+
     private final int currentListIndex;
     private final ExecutionStrategyParameters parent;
 

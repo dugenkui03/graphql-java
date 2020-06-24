@@ -26,17 +26,22 @@ public class Async {
     public static <U> CompletableFuture<List<U>> each(List<CompletableFuture<U>> futures) {
         CompletableFuture<List<U>> overallResult = new CompletableFuture<>();
 
-        CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
+        //当所有的CompletableFuture都执行完后执行计算
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                //noUsed是返回值、exception是计算遇到的异常
                 .whenComplete((noUsed, exception) -> {
+                    //如果计算过程中遇到异常、记录异常
                     if (exception != null) {
                         overallResult.completeExceptionally(exception);
                         return;
                     }
+
                     List<U> results = new ArrayList<>();
                     for (CompletableFuture<U> future : futures) {
+                        //获取结果
                         results.add(future.join());
                     }
+                    //
                     overallResult.complete(results);
                 });
         return overallResult;
@@ -101,13 +106,14 @@ public class Async {
      */
     public static <T> CompletableFuture<T> toCompletableFuture(T t) {
         if (t instanceof CompletionStage) {
-            //noinspection unchecked
+            //noinspection unchecked 返回本身
             return ((CompletionStage<T>) t).toCompletableFuture();
         } else {
             return CompletableFuture.completedFuture(t);
         }
     }
 
+    //在try、catch中执行Supplier.get()的逻辑
     public static <T> CompletableFuture<T> tryCatch(Supplier<CompletableFuture<T>> supplier) {
         try {
             return supplier.get();

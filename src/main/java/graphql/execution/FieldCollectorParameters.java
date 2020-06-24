@@ -14,9 +14,17 @@ import java.util.Map;
  */
 @Internal
 public class FieldCollectorParameters {
+    //schema
     private final GraphQLSchema graphQLSchema;
     private final Map<String, FragmentDefinition> fragmentsByName;
+    //全局变量
     private final Map<String, Object> variables;
+    /**
+     * 要收集的字段的类型：
+     * fixme
+     *      1. 开始在Execution中赋值的时候，默认使用OperationRootType，肯定是ObjectType：Query,mutation或者订阅；
+     *      2. 递归在ExecutionStrategy中，只有completeValueForObject才构造此对象，所以此属性肯定还是对象类型；
+     */
     private final GraphQLObjectType objectType;
 
     public GraphQLSchema getGraphQLSchema() {

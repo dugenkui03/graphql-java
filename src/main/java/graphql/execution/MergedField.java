@@ -59,14 +59,19 @@ import static java.util.Collections.unmodifiableList;
  */
 @PublicApi
 public class MergedField {
-
+    //同名、同类型的字段，都会存放在这个list中
     private final List<Field> fields;
+    //list的第一个元素
     private final Field singleField;
+    //字段名称
     private final String name;
+    //字段别名或者名称
     private final String resultKey;
 
     private MergedField(List<Field> fields) {
         assertNotEmpty(fields);
+        //todo 不能被更改的集合？那transform怎么办？
+        //     new Builder()的时候，使用list作为构造器参数，构造了一个新fields。
         this.fields = unmodifiableList(new ArrayList<>(fields));
         this.singleField = fields.get(0);
         this.name = singleField.getName();

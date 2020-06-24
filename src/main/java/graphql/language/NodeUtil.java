@@ -56,11 +56,10 @@ public class NodeUtil {
     }
 
     public static GetOperationResult getOperation(Document document, String operationName) {
-
-
         Map<String, FragmentDefinition> fragmentsByName = new LinkedHashMap<>();
         Map<String, OperationDefinition> operationsByName = new LinkedHashMap<>();
 
+        //片段定义和请求(查询、更新和订阅)
         for (Definition definition : document.getDefinitions()) {
             if (definition instanceof OperationDefinition) {
                 OperationDefinition operationDefinition = (OperationDefinition) definition;

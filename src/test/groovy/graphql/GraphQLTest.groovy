@@ -839,10 +839,10 @@ class GraphQLTest extends Specification {
         Instrumentation instrumentation = null
 
         @Override
-        CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+        CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters strategyParameters) {
             executionId = executionContext.executionId
             instrumentation = executionContext.instrumentation
-            return super.execute(executionContext, parameters)
+            return super.execute(executionContext, strategyParameters)
         }
     }
 
