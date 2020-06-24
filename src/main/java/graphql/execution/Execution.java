@@ -66,6 +66,7 @@ public class Execution {
         OperationDefinition operationDefinition = getOperationResult.operationDefinition;
 
         Map<String, Object> inputVariables = executionInput.getVariables();
+        //查询涉及到的所有变量、打平
         List<VariableDefinition> variableDefinitions = operationDefinition.getVariableDefinitions();
 
         Map<String, Object> coercedVariables;

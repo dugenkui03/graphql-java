@@ -597,10 +597,18 @@ public class GraphqlAntlrToLanguage {
         return def.build();
     }
 
+    /**
+     * 创建输入对象
+     * @param ctx 抽象语法树
+     * @return 输入对象
+     */
     protected InputObjectTypeDefinition createInputObjectTypeDefinition(GraphqlParser.InputObjectTypeDefinitionContext ctx) {
         InputObjectTypeDefinition.Builder def = InputObjectTypeDefinition.newInputObjectDefinition();
+        //输入对象名称
         def.name(ctx.name().getText());
+        //sourceLocation、List<Comment>、IgnoredChars
         addCommonData(def, ctx);
+        //添加描述
         def.description(newDescription(ctx.description()));
         def.directives(createDirectives(ctx.directives()));
         if (ctx.inputObjectValueDefinitions() != null) {
@@ -760,12 +768,19 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
+    /**
+     * 添加NodeBuilder中定义的数据
+     * sourceLocation、List<Comment>、IgnoredChars、additionalData和额外数据
+     */
     protected void addCommonData(NodeBuilder nodeBuilder, ParserRuleContext parserRuleContext) {
+        //sourceLocation
+        nodeBuilder.sourceLocation(getSourceLocation(parserRuleContext));
+        //List<Comment>
         List<Comment> comments = getComments(parserRuleContext);
         if (!comments.isEmpty()) {
             nodeBuilder.comments(comments);
         }
-        nodeBuilder.sourceLocation(getSourceLocation(parserRuleContext));
+        //additionalData
         addIgnoredChars(parserRuleContext, nodeBuilder);
     }
 

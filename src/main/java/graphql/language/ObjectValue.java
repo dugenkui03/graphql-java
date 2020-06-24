@@ -16,9 +16,11 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+//对象值
 @PublicApi
 public class ObjectValue extends AbstractNode<ObjectValue> implements Value<ObjectValue> {
 
+    //对象字段
     private final List<ObjectField> objectFields = new ArrayList<>();
 
     public static final String CHILD_OBJECT_FIELDS = "objectFields";

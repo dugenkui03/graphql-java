@@ -49,6 +49,7 @@ public class GraphQLSchema {
     private final SchemaDefinition definition;
     private final List<SchemaExtensionDefinition> extensionDefinitions;
 
+    //包含 字段-对应的fetcher 映射关系；字段可见性处理器；
     private final GraphQLCodeRegistry codeRegistry;
 
     private final Map<String, GraphQLNamedType> typeMap;

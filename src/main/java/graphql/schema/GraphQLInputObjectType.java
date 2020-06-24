@@ -29,10 +29,13 @@ import static java.util.Collections.emptyList;
  */
 @PublicApi
 public class GraphQLInputObjectType implements GraphQLNamedInputType, GraphQLUnmodifiedType, GraphQLNullableType, GraphQLInputFieldsContainer, GraphQLDirectiveContainer {
-
+    //输入对象名称
     private final String name;
+    //输入对象描述
     private final String description;
+    //输入对象字段
     private final Map<String, GraphQLInputObjectField> fieldMap = new LinkedHashMap<>();
+    //输入类型定义：ast转换过来的
     private final InputObjectTypeDefinition definition;
     private final List<InputObjectTypeExtensionDefinition> extensionDefinitions;
     private final List<GraphQLDirective> directives;

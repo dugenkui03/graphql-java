@@ -18,10 +18,13 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class VariableDefinition extends AbstractNode<VariableDefinition> implements DirectivesContainer<VariableDefinition>, NamedNode<VariableDefinition> {
-
+    //变量名称
     private final String name;
+    //类型：注意，只有List、NonNull和TypeName三种，这个类型是对语法的直接解析
     private final Type type;
+    //默认值
     private final Value defaultValue;
+    //变量指令：牛逼
     private final List<Directive> directives;
 
     public static final String CHILD_TYPE = "type";
@@ -218,6 +221,7 @@ public class VariableDefinition extends AbstractNode<VariableDefinition> impleme
             return this;
         }
 
+        //GraphqlAntlrToLanguage中解析语法、获取变量类型
         public Builder type(Type type) {
             this.type = type;
             return this;

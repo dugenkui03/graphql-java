@@ -15,7 +15,13 @@ import static graphql.schema.GraphQLNonNull.nonNull;
 @Internal
 public class TypeFromAST {
 
-
+    /**
+     *  TypeName -> GraphQlType
+     *
+     * @param schema 实体Schema
+     * @param type 变量定义类型
+     * @return TypeName -> GraphQlType
+     */
     public static GraphQLType getTypeFromAST(GraphQLSchema schema, Type type) {
         GraphQLType innerType;
         if (type instanceof ListType) {

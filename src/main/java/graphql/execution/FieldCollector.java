@@ -52,6 +52,7 @@ public class FieldCollector {
      */
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, SelectionSet selectionSet) {
         Map<String, MergedField> subFields = new LinkedHashMap<>();
+        //todo Set
         List<String> visitedFragments = new ArrayList<>();
         this.collectFields(parameters, selectionSet, visitedFragments, subFields);
         return newMergedSelectionSet().subFields(subFields).build();
