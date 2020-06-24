@@ -1,40 +1,31 @@
-# graphql-java
+### master-zh分支
 
-[![Join the chat at https://gitter.im/graphql-java/graphql-java](https://badges.gitter.im/graphql-java/graphql-java.svg)](https://gitter.im/graphql-java/graphql-java?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-![logo](https://avatars1.githubusercontent.com/u/14289921?s=200&v=4)
-This is a [GraphQL](https://github.com/facebook/graphql) Java implementation.
- 
-
-[![Build Status](https://travis-ci.org/graphql-java/graphql-java.svg?branch=master)](https://travis-ci.org/graphql-java/graphql-java)
-[![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.graphql-java/graphql-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.graphql-java/graphql-java/)
-[![Latest Dev Build](https://api.bintray.com/packages/andimarek/graphql-java/graphql-java/images/download.svg)](https://bintray.com/andimarek/graphql-java/graphql-java/_latestVersion)
+- 中文注释；
+- 新功能尝试：调度、dag；
+- 一定要兼容源master分支，定期merge。
 
 
-## 文档
+### 新特性
 
-关于 `graphql-java` 的详细使用说明，请阅读: http://graphql-java.readthedocs.io/
-
-这也是个很好的教程 : https://www.howtographql.com/graphql-java/0-introduction/
-
-在 [发行版本列表](https://github.com/graphql-java/graphql-java/releases) 中，你可以看到最新版本和变更日志.
-
-### 编码行为约定
-
-请注意，本项目基于 [Contributor Code of Conduct](CODE_OF_CONDUCT.md) 协议来发行。
-贡献代码或其它给本项目， (commenting or opening PR/Issues etc) 即表示同意这个协议。
+需要添加新特性的时候，仍然从master拉取分支，提交给源仓库。
 
 
-### 感谢
+### 个人贡献
+- 特性
 
-本框架是基于 [JS 参考实现](https://github.com/graphql/graphql-js)，来开发的。
-如 StarWarSchema 和测试用例 (和其它很多方面) 是从它适配到 Java 的。
+https://github.com/graphql-java/graphql-java/pull/1890
 
-### 许可证
+https://github.com/graphql-java/graphql-java/pull/1923
 
-graphql-java 基于 MIT 许可证. 详见 [许可证](LICENSE.md) 。
+https://github.com/graphql-java/graphql-java/pull/1857
 
-Copyright (c) 2015, Andreas Marek 与 [贡献者们](https://github.com/graphql-java/graphql-java/graphs/contributors)
+https://github.com/graphql-java/graphql-java/pull/1859
 
-[graphql-js 许可证](https://github.com/graphql/graphql-js/blob/master/LICENSE)
 
+- 规范
+
+https://github.com/apollographql/apollo-tracing/pull/25
+
+https://github.com/graphql/graphql-spec/pull/737
+
+https://github.com/graphql/graphql-spec/pull/739
