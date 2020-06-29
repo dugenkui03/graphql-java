@@ -51,20 +51,26 @@ public class ValuesResolver {
      *
      * @return coerced variable values as a map fixme：还不涉及到字段参数的变量
      */
-    public Map<String, Object> coerceVariableValues(GraphQLSchema schema, List<VariableDefinition> variableDefinitions, Map<String, Object> variableValues) {
-        //控制字段的可见性
+    public Map<String, Object> coerceVariableValues(GraphQLSchema schema,
+                                                    //变量定义：名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
+                                                    List<VariableDefinition> variableDefinitions,
+                                                    Map<String, Object> variableValues) {//变量值
+        //控制字段的可见性，fixme 全局只有一个
         GraphqlFieldVisibility fieldVisibility = schema.getCodeRegistry().getFieldVisibility();
         //转换后的值
         Map<String, Object> coercedValues = new LinkedHashMap<>();
         //注意对默认值的处理：map没有数据、则使用变量定义中的数据。
         for (VariableDefinition variableDefinition : variableDefinitions) {
+
             //获取变量名称、也是入参variableValues的key
             String variableName = variableDefinition.getName();
-            //根据抽象语法树解析的Type(NonNullType、ListType、TypeName)类型，获取其对应的GraphQL类型：根据typeName得到的，因为typeName是全局唯一的。
+
+            // 获取变量对应的GraphQL类型
+            // 根据 类型名称/typeName 得到，因为typeName是全局唯一的
             GraphQLType variableType = TypeFromAST.getTypeFromAST(schema, variableDefinition.getType());
 
             //如果变量定义没有对应的输入值
-            //HashMap底层还是使用的hash查找、不可能遍历的
+            //HashMap的containsKey底层还是使用的hash查找，O(1)操作
             if (!variableValues.containsKey(variableName)) {
                 //获取默认值
                 Value defaultValue = variableDefinition.getDefaultValue();

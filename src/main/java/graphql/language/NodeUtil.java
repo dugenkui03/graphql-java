@@ -59,7 +59,7 @@ public class NodeUtil {
         Map<String, FragmentDefinition> fragmentsByName = new LinkedHashMap<>();
         Map<String, OperationDefinition> operationsByName = new LinkedHashMap<>();
 
-        //片段定义和请求(查询、更新和订阅)
+        //命名片段定义和请求(查询、更新和订阅)的定义都在统一成
         for (Definition definition : document.getDefinitions()) {
             if (definition instanceof OperationDefinition) {
                 OperationDefinition operationDefinition = (OperationDefinition) definition;
@@ -70,11 +70,14 @@ public class NodeUtil {
                 fragmentsByName.put(fragmentDefinition.getName(), fragmentDefinition);
             }
         }
+
+        ///只能有一个操作定义/OperationDefinition
         if (operationName == null && operationsByName.size() > 1) {
             throw new UnknownOperationException("Must provide operation name if query contains multiple operations.");
         }
-        OperationDefinition operation;
 
+        //todo 也不知道是在检查啥，反正不重要
+        OperationDefinition operation;
         if (operationName == null || operationName.isEmpty()) {
             operation = operationsByName.values().iterator().next();
         } else {
@@ -83,6 +86,8 @@ public class NodeUtil {
         if (operation == null) {
             throw new UnknownOperationException(String.format("Unknown operation named '%s'.", operationName));
         }
+
+
         GetOperationResult result = new GetOperationResult();
         result.fragmentsByName = fragmentsByName;
         result.operationDefinition = operation;

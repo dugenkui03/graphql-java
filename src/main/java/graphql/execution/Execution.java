@@ -63,13 +63,14 @@ public class Execution {
                                                       //全局 InstrumentationState，保存各种请求状态使用
                                                       InstrumentationState instrumentationState) {
 
-
+        //GetOperationResult保存有操作定义、和所有片段定义map，是一个container
         NodeUtil.GetOperationResult getOperationResult = NodeUtil.getOperation(document, executionInput.getOperationName());
         Map<String, FragmentDefinition> fragmentsByName = getOperationResult.fragmentsByName;
         OperationDefinition operationDefinition = getOperationResult.operationDefinition;
-
         Map<String, Object> inputVariables = executionInput.getVariables();
-        //查询涉及到的所有变量、打平
+
+        //打平后的涉及到的所有变量
+        //名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
         List<VariableDefinition> variableDefinitions = operationDefinition.getVariableDefinitions();
 
         Map<String, Object> coercedVariables;
