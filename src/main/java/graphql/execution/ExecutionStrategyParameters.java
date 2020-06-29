@@ -4,6 +4,7 @@ import graphql.Assert;
 import graphql.PublicApi;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
@@ -14,8 +15,8 @@ import static graphql.Assert.assertNotNull;
 @PublicApi
 public class ExecutionStrategyParameters {
     private final ExecutionStepInfo executionStepInfo;
-    private final Object source;
-    private final Object localContext;
+    private final CompletableFuture source;
+    private final CompletableFuture localContext;
     private final Map<String, Object> arguments;
     private final MergedSelectionSet fields;
     private final NonNullableFieldValidator nonNullableFieldValidator;
@@ -26,8 +27,8 @@ public class ExecutionStrategyParameters {
     private final ExecutionStrategyParameters parent;
 
     private ExecutionStrategyParameters(ExecutionStepInfo executionStepInfo,
-                                        Object source,
-                                        Object localContext,
+                                        CompletableFuture source,
+                                        CompletableFuture localContext,
                                         MergedSelectionSet fields,
                                         Map<String, Object> arguments,
                                         NonNullableFieldValidator nonNullableFieldValidator,
@@ -54,7 +55,7 @@ public class ExecutionStrategyParameters {
         return executionStepInfo;
     }
 
-    public Object getSource() {
+    public CompletableFuture getSource() {
         return source;
     }
 
@@ -74,7 +75,7 @@ public class ExecutionStrategyParameters {
         return path;
     }
 
-    public Object getLocalContext() {
+    public CompletableFuture getLocalContext() {
         return localContext;
     }
 
@@ -121,8 +122,8 @@ public class ExecutionStrategyParameters {
 
     public static class Builder {
         ExecutionStepInfo executionStepInfo;
-        Object source;
-        Object localContext;
+        CompletableFuture source;
+        CompletableFuture localContext;
         MergedSelectionSet fields;
         Map<String, Object> arguments;
         NonNullableFieldValidator nonNullableFieldValidator;
@@ -175,12 +176,13 @@ public class ExecutionStrategyParameters {
             return this;
         }
 
-        public Builder source(Object source) {
+//        public Builder source(Object source) {
+        public Builder source(CompletableFuture source) {
             this.source = source;
             return this;
         }
 
-        public Builder localContext(Object localContext) {
+        public Builder localContext(CompletableFuture localContext) {
             this.localContext = localContext;
             return this;
         }

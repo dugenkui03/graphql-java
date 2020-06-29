@@ -200,8 +200,10 @@ public abstract class ExecutionStrategy {
         );
 
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
-        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) ->
-                completeField(executionContext, parameters, fetchedValue));
+        //结束执行了用结果进行completeField的操作 -> 直接把 fetchFieldFuture 作为结果进行操作
+//        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) -> completeField(executionContext, parameters, fetchedValue));
+
+        CompletableFuture<FieldValueInfo> result = completeField(executionContext,parameters,fetchFieldFuture);
 
         CompletableFuture<ExecutionResult> executionResultFuture = result.thenCompose(FieldValueInfo::getFieldValue);
 
@@ -358,20 +360,23 @@ public abstract class ExecutionStrategy {
      *
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
-     * @param fetchedValue     the fetched raw value
+     * @param fetchFieldFuture     the fetched raw value in type of feature
      *
      * @return a {@link FieldValueInfo}
      *
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
-    protected FieldValueInfo completeField(ExecutionContext executionContext, ExecutionStrategyParameters parameters, FetchedValue fetchedValue) {
+    protected FieldValueInfo completeField(
+            ExecutionContext executionContext,
+            ExecutionStrategyParameters parameters,
+            CompletableFuture<FetchedValue> fetchFieldFuture) {
         Field field = parameters.getField().getSingleField();
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
         ExecutionStepInfo executionStepInfo = createExecutionStepInfo(executionContext, parameters, fieldDef, parentType);
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchedValue);
+        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchFieldFuture);
         InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(
                 instrumentationParams
         );
@@ -384,8 +389,10 @@ public abstract class ExecutionStrategy {
         ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                 builder.executionStepInfo(executionStepInfo)
                         .arguments(argumentValues)
-                        .source(fetchedValue.getFetchedValue())
-                        .localContext(fetchedValue.getLocalContext())
+//                        .source(fetchedValue.getFetchedValue())
+//                        .localContext(fetchedValue.getLocalContext())
+                        .source(fetchFieldFuture)
+                        .localContext(fetchFieldFuture)
                         .nonNullFieldValidator(nonNullableFieldValidator)
         );
 
@@ -418,16 +425,20 @@ public abstract class ExecutionStrategy {
      *
      * @throws NonNullableFieldWasNullException if a non null field resolves to a null value
      */
-    protected FieldValueInfo completeValue(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
+    protected FieldValueInfo completeValue(
+            ExecutionContext executionContext,
+            ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
         Object result = executionContext.getValueUnboxer().unbox(parameters.getSource());
         GraphQLType fieldType = executionStepInfo.getUnwrappedNonNullType();
         CompletableFuture<ExecutionResult> fieldValue;
 
-        if (result == null) {
-            fieldValue = completeValueForNull(parameters);
-            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
-        } else if (isList(fieldType)) {
+//        if (result == null) {
+//            fieldValue = completeValueForNull(parameters);
+//            return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
+//        } else
+
+            if (isList(fieldType)) {
             return completeValueForList(executionContext, parameters, result);
         } else if (fieldType instanceof GraphQLScalarType) {
             fieldValue = completeValueForScalar(executionContext, parameters, (GraphQLScalarType) fieldType, result);
@@ -470,6 +481,7 @@ public abstract class ExecutionStrategy {
     }
 
     /**
+     * todo 如果是list的时候，提前遍历起元素对象、有自定义的fetcher则调用下游，这也防止了n+1的问题啊。
      * Called to complete a list of value for a field based on a list type.  This iterates the values and calls
      * {@link #completeValue(ExecutionContext, ExecutionStrategyParameters)} for each value.
      *
@@ -634,7 +646,10 @@ public abstract class ExecutionStrategy {
      *
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForObject(ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLObjectType resolvedObjectType, Object result) {
+    protected CompletableFuture<ExecutionResult> completeValueForObject(ExecutionContext executionContext,
+                                                                        ExecutionStrategyParameters parameters,
+                                                                        GraphQLObjectType resolvedObjectType,
+                                                                        Object result) {
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
 
         FieldCollectorParameters collectorParameters = newParameters()
