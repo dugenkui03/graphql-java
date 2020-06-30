@@ -54,7 +54,7 @@ public class ValuesResolver {
     public Map<String, Object> coerceVariableValues(GraphQLSchema schema,
                                                     //变量定义：名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
                                                     List<VariableDefinition> variableDefinitions,
-                                                    Map<String, Object> variableValues) {//变量值
+                                                    Map<String, Object> variableValues) {//变量池
         //控制字段的可见性，fixme 全局只有一个
         GraphqlFieldVisibility fieldVisibility = schema.getCodeRegistry().getFieldVisibility();
         //转换后的值
@@ -84,7 +84,7 @@ public class ValuesResolver {
                     throw new NonNullableValueCoercedAsNullException(variableDefinition, variableType);
                 }
             }
-            //如果入参variableValues包含此变量的话
+            //如果变量池variableValues包含此变量的话
             else {
                 //从入参中获取变量值；
                 Object value = variableValues.get(variableName);
@@ -109,10 +109,12 @@ public class ValuesResolver {
      * @param value 入参对应的变量值
      * @return
      */
-    private Object getVariableValue(GraphqlFieldVisibility fieldVisibility, VariableDefinition variableDefinition,
-                                    GraphQLType variableType, Object value) {
+    private Object getVariableValue(GraphqlFieldVisibility fieldVisibility,
+                                    VariableDefinition variableDefinition,//变量字段定义
+                                    GraphQLType variableType,//变量字段的GraphQL类型、VariableDefinition 的 typeName 对应的类型
+                                    Object value) {//变量值
 
-        //如果入参没有此变量、而且变量的默认值不为null；
+        //如果入参为null、而且默认值不为null
         if (value == null && variableDefinition.getDefaultValue() != null) {
             return coerceValueAst(fieldVisibility, variableType, variableDefinition.getDefaultValue(), null);
         }
