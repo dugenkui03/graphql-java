@@ -70,6 +70,8 @@ public interface Coercing<I, O> {
     I parseLiteral(Object input) throws CoercingParseLiteralException;
 
     /**
+     * fixme: 自定义的scalar能够很轻易的使用此方法、借用其他变量值
+     *
      * Called during query execution to convert a query input AST node into a Java object acceptable for the scalar type.  The input
      * object will be an instance of {@link graphql.language.Value}.
      * <p>

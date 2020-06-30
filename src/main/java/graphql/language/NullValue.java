@@ -16,8 +16,10 @@ import java.util.function.Consumer;
 import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.assertNewChildrenAreEmpty;
-import static java.util.Collections.emptyMap;
 
+/**
+ * 对应默认值或者这段常量中的null
+ */
 @PublicApi
 public class NullValue extends AbstractNode<NullValue> implements Value<NullValue> {
 
