@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> implements DirectivesContainer<FieldDefinition>, NamedNode<FieldDefinition> {
     private final String name;
     private final Type type;
+    //入参
     private final List<InputValueDefinition> inputValueDefinitions;
     private final List<Directive> directives;
 

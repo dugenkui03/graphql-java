@@ -38,6 +38,7 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
     private final GraphQLOutputType originalType;
     private final DataFetcherFactory dataFetcherFactory;
     private final String deprecationReason;
+    //入参
     private final List<GraphQLArgument> arguments;
     private final List<GraphQLDirective> directives;
     private final FieldDefinition definition;
