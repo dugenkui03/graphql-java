@@ -76,12 +76,19 @@ import static graphql.parser.StringValueParsing.parseSingleQuotedString;
 import static graphql.parser.StringValueParsing.parseTripleQuotedString;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * 唯二属性：CommonTokenStream和MultiSourceReader
+ */
 @Internal
 public class GraphqlAntlrToLanguage {
 
     private static final int CHANNEL_COMMENTS = 2;
     private static final int CHANNEL_IGNORED_CHARS = 3;
+    //This class extends BufferedTokenStream with functionality to filter token streams
+    // to tokens on a particular channel (tokens where Token.getChannel returns a particular value).
+    //此类扩展了BufferedTokenStream，并在一个特定的channel、将具有将token的流过滤为token？？
     private final CommonTokenStream tokens;
+    //This reader allows you to read N number readers(java.io.Reader) and combine them as one logical reader。
     private final MultiSourceReader multiSourceReader;
 
 
@@ -90,23 +97,36 @@ public class GraphqlAntlrToLanguage {
         this.multiSourceReader = multiSourceReader;
     }
 
-    //MARKER START: Here GraphqlOperation.g4 specific methods begin
+    /**
+     * ==================================GraphqlOperation.g4 相关方法开始==================================
+     */
+    public Document createDocument(GraphqlParser.DocumentContext documentContext) {
+        Document.Builder documentBuilder = Document.newDocument();
+        //添加NodeBuilder中定义的数据到documentBuilder：sourceLocation、List<Comment>、IgnoredChars、additionalData和additionalData
+        addCommonData(documentBuilder, documentContext);
 
-
-    public Document createDocument(GraphqlParser.DocumentContext ctx) {
-        Document.Builder document = Document.newDocument();
-        addCommonData(document, ctx);
-        document.definitions(ctx.definition().stream().map(this::createDefinition)
-                .collect(toList()));
-        return document.build();
+        // documentContext中定义的？？接口、union、对象、输入类型、枚举、标量、指令和片段等的定义？？
+        // Definition createDefinition(GraphqlParser.DefinitionContext definitionContext)：根据 DefinitionContext 获取 Definition
+        List<Definition> definitionList = documentContext.definition().stream().map(this::createDefinition).collect(toList());
+        documentBuilder.definitions(definitionList);
+        return documentBuilder.build();
     }
 
+    /**
+     * @param definitionContext antlr中的定义上下文
+     * @return ？？接口、union、对象、输入类型、枚举、标量、指令和片段等的定义？？
+     */
     protected Definition createDefinition(GraphqlParser.DefinitionContext definitionContext) {
+        //操作定义
         if (definitionContext.operationDefinition() != null) {
             return createOperationDefinition(definitionContext.operationDefinition());
-        } else if (definitionContext.fragmentDefinition() != null) {
+        }
+        //片段定义
+        else if (definitionContext.fragmentDefinition() != null) {
             return createFragmentDefinition(definitionContext.fragmentDefinition());
-        } else if (definitionContext.typeSystemDefinition() != null) {
+        }
+        //类型系统定义
+        else if (definitionContext.typeSystemDefinition() != null) {
             return createTypeSystemDefinition(definitionContext.typeSystemDefinition());
         } else if (definitionContext.typeSystemExtension() != null) {
             return createTypeSystemExtension(definitionContext.typeSystemExtension());
@@ -115,23 +135,30 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
+    //根据操作定义上下文OperationDefinitionContext、获取操作定义OperationDefinition
     protected OperationDefinition createOperationDefinition(GraphqlParser.OperationDefinitionContext ctx) {
         OperationDefinition.Builder operationDefinition = OperationDefinition.newOperationDefinition();
         addCommonData(operationDefinition, ctx);
+        //默认为查询操作
         if (ctx.operationType() == null) {
             operationDefinition.operation(OperationDefinition.Operation.QUERY);
         } else {
             operationDefinition.operation(parseOperation(ctx.operationType()));
         }
+        //操作名称
         if (ctx.name() != null) {
             operationDefinition.name(ctx.name().getText());
         }
-        operationDefinition.variableDefinitions(createVariableDefinitions(ctx.variableDefinitions()));
+
+        //操作变量定义：名称、类型(List、NonNull和TypeName)、默认值和指令
+        List<VariableDefinition> variableDefinitions = createVariableDefinitions(ctx.variableDefinitions());
+        operationDefinition.variableDefinitions(variableDefinitions);
         operationDefinition.selectionSet(createSelectionSet(ctx.selectionSet()));
         operationDefinition.directives(createDirectives(ctx.directives()));
         return operationDefinition.build();
     }
 
+    //从操作上下文解析定义的操作类型
     protected OperationDefinition.Operation parseOperation(GraphqlParser.OperationTypeContext operationTypeContext) {
         switch (operationTypeContext.getText()) {
             case "query":
@@ -151,12 +178,16 @@ public class GraphqlAntlrToLanguage {
         fragmentSpread.directives(createDirectives(ctx.directives()));
         return fragmentSpread.build();
     }
+
+    //创建变量定义list
     protected List<VariableDefinition> createVariableDefinitions(GraphqlParser.VariableDefinitionsContext ctx) {
         if (ctx == null) {
             return new ArrayList<>();
         }
         return ctx.variableDefinition().stream().map(this::createVariableDefinition).collect(toList());
     }
+
+    //创建变量定义：名称、默认值、类型和指令，以及NodeBuilder中定义的数据
     protected VariableDefinition createVariableDefinition(GraphqlParser.VariableDefinitionContext ctx) {
         VariableDefinition.Builder variableDefinition = VariableDefinition.newVariableDefinition();
         addCommonData(variableDefinition, ctx);
@@ -232,8 +263,9 @@ public class GraphqlAntlrToLanguage {
         inlineFragment.selectionSet(createSelectionSet(ctx.selectionSet()));
         return inlineFragment.build();
     }
-
-    //MARKER END: Here GraphqlOperation.g4 specific methods end
+    /**
+     * ================================== end of GraphqlOperation.g4 ==================================
+     */
 
     protected SDLDefinition createTypeSystemDefinition(GraphqlParser.TypeSystemDefinitionContext ctx) {
         if (ctx.schemaDefinition() != null) {
@@ -352,6 +384,7 @@ public class GraphqlAntlrToLanguage {
         return builder.build();
     }
 
+    //创建参数列表
     protected List<Argument> createArguments(GraphqlParser.ArgumentsContext ctx) {
         if (ctx == null) {
             return new ArrayList<>();
@@ -359,7 +392,7 @@ public class GraphqlAntlrToLanguage {
         return ctx.argument().stream().map(this::createArgument).collect(toList());
     }
 
-
+    //创建指令定义list
     protected List<Directive> createDirectives(GraphqlParser.DirectivesContext ctx) {
         if (ctx == null) {
             return new ArrayList<>();
@@ -367,6 +400,7 @@ public class GraphqlAntlrToLanguage {
         return ctx.directive().stream().map(this::createDirective).collect(toList());
     }
 
+    //创建指令定义
     protected Directive createDirective(GraphqlParser.DirectiveContext ctx) {
         Directive.Builder builder = Directive.newDirective();
         builder.name(ctx.name().getText());
@@ -629,6 +663,7 @@ public class GraphqlAntlrToLanguage {
         return def.build();
     }
 
+    //directive @calculator(expression : String!) on FIELD
     protected DirectiveDefinition createDirectiveDefinition(GraphqlParser.DirectiveDefinitionContext ctx) {
         DirectiveDefinition.Builder def = DirectiveDefinition.newDirectiveDefinition();
         def.name(ctx.name().getText());
@@ -769,10 +804,7 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
-    /**
-     * 添加NodeBuilder中定义的数据
-     * sourceLocation、List<Comment>、IgnoredChars、additionalData和额外数据
-     */
+    //添加NodeBuilder中定义的数据：sourceLocation、List<Comment>、IgnoredChars、additionalData和additionalData
     protected void addCommonData(NodeBuilder nodeBuilder, ParserRuleContext parserRuleContext) {
         //sourceLocation
         nodeBuilder.sourceLocation(getSourceLocation(parserRuleContext));

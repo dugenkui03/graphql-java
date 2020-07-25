@@ -17,6 +17,11 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.argumentsByName;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 由antlr解析语法得来，特质用在元素上的指令、参见FieldDefinition、VariableDefinition等
+ *
+ * 对比DirectiveDefinition：对指令的定义语法，例如 directive @calculator(expression : String!) on FIELD
+ */
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
     private final String name;

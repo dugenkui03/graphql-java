@@ -33,6 +33,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
     private final String description;
     private final EnumSet<DirectiveLocation> locations;
     private final List<GraphQLArgument> arguments = new ArrayList<>();
+    // 从GraphqlAntlrToLanguage中解析得来的数据
     private final DirectiveDefinition definition;
 
 
