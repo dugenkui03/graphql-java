@@ -13,7 +13,7 @@ public class GraphqlLexer extends Lexer {
         RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION);
     }
 
-    //deterministic finite automata 确定性 有限 自动机
+    //deterministic finite automata 确定性 有限 自动机：最后的静态代码块中被赋值
     protected static final DFA[] _decisionToDFA;
 
     //用来缓存PredictionContext
@@ -36,87 +36,49 @@ public class GraphqlLexer extends Lexer {
     //mode名称：DEFAULT_MODE
     public static String[] modeNames = {"DEFAULT_MODE"};
 
-    //fixme 规则名称：token名称
-    private static String[] makeRuleNames() {
-        return new String[]{
-                "T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8",
-                "T__9", "T__10", "T__11", "T__12", "T__13", "BooleanValue", "NullValue",
-                "FRAGMENT", "QUERY", "MUTATION", "SUBSCRIPTION", "SCHEMA", "SCALAR",
-                "TYPE", "INTERFACE", "IMPLEMENTS", "ENUM", "UNION", "INPUT", "EXTEND",
-                "DIRECTIVE", "ON_KEYWORD", "NAME", "IntValue", "FloatValue", "Sign",
-                "IntegerPart", "NonZeroDigit", "ExponentPart", "Digit", "StringValue",
-                "TripleQuotedStringValue", "TripleQuotedStringPart", "EscapedTripleQuote",
-                "ExtendedSourceCharacter", "ExtendedSourceCharacterWithoutLineFeed",
-                "Comment", "EscapedChar", "Unicode", "Hex", "LF", "CR", "LineTerminator",
-                "Space", "Tab", "Comma", "UnicodeBOM"
-        };
-    }
+    //fixme 规则名称、各种token
+    public static final String[] ruleNames = new String[]{
+            "T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8",
+            "T__9", "T__10", "T__11", "T__12", "T__13", "BooleanValue", "NullValue",
+            "FRAGMENT", "QUERY", "MUTATION", "SUBSCRIPTION", "SCHEMA", "SCALAR",
+            "TYPE", "INTERFACE", "IMPLEMENTS", "ENUM", "UNION", "INPUT", "EXTEND",
+            "DIRECTIVE", "ON_KEYWORD", "NAME", "IntValue", "FloatValue", "Sign",
+            "IntegerPart", "NonZeroDigit", "ExponentPart", "Digit", "StringValue",
+            "TripleQuotedStringValue", "TripleQuotedStringPart", "EscapedTripleQuote",
+            "ExtendedSourceCharacter", "ExtendedSourceCharacterWithoutLineFeed",
+            "Comment", "EscapedChar", "Unicode", "Hex", "LF", "CR", "LineTerminator",
+            "Space", "Tab", "Comma", "UnicodeBOM"
+    };
 
-    //同上，token名称
-    public static final String[] ruleNames = makeRuleNames();
+    //fixme 语法中各种具体的文本值
+    private static final String[] _LITERAL_NAMES = new String[]{
+            null, "'{'", "'}'", "':'", "'&'", "'('", "')'", "'='", "'|'", "'@'",
+            "'['", "']'", "'$'", "'!'", "'...'", null, "'null'", "'fragment'", "'query'",
+            "'mutation'", "'subscription'", "'schema'", "'scalar'", "'type'", "'interface'",
+            "'implements'", "'enum'", "'union'", "'input'", "'extend'", "'directive'",
+            "'on'", null, null, null, "'-'", null, null, null, null, null, null,
+            null, null, null, null, null, null, "','"
+    };
 
-    //文字literal 名称：大括号、冒号，&
-    private static String[] makeLiteralNames() {
-        return new String[]{
-                null, "'{'", "'}'", "':'", "'&'", "'('", "')'", "'='", "'|'", "'@'",
-                "'['", "']'", "'$'", "'!'", "'...'", null, "'null'", "'fragment'", "'query'",
-                "'mutation'", "'subscription'", "'schema'", "'scalar'", "'type'", "'interface'",
-                "'implements'", "'enum'", "'union'", "'input'", "'extend'", "'directive'",
-                "'on'", null, null, null, "'-'", null, null, null, null, null, null,
-                null, null, null, null, null, null, "','"
-        };
-    }
 
-    //文字literal 名称，同上
-    private static final String[] _LITERAL_NAMES = makeLiteralNames();
+    //fixme 符号名称，看着就是T_x之外的token名称
+    private static final String[] _SYMBOLIC_NAMES = new String[]{
+            null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, "BooleanValue", "NullValue", "FRAGMENT", "QUERY", "MUTATION",
+            "SUBSCRIPTION", "SCHEMA", "SCALAR", "TYPE", "INTERFACE", "IMPLEMENTS",
+            "ENUM", "UNION", "INPUT", "EXTEND", "DIRECTIVE", "ON_KEYWORD", "NAME",
+            "IntValue", "FloatValue", "Sign", "IntegerPart", "NonZeroDigit", "ExponentPart",
+            "Digit", "StringValue", "TripleQuotedStringValue", "Comment", "LF", "CR",
+            "LineTerminator", "Space", "Tab", "Comma", "UnicodeBOM"
+    };
 
-    private static String[] makeSymbolicNames() {
-        return new String[]{
-                null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, "BooleanValue", "NullValue", "FRAGMENT", "QUERY", "MUTATION",
-                "SUBSCRIPTION", "SCHEMA", "SCALAR", "TYPE", "INTERFACE", "IMPLEMENTS",
-                "ENUM", "UNION", "INPUT", "EXTEND", "DIRECTIVE", "ON_KEYWORD", "NAME",
-                "IntValue", "FloatValue", "Sign", "IntegerPart", "NonZeroDigit", "ExponentPart",
-                "Digit", "StringValue", "TripleQuotedStringValue", "Comment", "LF", "CR",
-                "LineTerminator", "Space", "Tab", "Comma", "UnicodeBOM"
-        };
-    }
-
-    private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
+    //fixme 提供识别器recognizer使用的词汇表vocabulary信息：文本值、token
     public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
-    /**
-     * @deprecated Use {@link #VOCABULARY} instead.
-     */
-    @Deprecated
-    public static final String[] tokenNames;
-
-    static {
-        tokenNames = new String[_SYMBOLIC_NAMES.length];
-        for (int i = 0; i < tokenNames.length; i++) {
-            tokenNames[i] = VOCABULARY.getLiteralName(i);
-            if (tokenNames[i] == null) {
-                tokenNames[i] = VOCABULARY.getSymbolicName(i);
-            }
-
-            if (tokenNames[i] == null) {
-                tokenNames[i] = "<INVALID>";
-            }
-        }
-    }
-
     @Override
-    @Deprecated
-    public String[] getTokenNames() {
-        return tokenNames;
-    }
-
-    @Override
-
     public Vocabulary getVocabulary() {
         return VOCABULARY;
     }
-
 
     public GraphqlLexer(CharStream input) {
         super(input);
@@ -294,8 +256,8 @@ public class GraphqlLexer extends Lexer {
                     "\b9\3\2\u019cr\3\2\2\2\25\2\u009a\u0117\u011b\u0120\u0127\u0129\u012c" +
                     "\u0136\u0138\u013e\u0143\u014a\u014c\u0156\u015e\u0160\u016f\u0177\4\2" +
                     "\4\2\2\5\2";
-    public static final ATN _ATN =
-            new ATNDeserializer().deserialize(_serializedATN.toCharArray());
+
+    public static final ATN _ATN = new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 
     static {
         _decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];
