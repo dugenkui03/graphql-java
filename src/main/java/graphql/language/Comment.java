@@ -4,6 +4,7 @@ import graphql.PublicApi;
 
 import java.io.Serializable;
 
+//评论内容和位置
 @PublicApi
 public class Comment implements Serializable {
     public final String content;

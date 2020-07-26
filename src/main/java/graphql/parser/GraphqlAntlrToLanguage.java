@@ -871,16 +871,24 @@ public class GraphqlAntlrToLanguage {
             nodeBuilder.comments(comments);
         }
         //additionalData
-        addIgnoredChars(parserRuleContext, nodeBuilder);
+        addIgnoredChars(nodeBuilder,parserRuleContext);
     }
 
-    private void addIgnoredChars(ParserRuleContext ctx, NodeBuilder nodeBuilder) {
-        Token start = ctx.getStart();
+    /**
+     *
+     * @param nodeBuilder 保存ignoredChar数据的Node
+     * @param parserRuleContext
+     */
+    private void addIgnoredChars(NodeBuilder nodeBuilder,ParserRuleContext parserRuleContext) {
+        //解析左侧的 忽略字符列表
+        Token start = parserRuleContext.getStart();
         int tokenStartIndex = start.getTokenIndex();
+        //搜集特定channel上的token todo 还是不懂呀
         List<Token> leftChannel = tokens.getHiddenTokensToLeft(tokenStartIndex, CHANNEL_IGNORED_CHARS);
+        //
         List<IgnoredChar> ignoredCharsLeft = mapTokenToIgnoredChar(leftChannel);
 
-        Token stop = ctx.getStop();
+        Token stop = parserRuleContext.getStop();
         int tokenStopIndex = stop.getTokenIndex();
         List<Token> rightChannel = tokens.getHiddenTokensToRight(tokenStopIndex, CHANNEL_IGNORED_CHARS);
         List<IgnoredChar> ignoredCharsRight = mapTokenToIgnoredChar(rightChannel);
@@ -888,19 +896,23 @@ public class GraphqlAntlrToLanguage {
         nodeBuilder.ignoredChars(new IgnoredChars(ignoredCharsLeft, ignoredCharsRight));
     }
 
+    //将token映射为忽略字符list
     private List<IgnoredChar> mapTokenToIgnoredChar(List<Token> tokens) {
         if (tokens == null) {
             return Collections.emptyList();
         }
         return tokens
                 .stream()
+                //token转忽略字符
                 .map(this::createIgnoredChar)
                 .collect(toList());
 
     }
 
+    //token转忽略字符
     private IgnoredChar createIgnoredChar(Token token) {
-        String symbolicName = GraphqlLexer.VOCABULARY.getSymbolicName(token.getType());
+        int tokenType = token.getType();
+        String symbolicName = GraphqlLexer.VOCABULARY.getSymbolicName(tokenType);
         IgnoredChar.IgnoredCharKind kind;
         switch (symbolicName) {
             case "CR":
@@ -951,10 +963,24 @@ public class GraphqlAntlrToLanguage {
         return getSourceLocation(parserRuleContext.getStart());
     }
 
+    /**
+     * 获取注释数据
+     *
+     * ParserRuleContext：句子的语法，对应 antrl4文件中的 parser rule
+     */
     protected List<Comment> getComments(ParserRuleContext ctx) {
+        //获取此上下文中的初始化token
         Token start = ctx.getStart();
+        //如果token不为null
         if (start != null) {
+            /**
+             * 输入流中的token索引的索引([0,n-1]);
+             * 此属性必须有效、为了打印token并使用TokenRewriteStream;
+             * -1表示此token被"伪造"，因为它已经没有有效的索引了。
+             */
             int tokPos = start.getTokenIndex();
+
+            //搜集特定channel上的token todo 还是不懂呀
             List<Token> refChannel = tokens.getHiddenTokensToLeft(tokPos, CHANNEL_COMMENTS);
             if (refChannel != null) {
                 return getCommentOnChannel(refChannel);
@@ -964,21 +990,29 @@ public class GraphqlAntlrToLanguage {
     }
 
 
+    //从channel中获取评论
     protected List<Comment> getCommentOnChannel(List<Token> refChannel) {
         List<Comment> comments = new ArrayList<>();
         for (Token refTok : refChannel) {
             String text = refTok.getText();
-            // we strip the leading hash # character but we don't trim because we don't
-            // know the "comment markup".  Maybe its space sensitive, maybe its not.  So
-            // consumers can decide that
+            // we strip(删除) the leading hash # character 我们会删除开头的井号＃字符
+            // but we don't trim because we don't know the "comment markup". 但由于我们不知道“注释标记”，因此不会进行修剪
+            // Maybe its space sensitive, maybe its not.  So consumers can decide that
             if (text == null) {
                 continue;
             }
+            //fixme 注释内容、所在行号、所在列
+            //去掉开始的 #
             text = text.replaceFirst("^#", "");
-            MultiSourceReader.SourceAndLine sourceAndLine = multiSourceReader.getSourceAndLineFromOverallLine(refTok.getLine());
+            //该token第一个字符匹配的行号
+            int lineNum = refTok.getLine();
+            //给定总行号码，将返回资源名称和行号。
+            MultiSourceReader.SourceAndLine sourceAndLine = multiSourceReader.getSourceAndLineFromOverallLine(lineNum);
+            //token第一个字符的索引 —— 在其所在行。
             int column = refTok.getCharPositionInLine();
             // graphql spec says line numbers start at 1
             int line = sourceAndLine.getLine() + 1;
+            //fixme 注释内容、所在行号、所在列
             comments.add(new Comment(text, new SourceLocation(line, column, sourceAndLine.getSourceName())));
         }
         return comments;

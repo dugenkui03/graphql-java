@@ -68,6 +68,7 @@ public class MultiSourceReader extends Reader {
         return linenumber;
     }
 
+    //资源名称、行号
     public static class SourceAndLine {
         private String sourceName = null;
         private int line = 0;
@@ -90,6 +91,7 @@ public class MultiSourceReader extends Reader {
     }
 
     /**
+     * 给定总行号码，将返回资源名称和行号。
      * This returns the source name and line number given an overall line number
      *
      * This is zeroes based like {@link java.io.LineNumberReader#getLineNumber()}

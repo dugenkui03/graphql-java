@@ -8,6 +8,7 @@ import java.util.Objects;
 @PublicApi
 public class IgnoredChar implements Serializable {
 
+    // 空格、逗号、制表符、回车、换行、其他
     public enum IgnoredCharKind {
         SPACE, COMMA, TAB, CR, LF, OTHER
     }
