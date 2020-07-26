@@ -117,29 +117,44 @@ public class GraphqlAntlrToLanguage {
      * @return ？？接口、union、对象、输入类型、枚举、标量、指令和片段等的定义？？
      */
     protected Definition createDefinition(GraphqlParser.DefinitionContext definitionContext) {
-        //操作定义
+        //操作定义 OperationDefinition
         if (definitionContext.operationDefinition() != null) {
             return createOperationDefinition(definitionContext.operationDefinition());
         }
-        //片段定义
+        //片段定义 FragmentDefinition
         else if (definitionContext.fragmentDefinition() != null) {
             return createFragmentDefinition(definitionContext.fragmentDefinition());
         }
-        //类型系统定义
+        //类型系统定义 SDLDefinition
         else if (definitionContext.typeSystemDefinition() != null) {
             return createTypeSystemDefinition(definitionContext.typeSystemDefinition());
-        } else if (definitionContext.typeSystemExtension() != null) {
+        }
+        //类型系统拓展
+        else if (definitionContext.typeSystemExtension() != null) {
             return createTypeSystemExtension(definitionContext.typeSystemExtension());
-        } else {
+        }
+        //异常
+        else {
             return assertShouldNeverHappen();
         }
     }
 
-    //根据操作定义上下文OperationDefinitionContext、获取操作定义OperationDefinition
+    /** //OperationDefinitionContext -> OperationDefinition，查询文档的定义
+     *
+     *     public enum Operation {
+     *         QUERY, MUTATION, SUBSCRIPTION
+     *     }
+     *
+     *     private final String name;
+     *     private final Operation operation;
+     *     private final List<VariableDefinition> variableDefinitions;
+     *     private final List<Directive> directives;
+     *     private final SelectionSet selectionSet;
+     */
     protected OperationDefinition createOperationDefinition(GraphqlParser.OperationDefinitionContext ctx) {
         OperationDefinition.Builder operationDefinition = OperationDefinition.newOperationDefinition();
         addCommonData(operationDefinition, ctx);
-        //默认为查询操作
+        //操作定义：默认为查询操作
         if (ctx.operationType() == null) {
             operationDefinition.operation(OperationDefinition.Operation.QUERY);
         } else {
@@ -153,8 +168,14 @@ public class GraphqlAntlrToLanguage {
         //操作变量定义：名称、类型(List、NonNull和TypeName)、默认值和指令
         List<VariableDefinition> variableDefinitions = createVariableDefinitions(ctx.variableDefinitions());
         operationDefinition.variableDefinitions(variableDefinitions);
-        operationDefinition.selectionSet(createSelectionSet(ctx.selectionSet()));
-        operationDefinition.directives(createDirectives(ctx.directives()));
+
+        //SelectionSet包含Field、FragmentSpread和InlineFragment的list
+        SelectionSet selectionSet = createSelectionSet(ctx.selectionSet());
+        operationDefinition.selectionSet(selectionSet);
+
+        //查询文档中使用的定义
+        List<Directive> directives = createDirectives(ctx.directives());
+        operationDefinition.directives(directives);
         return operationDefinition.build();
     }
 
@@ -172,9 +193,11 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
+    //根据FragmentSpread
     protected FragmentSpread createFragmentSpread(GraphqlParser.FragmentSpreadContext ctx) {
         FragmentSpread.Builder fragmentSpread = FragmentSpread.newFragmentSpread().name(ctx.fragmentName().getText());
         addCommonData(fragmentSpread, ctx);
+        //片段上的指令
         fragmentSpread.directives(createDirectives(ctx.directives()));
         return fragmentSpread.build();
     }
@@ -191,12 +214,16 @@ public class GraphqlAntlrToLanguage {
     protected VariableDefinition createVariableDefinition(GraphqlParser.VariableDefinitionContext ctx) {
         VariableDefinition.Builder variableDefinition = VariableDefinition.newVariableDefinition();
         addCommonData(variableDefinition, ctx);
+        //变量名称
         variableDefinition.name(ctx.variable().name().getText());
+        //变量默认值
         if (ctx.defaultValue() != null) {
             Value value = createValue(ctx.defaultValue().value());
             variableDefinition.defaultValue(value);
         }
+        //变量类型:List、nonNull和TypeName(变量类型名称)
         variableDefinition.type(createType(ctx.type()));
+        //变量上的指令
         variableDefinition.directives(createDirectives(ctx.directives()));
         return variableDefinition.build();
 
@@ -214,12 +241,19 @@ public class GraphqlAntlrToLanguage {
     }
 
 
+    //fixme
+    //      获取SelectionSet
+    //      其唯一元素是List<Selection>
+    //      Selection实现类是Field、fragmentSpread或者inlineFragment
     protected SelectionSet createSelectionSet(GraphqlParser.SelectionSetContext ctx) {
         if (ctx == null) {
             return null;
         }
         SelectionSet.Builder builder = SelectionSet.newSelectionSet();
+        //位置、注释等信息
         addCommonData(builder, ctx);
+
+        //Field、fragmentSpread或者inlineFragment，都能获取到相应的SelectionSet
         List<Selection> selections = ctx.selection().stream().map(selectionContext -> {
             if (selectionContext.field() != null) {
                 return createField(selectionContext.field());
@@ -231,13 +265,12 @@ public class GraphqlAntlrToLanguage {
                 return createInlineFragment(selectionContext.inlineFragment());
             }
             return (Selection) Assert.assertShouldNeverHappen();
-
         }).collect(toList());
         builder.selections(selections);
         return builder.build();
     }
 
-
+    //字段名称、指令、参数
     protected Field createField(GraphqlParser.FieldContext ctx) {
         Field.Builder builder = Field.newField();
         addCommonData(builder, ctx);
@@ -248,11 +281,12 @@ public class GraphqlAntlrToLanguage {
 
         builder.directives(createDirectives(ctx.directives()));
         builder.arguments(createArguments(ctx.arguments()));
+        //todo 可能是因为、非标量Field会有SelectionSet
         builder.selectionSet(createSelectionSet(ctx.selectionSet()));
         return builder.build();
     }
 
-
+    //内联片段：TypeName、指令集合和SelectionSet
     protected InlineFragment createInlineFragment(GraphqlParser.InlineFragmentContext ctx) {
         InlineFragment.Builder inlineFragment = InlineFragment.newInlineFragment();
         addCommonData(inlineFragment, ctx);
@@ -267,12 +301,18 @@ public class GraphqlAntlrToLanguage {
      * ================================== end of GraphqlOperation.g4 ==================================
      */
 
+    //类型系统定义
     protected SDLDefinition createTypeSystemDefinition(GraphqlParser.TypeSystemDefinitionContext ctx) {
+        //SchemaDefinition
         if (ctx.schemaDefinition() != null) {
             return createSchemaDefinition(ctx.schemaDefinition());
-        } else if (ctx.directiveDefinition() != null) {
+        }
+        //DirectiveDefinition：解析例如 directive @calculator(expression : String!) on FIELD
+        else if (ctx.directiveDefinition() != null) {
             return createDirectiveDefinition(ctx.directiveDefinition());
-        } else if (ctx.typeDefinition() != null) {
+        }
+        //TypeDefinition：Interface、Union、Object、InputObject、EnumTypeDefinition
+        else if (ctx.typeDefinition() != null) {
             return createTypeDefinition(ctx.typeDefinition());
         } else {
             return assertShouldNeverHappen();
@@ -312,6 +352,7 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
+    //Interface、Union、Object、InputObject、EnumTypeDefinition
     protected TypeDefinition createTypeDefinition(GraphqlParser.TypeDefinitionContext ctx) {
         if (ctx.enumTypeDefinition() != null) {
             return createEnumTypeDefinition(ctx.enumTypeDefinition());
@@ -336,7 +377,7 @@ public class GraphqlAntlrToLanguage {
         }
     }
 
-
+    //List、nonNull和TypeName
     protected Type createType(GraphqlParser.TypeContext ctx) {
         if (ctx.typeName() != null) {
             return createTypeName(ctx.typeName());
@@ -403,12 +444,18 @@ public class GraphqlAntlrToLanguage {
     //创建指令定义
     protected Directive createDirective(GraphqlParser.DirectiveContext ctx) {
         Directive.Builder builder = Directive.newDirective();
+        //指令名称是唯一的、因此可以获取到对应指令的定义
         builder.name(ctx.name().getText());
         addCommonData(builder, ctx);
+        //指令参数
         builder.arguments(createArguments(ctx.arguments()));
         return builder.build();
     }
 
+    /** SchemaDefinition包含属性：指令列表、操作类型列表
+     *  List<Directive> directives;
+     *  List<OperationTypeDefinition> operationTypeDefinitions;
+     */
     protected SchemaDefinition createSchemaDefinition(GraphqlParser.SchemaDefinitionContext ctx) {
         SchemaDefinition.Builder def = SchemaDefinition.newSchemaDefinition();
         addCommonData(def, ctx);
@@ -418,6 +465,7 @@ public class GraphqlAntlrToLanguage {
                 .map(this::createOperationTypeDefinition).collect(toList()));
         return def.build();
     }
+
 
     private SDLDefinition creationSchemaExtension(GraphqlParser.SchemaExtensionContext ctx) {
         SchemaExtensionDefinition.Builder def = SchemaExtensionDefinition.newSchemaExtensionDefinition();
@@ -598,6 +646,7 @@ public class GraphqlAntlrToLanguage {
         return def.build();
     }
 
+    //枚举类型定义：
     protected EnumTypeDefinition createEnumTypeDefinition(GraphqlParser.EnumTypeDefinitionContext ctx) {
         EnumTypeDefinition.Builder def = EnumTypeDefinition.newEnumTypeDefinition();
         def.name(ctx.name().getText());
@@ -744,52 +793,60 @@ public class GraphqlAntlrToLanguage {
         return assertShouldNeverHappen();
     }
 
-    protected Value createValue(GraphqlParser.ValueContext ctx) {
-        if (ctx.IntValue() != null) {
-            IntValue.Builder intValue = IntValue.newIntValue().value(new BigInteger(ctx.IntValue().getText()));
-            addCommonData(intValue, ctx);
+    //根据文档中值的定义、获取各种类型、包括null、array和ObjectValue的值定义
+    protected Value createValue(GraphqlParser.ValueContext valueContext) {
+        if (valueContext.IntValue() != null) {
+            IntValue.Builder intValue = IntValue.newIntValue().value(new BigInteger(valueContext.IntValue().getText()));
+            addCommonData(intValue, valueContext);
             return intValue.build();
-        } else if (ctx.FloatValue() != null) {
-            FloatValue.Builder floatValue = FloatValue.newFloatValue().value(new BigDecimal(ctx.FloatValue().getText()));
-            addCommonData(floatValue, ctx);
+        } else if (valueContext.FloatValue() != null) {
+            FloatValue.Builder floatValue = FloatValue.newFloatValue().value(new BigDecimal(valueContext.FloatValue().getText()));
+            addCommonData(floatValue, valueContext);
             return floatValue.build();
-        } else if (ctx.BooleanValue() != null) {
-            BooleanValue.Builder booleanValue = BooleanValue.newBooleanValue().value(Boolean.parseBoolean(ctx.BooleanValue().getText()));
-            addCommonData(booleanValue, ctx);
+        } else if (valueContext.BooleanValue() != null) {
+            BooleanValue.Builder booleanValue = BooleanValue.newBooleanValue().value(Boolean.parseBoolean(valueContext.BooleanValue().getText()));
+            addCommonData(booleanValue, valueContext);
             return booleanValue.build();
-        } else if (ctx.NullValue() != null) {
+        }
+        //fixme 对应常量中的null
+        else if (valueContext.NullValue() != null) {
             NullValue.Builder nullValue = NullValue.newNullValue();
-            addCommonData(nullValue, ctx);
+            addCommonData(nullValue, valueContext);
             return nullValue.build();
-        } else if (ctx.stringValue() != null) {
-            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(ctx.stringValue()));
-            addCommonData(stringValue, ctx);
+        }
+        else if (valueContext.stringValue() != null) {
+            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(valueContext.stringValue()));
+            addCommonData(stringValue, valueContext);
             return stringValue.build();
-        } else if (ctx.enumValue() != null) {
-            EnumValue.Builder enumValue = EnumValue.newEnumValue().name(ctx.enumValue().getText());
-            addCommonData(enumValue, ctx);
+        } else if (valueContext.enumValue() != null) {
+            EnumValue.Builder enumValue = EnumValue.newEnumValue().name(valueContext.enumValue().getText());
+            addCommonData(enumValue, valueContext);
             return enumValue.build();
-        } else if (ctx.arrayValue() != null) {
+        } else if (valueContext.arrayValue() != null) {
             ArrayValue.Builder arrayValue = ArrayValue.newArrayValue();
-            addCommonData(arrayValue, ctx);
+            addCommonData(arrayValue, valueContext);
             List<Value> values = new ArrayList<>();
-            for (GraphqlParser.ValueContext valueContext : ctx.arrayValue().value()) {
-                values.add(createValue(valueContext));
+            for (GraphqlParser.ValueContext arrayValueContext : valueContext.arrayValue().value()) {
+                //fixme 递归回去、处理每个元素
+                values.add(createValue(arrayValueContext));
             }
             return arrayValue.values(values).build();
-        } else if (ctx.objectValue() != null) {
+        }
+        //输入值是个对象
+        else if (valueContext.objectValue() != null) {
             ObjectValue.Builder objectValue = ObjectValue.newObjectValue();
-            addCommonData(objectValue, ctx);
+            addCommonData(objectValue, valueContext);
             List<ObjectField> objectFields = new ArrayList<>();
-            for (GraphqlParser.ObjectFieldContext objectFieldContext :
-                    ctx.objectValue().objectField()) {
+            for (GraphqlParser.ObjectFieldContext objectFieldContext : valueContext.objectValue().objectField()) {
                 ObjectField objectField = ObjectField.newObjectField()
                         .name(objectFieldContext.name().getText())
+                        //fixme 递归回去、处理对象字段值
                         .value(createValue(objectFieldContext.value()))
                         .build();
                 objectFields.add(objectField);
             }
             return objectValue.objectFields(objectFields).build();
+
         }
         return assertShouldNeverHappen();
     }

@@ -16,6 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+//todo
+//      1. 参考内联片段InlineFragment；
+//      2. 在哪用的？根据FragmentSpread其名称、获取对应的FragmentDefinition、从而获取TypeName、SelectionSet等信息
 @PublicApi
 public class FragmentSpread extends AbstractNode<FragmentSpread>
         implements Selection<FragmentSpread>, DirectivesContainer<FragmentSpread>, NamedNode<FragmentSpread> {

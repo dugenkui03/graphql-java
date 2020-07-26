@@ -21,6 +21,7 @@ import static java.util.Collections.emptyMap;
 @PublicApi
 public class SelectionSet extends AbstractNode<SelectionSet> {
 
+    //Field、FragmentSpread和InlineFragment
     private final List<Selection> selections = new ArrayList<>();
 
     public static final String CHILD_SELECTIONS = "selections";

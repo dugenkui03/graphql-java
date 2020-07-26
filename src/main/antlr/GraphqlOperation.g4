@@ -3,10 +3,14 @@ import GraphqlCommon;
 
 operationDefinition:
 selectionSet |
+//名称.可选；变量定义.可选；指令.可选；selectionSet
 operationType  name? variableDefinitions? directives? selectionSet;
 
+//括号内多个 变量定义
 variableDefinitions : '(' variableDefinition+ ')';
 
+//variable : $name；
+//type : typeName | listType | nonNullType;
 variableDefinition : variable ':' type defaultValue? directives?;
 
 

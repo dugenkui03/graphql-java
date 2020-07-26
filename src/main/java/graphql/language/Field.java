@@ -30,7 +30,7 @@ public class Field extends AbstractNode<Field>
     private final String alias;
     private final List<Argument> arguments;
     private final List<Directive> directives;
-    //唯一属性：List<Selection>
+    //todo 查询字段上为啥要有SelectionSet
     private final SelectionSet selectionSet;
 
     public static final String CHILD_ARGUMENTS = "arguments";

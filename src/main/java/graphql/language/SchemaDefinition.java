@@ -16,6 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.directivesByName;
 
+/**
+ * 唯二属性：指令列表、操作类型定义
+ */
 @PublicApi
 public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> implements SDLDefinition<SchemaDefinition> {
 

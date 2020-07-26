@@ -16,6 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 操作类型定义：操作类型名称、todo TypeName
+ */
 @PublicApi
 public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinition> implements NamedNode<OperationTypeDefinition> {
 

@@ -16,9 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+//解析语法获取的对象
 @PublicApi
 public class ObjectField extends AbstractNode<ObjectField> implements NamedNode<ObjectField> {
-
     private final String name;
     private final Value value;
 

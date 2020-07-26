@@ -24,7 +24,6 @@ public class OperationDefinition extends AbstractNode<OperationDefinition> imple
     }
 
     private final String name;
-
     private final Operation operation;
     private final List<VariableDefinition> variableDefinitions;
     private final List<Directive> directives;
