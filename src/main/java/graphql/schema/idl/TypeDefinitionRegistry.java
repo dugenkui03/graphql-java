@@ -43,26 +43,45 @@ import static graphql.schema.idl.SchemaExtensionsChecker.gatherOperationDefs;
 import static java.util.Optional.ofNullable;
 
 /**
+ * 类型系统编译后的对象： Schema、Types、Scalars、Objects、Interfaces、Unions、Enums、Input Objects、List、Directive
+ *
  * A {@link TypeDefinitionRegistry} contains the set of type definitions that come from compiling
  * a graphql schema definition file via {@link SchemaParser#parse(String)}
  */
 @PublicApi
 public class TypeDefinitionRegistry {
 
+    /**
+     * ============================= 各种extension ===========================================
+     */
     private final Map<String, List<ObjectTypeExtensionDefinition>> objectTypeExtensions = new LinkedHashMap<>();
     private final Map<String, List<InterfaceTypeExtensionDefinition>> interfaceTypeExtensions = new LinkedHashMap<>();
     private final Map<String, List<UnionTypeExtensionDefinition>> unionTypeExtensions = new LinkedHashMap<>();
     private final Map<String, List<EnumTypeExtensionDefinition>> enumTypeExtensions = new LinkedHashMap<>();
     private final Map<String, List<ScalarTypeExtensionDefinition>> scalarTypeExtensions = new LinkedHashMap<>();
     private final Map<String, List<InputObjectTypeExtensionDefinition>> inputObjectTypeExtensions = new LinkedHashMap<>();
-
-    private final Map<String, TypeDefinition> types = new LinkedHashMap<>();
-    private final Map<String, ScalarTypeDefinition> scalarTypes = new LinkedHashMap<>();
-    private final Map<String, DirectiveDefinition> directiveDefinitions = new LinkedHashMap<>();
-    private SchemaDefinition schema;
     private final List<SchemaExtensionDefinition> schemaExtensionDefinitions = new ArrayList<>();
 
     /**
+     * =============================end of 各种extension ===========================================
+     */
+
+
+    /**
+     * fixme
+     *      1. 类型系统定义；
+     *      2. scalars定义；
+     *      3. 指令定义。
+     *      schema
+     */
+    private final Map<String, TypeDefinition> typeDefinitionMap = new LinkedHashMap<>();
+    private final Map<String, ScalarTypeDefinition> scalarTypes = new LinkedHashMap<>();
+    private final Map<String, DirectiveDefinition> directiveDefinitions = new LinkedHashMap<>();
+    private SchemaDefinition schema;
+
+    /**
+     * 合并指定注册器到当前注册器。
+     *
      * This will merge these type registries together and return this one
      *
      * @param typeRegistry the registry to be merged into this one
@@ -70,22 +89,29 @@ public class TypeDefinitionRegistry {
      * @throws SchemaProblem if there are problems merging the types such as redefinitions
      */
     public TypeDefinitionRegistry merge(TypeDefinitionRegistry typeRegistry) throws SchemaProblem {
+        //merge 遇到的错误
         List<GraphQLError> errors = new ArrayList<>();
 
+        //合并typeDefineMap
         Map<String, TypeDefinition> tempTypes = new LinkedHashMap<>();
-        typeRegistry.types.values().forEach(newEntry -> {
-            Optional<GraphQLError> defined = define(this.types, tempTypes, newEntry);
+        for (TypeDefinition newTypeDefinition : typeRegistry.typeDefinitionMap.values()) {
+            Optional<GraphQLError> defined = define(this.typeDefinitionMap, tempTypes, newTypeDefinition);
             defined.ifPresent(errors::add);
-        });
+        }
 
+        //合并指令定义
         Map<String, DirectiveDefinition> tempDirectiveDefs = new LinkedHashMap<>();
-        typeRegistry.directiveDefinitions.values().forEach(newEntry -> {
-            Optional<GraphQLError> defined = define(this.directiveDefinitions, tempDirectiveDefs, newEntry);
+        for (DirectiveDefinition newDirectiveDef : typeRegistry.directiveDefinitions.values()) {
+            Optional<GraphQLError> defined = define(this.directiveDefinitions, tempDirectiveDefs, newDirectiveDef);
             defined.ifPresent(errors::add);
-        });
+        }
+
 
         Map<String, ScalarTypeDefinition> tempScalarTypes = new LinkedHashMap<>();
-        typeRegistry.scalarTypes.values().forEach(newEntry -> define(this.scalarTypes, tempScalarTypes, newEntry).ifPresent(errors::add));
+        for (ScalarTypeDefinition newScalarTypeDef : typeRegistry.scalarTypes.values()) {
+            Optional<GraphQLError> defined = define(this.scalarTypes, tempScalarTypes, newScalarTypeDef);
+            defined.ifPresent(errors::add);
+        }
 
         checkMergeSchemaDefs(typeRegistry, errors);
 
@@ -100,7 +126,7 @@ public class TypeDefinitionRegistry {
         this.schemaExtensionDefinitions.addAll(typeRegistry.schemaExtensionDefinitions);
 
         // ok commit to the merge
-        this.types.putAll(tempTypes);
+        this.typeDefinitionMap.putAll(tempTypes);
         this.scalarTypes.putAll(tempScalarTypes);
         this.directiveDefinitions.putAll(tempDirectiveDefs);
         //
@@ -139,7 +165,9 @@ public class TypeDefinitionRegistry {
         return this;
     }
 
+    //检查merge后的类型系统定义
     private Map<String, OperationTypeDefinition> checkMergeSchemaDefs(TypeDefinitionRegistry toBeMergedTypeRegistry, List<GraphQLError> errors) {
+        // 如果新旧TypeDefinitionRegistry都有schema、则报错
         if (toBeMergedTypeRegistry.schema != null && this.schema != null) {
             errors.add(new SchemaRedefinitionError(this.schema, toBeMergedTypeRegistry.schema));
         }
@@ -210,12 +238,14 @@ public class TypeDefinitionRegistry {
             if (error.isPresent()) {
                 return error;
             }
-        } else if (definition instanceof ScalarTypeDefinition) {
+        }
+        //scalar
+        else if (definition instanceof ScalarTypeDefinition) {
             ScalarTypeDefinition newEntry = (ScalarTypeDefinition) definition;
             return define(scalarTypes, scalarTypes, newEntry);
         } else if (definition instanceof TypeDefinition) {
             TypeDefinition newEntry = (TypeDefinition) definition;
-            return define(types, types, newEntry);
+            return define(typeDefinitionMap, typeDefinitionMap, newEntry);
         } else if (definition instanceof DirectiveDefinition) {
             DirectiveDefinition newEntry = (DirectiveDefinition) definition;
             return define(directiveDefinitions, directiveDefinitions, newEntry);
@@ -258,7 +288,7 @@ public class TypeDefinitionRegistry {
         } else if (definition instanceof ScalarTypeDefinition) {
             scalarTypes.remove(((ScalarTypeDefinition) definition).getName());
         } else if (definition instanceof TypeDefinition) {
-            types.remove(((TypeDefinition) definition).getName());
+            typeDefinitionMap.remove(((TypeDefinition) definition).getName());
         } else if (definition instanceof DirectiveDefinition) {
             directiveDefinitions.remove(((DirectiveDefinition) definition).getName());
         } else if (definition instanceof SchemaExtensionDefinition) {
@@ -305,7 +335,7 @@ public class TypeDefinitionRegistry {
         } else if (definition instanceof ScalarTypeDefinition) {
             removeFromMap(scalarTypes, key);
         } else if (definition instanceof TypeDefinition) {
-            removeFromMap(types, key);
+            removeFromMap(typeDefinitionMap, key);
         } else if (definition instanceof DirectiveDefinition) {
             removeFromMap(directiveDefinitions, key);
         } else if (definition instanceof SchemaExtensionDefinition) {
@@ -355,8 +385,9 @@ public class TypeDefinitionRegistry {
         return Optional.empty();
     }
 
+    //获取类型系统定义map
     public Map<String, TypeDefinition> types() {
-        return new LinkedHashMap<>(types);
+        return new LinkedHashMap<>(typeDefinitionMap);
     }
 
     public Map<String, ScalarTypeDefinition> scalars() {
@@ -397,6 +428,7 @@ public class TypeDefinitionRegistry {
         return new ArrayList<>(schemaExtensionDefinitions);
     }
 
+    //定义了相同名称的类型
     private GraphQLError handleReDefinition(TypeDefinition oldEntry, TypeDefinition newEntry) {
         return new TypeRedefinitionError(newEntry, oldEntry);
     }
@@ -415,7 +447,7 @@ public class TypeDefinitionRegistry {
 
     public boolean hasType(TypeName typeName) {
         String name = typeName.getName();
-        return types.containsKey(name) || ScalarInfo.GRAPHQL_SPECIFICATION_SCALARS_DEFINITIONS.containsKey(name) || scalarTypes.containsKey(name) || objectTypeExtensions.containsKey(name);
+        return typeDefinitionMap.containsKey(name) || ScalarInfo.GRAPHQL_SPECIFICATION_SCALARS_DEFINITIONS.containsKey(name) || scalarTypes.containsKey(name) || objectTypeExtensions.containsKey(name);
     }
 
     public Optional<TypeDefinition> getType(Type type) {
@@ -429,7 +461,7 @@ public class TypeDefinitionRegistry {
     }
 
     public Optional<TypeDefinition> getType(String typeName) {
-        TypeDefinition<?> typeDefinition = types.get(typeName);
+        TypeDefinition<?> typeDefinition = typeDefinitionMap.get(typeName);
         if (typeDefinition != null) {
             return Optional.of(typeDefinition);
         }
@@ -485,7 +517,7 @@ public class TypeDefinitionRegistry {
      * @return a list of types of the target class
      */
     public <T extends TypeDefinition> List<T> getTypes(Class<T> targetClass) {
-        return types.values().stream()
+        return typeDefinitionMap.values().stream()
                 .filter(targetClass::isInstance)
                 .map(targetClass::cast)
                 .collect(Collectors.toList());

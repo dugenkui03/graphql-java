@@ -896,7 +896,7 @@ public class GraphqlAntlrToLanguage {
         nodeBuilder.ignoredChars(new IgnoredChars(ignoredCharsLeft, ignoredCharsRight));
     }
 
-    //将token映射为忽略字符list
+    //将token映射为 忽略字符list
     private List<IgnoredChar> mapTokenToIgnoredChar(List<Token> tokens) {
         if (tokens == null) {
             return Collections.emptyList();
@@ -909,10 +909,13 @@ public class GraphqlAntlrToLanguage {
 
     }
 
-    //token转忽略字符
+    //token转 "忽略字符"
     private IgnoredChar createIgnoredChar(Token token) {
+        //获取token的类型
         int tokenType = token.getType();
+        //获取token类型对应的符号名称
         String symbolicName = GraphqlLexer.VOCABULARY.getSymbolicName(tokenType);
+
         IgnoredChar.IgnoredCharKind kind;
         switch (symbolicName) {
             case "CR":
@@ -933,8 +936,10 @@ public class GraphqlAntlrToLanguage {
             default:
                 kind = IgnoredChar.IgnoredCharKind.OTHER;
         }
+        //token.getText()获取的是 内容
         return new IgnoredChar(token.getText(), kind, getSourceLocation(token));
     }
+
 
     protected Description newDescription(GraphqlParser.DescriptionContext descriptionCtx) {
         if (descriptionCtx == null) {

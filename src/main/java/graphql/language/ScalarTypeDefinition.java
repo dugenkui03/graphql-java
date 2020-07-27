@@ -16,9 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+//scalar名称、scalar上的指令——表示该指令集合用到了该scalr上、每次处理该scalar类型的时候都可以获取到这些指令的信息。
 @PublicApi
 public class ScalarTypeDefinition extends AbstractDescribedNode<ScalarTypeDefinition> implements TypeDefinition<ScalarTypeDefinition>, DirectivesContainer<ScalarTypeDefinition>, NamedNode<ScalarTypeDefinition> {
-
     private final String name;
     private final List<Directive> directives;
 

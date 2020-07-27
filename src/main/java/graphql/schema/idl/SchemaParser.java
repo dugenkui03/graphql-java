@@ -25,6 +25,8 @@ import java.util.List;
 import static java.nio.charset.Charset.defaultCharset;
 
 /**
+ * 将文本定义解析为SchemaGenerator中的TypeDefinitionRegistry。
+ *
  * This can take a graphql schema definition and parse it into a {@link TypeDefinitionRegistry} of
  * definitions ready to be placed into {@link SchemaGenerator} say
  */
@@ -93,6 +95,7 @@ public class SchemaParser {
 
     public TypeDefinitionRegistry parseImpl(Reader schemaInput) {
         try {
+            //fixme 不仅仅是query文档、也可能是definition文档，详情看Graphql.g4
             Parser parser = new Parser();
             Document document = parser.parseDocument(schemaInput);
 
@@ -106,22 +109,28 @@ public class SchemaParser {
         return new SchemaProblem(Collections.singletonList(invalidSyntaxError));
     }
 
-    /**
+    /**fixme 从文档直接构建TypeDefinitionRegistry的方法。
      * special method to build directly a TypeDefinitionRegistry from a Document
-     * useful for Introspection =&gt; IDL (Document) =&gt; TypeDefinitionRegistry
+     * useful for Introspection => IDL (Document) => TypeDefinitionRegistry.
      *
-     * @param document containing type definitions
+     * IDL：接口定义语言 (interface definition language)
+     *
+     * @param document containing type definitions 包含类型定义
      *
      * @return the TypeDefinitionRegistry containing all type definitions from the document
      *
      * @throws SchemaProblem if an error occurs
      */
     public TypeDefinitionRegistry buildRegistry(Document document) {
-        List<GraphQLError> errors = new ArrayList<>();
+        //返回值
         TypeDefinitionRegistry typeRegistry = new TypeDefinitionRegistry();
+        List<GraphQLError> errors = new ArrayList<>();
+        //对应Graphql.g4中的 document : definition+；类型系统定义
         List<Definition> definitions = document.getDefinitions();
         for (Definition definition : definitions) {
             if (definition instanceof SDLDefinition) {
+                //add(xx)返回值处理definition过程中可能遇到的错误
+                //fixme 不仅仅是简单的集合add、而是有很多逻辑处理过程
                 typeRegistry.add((SDLDefinition) definition).ifPresent(errors::add);
             } else {
                 errors.add(new NonSDLDefinitionError(definition));

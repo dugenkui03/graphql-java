@@ -34,7 +34,10 @@ public class SchemaExtensionsChecker {
         return operationTypeDefinitionMap;
     }
 
-    static Map<String, OperationTypeDefinition> gatherOperationDefs(List<GraphQLError> errors, SchemaDefinition schema, List<SchemaExtensionDefinition> schemaExtensionDefinitions) {
+    static Map<String, OperationTypeDefinition> gatherOperationDefs(List<GraphQLError> errors,
+                                                                    SchemaDefinition schema,
+                                                                    List<SchemaExtensionDefinition> schemaExtensionDefinitions) {
+        //fixme 结果
         Map<String, OperationTypeDefinition> operationDefs = new LinkedHashMap<>();
         if (schema != null) {
             defineOperationDefs(errors, schema.getOperationTypeDefinitions(), operationDefs);
@@ -45,7 +48,10 @@ public class SchemaExtensionsChecker {
         return operationDefs;
     }
 
-    static void defineOperationDefs(List<GraphQLError> errors, Collection<OperationTypeDefinition> newOperationDefs, Map<String, OperationTypeDefinition> existingOperationDefs) {
+    //将newOperationDefs合并到existingOperationDefs、如果有交集则报错
+    static void defineOperationDefs(List<GraphQLError> errors,
+                                    Collection<OperationTypeDefinition> newOperationDefs,
+                                    Map<String, OperationTypeDefinition> existingOperationDefs) {
         for (OperationTypeDefinition operationTypeDefinition : newOperationDefs) {
             OperationTypeDefinition oldEntry = existingOperationDefs.get(operationTypeDefinition.getName());
             if (oldEntry != null) {
@@ -59,8 +65,7 @@ public class SchemaExtensionsChecker {
     static List<OperationTypeDefinition> checkSchemaInvariants(List<GraphQLError> errors, TypeDefinitionRegistry typeRegistry) {
         /*
             https://github.com/facebook/graphql/pull/90/files#diff-fe406b08746616e2f5f00909488cce66R1000
-
-            GraphQL type system definitions can omit the schema definition when the query
+            GraphQL type system definitions can omit(省略) the schema definition when the query
             and mutation root types are named `Query` and `Mutation`, respectively.
          */
         // schema

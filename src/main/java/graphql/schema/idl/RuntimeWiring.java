@@ -20,8 +20,10 @@ import static graphql.Assert.assertNotNull;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
 
 /**
- * A runtime wiring is a specification of data fetchers, type resolvers and custom scalars that are needed
- * to wire together a functional {@link GraphQLSchema}
+ * RuntimeWiring 是dataFetcher、类型解析器、自定义标量的规范，这些内容需要绑定到GraphQLSchema中。
+ *
+ * A runtime wiring is a specification(规范) of data fetchers, type resolvers and custom scalars
+ * that are needed to wire together(绑定) a functional {@link GraphQLSchema}.
  */
 @PublicApi
 public class RuntimeWiring {
@@ -172,6 +174,7 @@ public class RuntimeWiring {
         }
 
         /**
+         * 添加自定义的scalar。
          * This allows you to add in new custom Scalar implementations beyond the standard set.
          *
          * @param scalarType the new scalar implementation
@@ -179,6 +182,7 @@ public class RuntimeWiring {
          * @return the runtime wiring builder
          */
         public Builder scalar(GraphQLScalarType scalarType) {
+            //scalar名称、自定义类型
             scalars.put(scalarType.getName(), scalarType);
             return this;
         }

@@ -96,14 +96,10 @@ import static java.util.Collections.emptyList;
 @PublicApi
 public class SchemaGenerator {
 
-    /**
-     * These options control how the schema generation works
-     */
+    // These options control how the schema generation works
+    // 控制schema generation如何工作
     public static class Options {
-
-        Options() {
-        }
-
+        Options() { }
         public static Options defaultOptions() {
             return new Options();
         }
