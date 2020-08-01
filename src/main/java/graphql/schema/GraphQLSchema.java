@@ -39,15 +39,14 @@ import static java.util.Arrays.asList;
 @PublicApi
 public class GraphQLSchema {
 
-
+    //操作类型
     private final GraphQLObjectType queryType;
     private final GraphQLObjectType mutationType;
     private final GraphQLObjectType subscriptionType;
-    private final Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
+
     private final Set<GraphQLDirective> directives = new LinkedHashSet<>();
     private final Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
     private final SchemaDefinition definition;
-    private final List<SchemaExtensionDefinition> extensionDefinitions;
 
     //包含 字段-对应的fetcher 映射关系；字段可见性处理器；
     private final GraphQLCodeRegistry codeRegistry;
@@ -56,6 +55,9 @@ public class GraphQLSchema {
     private final Map<String, List<GraphQLObjectType>> byInterface;
 
     private final String description;
+
+    private final Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
+    private final List<SchemaExtensionDefinition> extensionDefinitions;
 
     /**
      * @param queryType the query type

@@ -39,15 +39,30 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class Execution {
     private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(Execution.class);
 
+    //FieldCollector -> ConditionalNodes 包含skip、include指令逻辑
     private final FieldCollector fieldCollector = new FieldCollector();
+
+    // ValuesResolver：强转变量和强转参数的实现
+    // https://spec.graphql.org/draft/#sec-Coercing-Variable-Values
+    // https://spec.graphql.org/draft/#sec-Coercing-Field-Arguments
     private final ValuesResolver valuesResolver = new ValuesResolver();
+
+    //执行策略
     private final ExecutionStrategy queryStrategy;
     private final ExecutionStrategy mutationStrategy;
     private final ExecutionStrategy subscriptionStrategy;
+
+    //动态机制
     private final Instrumentation instrumentation;
+
+    //解析dataFetcher返回的数据
     private ValueUnboxer valueUnboxer;
 
-    public Execution(ExecutionStrategy queryStrategy, ExecutionStrategy mutationStrategy, ExecutionStrategy subscriptionStrategy, Instrumentation instrumentation, ValueUnboxer valueUnboxer) {
+    public Execution(ExecutionStrategy queryStrategy,
+                     ExecutionStrategy mutationStrategy,
+                     ExecutionStrategy subscriptionStrategy,
+                     Instrumentation instrumentation,
+                     ValueUnboxer valueUnboxer) {
         this.queryStrategy = queryStrategy != null ? queryStrategy : new AsyncExecutionStrategy();
         this.mutationStrategy = mutationStrategy != null ? mutationStrategy : new AsyncSerialExecutionStrategy();
         this.subscriptionStrategy = subscriptionStrategy != null ? subscriptionStrategy : new AsyncExecutionStrategy();
@@ -63,18 +78,18 @@ public class Execution {
                                                       //全局 InstrumentationState，保存各种请求状态使用
                                                       InstrumentationState instrumentationState) {
 
-        //GetOperationResult保存有操作定义、和所有片段定义map，是一个container
+        //GetOperationResult保存有操作定义、和所有命名片段定义map，是一个container
         NodeUtil.GetOperationResult getOperationResult = NodeUtil.getOperation(document, executionInput.getOperationName());
         Map<String, FragmentDefinition> fragmentsByName = getOperationResult.fragmentsByName;
         OperationDefinition operationDefinition = getOperationResult.operationDefinition;
         Map<String, Object> inputVariables = executionInput.getVariables();
 
-        //打平后的涉及到的所有变量
-        //名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
+        //查询变量：名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
         List<VariableDefinition> variableDefinitions = operationDefinition.getVariableDefinitions();
 
         Map<String, Object> coercedVariables;
         try {
+            //https://spec.graphql.org/draft/#sec-Coercing-Variable-Values
             coercedVariables = valuesResolver.coerceVariableValues(graphQLSchema, variableDefinitions, inputVariables);
         } catch (RuntimeException rte) {
             if (rte instanceof GraphQLError) {

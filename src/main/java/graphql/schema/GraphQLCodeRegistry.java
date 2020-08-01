@@ -16,20 +16,21 @@ import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
 
 
-/**
- * The {@link graphql.schema.GraphQLCodeRegistry} holds that execution code that is associated with graphql types, namely
- * the {@link graphql.schema.DataFetcher}s associated with fields, the {@link graphql.schema.TypeResolver}s associated with
- * abstract types and the {@link graphql.schema.visibility.GraphqlFieldVisibility}
+/**fixme 类型对应的DataFetcher
+ * The GraphQLCodeRegistry holds
+ *      1. that execution code that is associated with graphql types, namely(也就是) the DataFetchers associated with fields,
+ *      2. the TypeResolvers associated with abstract types and the GraphqlFieldVisibility
  * <p>
  * For legacy reasons these code functions can still exist on the original type objects but this will be removed in a future version.  Once
  * removed the type system objects will be able have proper hashCode/equals methods and be checked for proper equality.
  */
 @PublicApi
 public class GraphQLCodeRegistry {
-    //字段坐标对应的fetcher
+    //fixme 字段坐标对应的fetcher
     private final Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap;
     //系统dataFetcher，专门获取 __Type,__Schema,__typename等信息
     private final Map<String, DataFetcherFactory<?>> systemDataFetcherMap;
+
     private final Map<String, TypeResolver> typeResolverMap;
     private final GraphqlFieldVisibility fieldVisibility;
     private final DataFetcherFactory<?> defaultDataFetcherFactory;

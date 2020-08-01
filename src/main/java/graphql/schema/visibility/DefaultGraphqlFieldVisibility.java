@@ -9,6 +9,7 @@ import graphql.schema.GraphQLInputObjectField;
 import java.util.List;
 
 /**
+ * 默认的字段可见性
  * The default field visibility of graphql-java is that everything is visible
  */
 @PublicApi

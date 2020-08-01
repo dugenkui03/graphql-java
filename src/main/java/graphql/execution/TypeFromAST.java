@@ -16,11 +16,7 @@ import static graphql.schema.GraphQLNonNull.nonNull;
 public class TypeFromAST {
 
     /**
-     *  TypeName -> GraphQlType
-     *
-     * @param schema 实体Schema
-     * @param type 变量定义类型
-     * @return TypeName -> GraphQlType
+     *  TypeName -> GraphQlType：根据TypeName获取GraphQLType，因为TypeName是全局唯一的。fixme：如果是非空或者list、则获取其元素类型
      */
     public static GraphQLType getTypeFromAST(GraphQLSchema schema, Type type) {
         GraphQLType innerType;

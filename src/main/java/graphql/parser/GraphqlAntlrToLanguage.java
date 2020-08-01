@@ -76,7 +76,8 @@ import static graphql.parser.StringValueParsing.parseSingleQuotedString;
 import static graphql.parser.StringValueParsing.parseTripleQuotedString;
 import static java.util.stream.Collectors.toList;
 
-/**
+/**fixme createDocument 是该类唯一公共方法、是根据antlr的语法树上下文、创建Document的方法
+ *
  * 唯二属性：CommonTokenStream和MultiSourceReader
  */
 @Internal
@@ -100,6 +101,7 @@ public class GraphqlAntlrToLanguage {
     /**
      * ==================================GraphqlOperation.g4 相关方法开始==================================
      */
+    //fixme 根据文档上下文、创建文档的入口
     public Document createDocument(GraphqlParser.DocumentContext documentContext) {
         Document.Builder documentBuilder = Document.newDocument();
         //添加NodeBuilder中定义的数据到documentBuilder：sourceLocation、List<Comment>、IgnoredChars、additionalData和additionalData
@@ -270,7 +272,7 @@ public class GraphqlAntlrToLanguage {
         return builder.build();
     }
 
-    //字段名称、指令、参数
+    //Field：字段名称、指令、参数
     protected Field createField(GraphqlParser.FieldContext ctx) {
         Field.Builder builder = Field.newField();
         addCommonData(builder, ctx);

@@ -210,14 +210,9 @@ public class SchemaGenerator {
     }
 
     /**
-     * This will take a {@link TypeDefinitionRegistry} and a {@link RuntimeWiring} and put them together to create a executable schema
-     *
-     * @param typeRegistry this can be obtained via {@link SchemaParser#parse(String)}
-     * @param wiring       this can be built using {@link RuntimeWiring#newRuntimeWiring()}
-     *
-     * @return an executable schema
-     *
-     * @throws SchemaProblem if there are problems in assembling a schema such as missing type resolvers or no operations defined
+     * @param typeRegistry 解析的dsl对象
+     * @param wiring       字段和Fetcher的绑定关系
+     * @return  可执行的schema
      */
     public GraphQLSchema makeExecutableSchema(TypeDefinitionRegistry typeRegistry, RuntimeWiring wiring) throws SchemaProblem {
         return makeExecutableSchema(Options.defaultOptions(), typeRegistry, wiring);

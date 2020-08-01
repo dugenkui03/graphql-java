@@ -14,7 +14,7 @@ import static graphql.Assert.assertValidName;
  */
 @PublicApi
 public class FieldCoordinates {
-    //字段包括 字段所在类型名称、字段名称和是否是系统坐标三个类型
+    //字段包括 字段所在类型名称、字段名称和 是否是系统坐标(自定义的业务字段都不是) 三个类型
     private final boolean systemCoordinates;
     private final String typeName;
     private final String fieldName;

@@ -42,7 +42,6 @@ import static java.lang.String.format;
 @Internal
 public class NodeVisitorWithTypeTracking extends NodeVisitorStub {
 
-
     private final QueryVisitor preOrderCallback;
     private final QueryVisitor postOrderCallback;
     private final Map<String, Object> variables;

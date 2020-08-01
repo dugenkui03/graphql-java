@@ -40,7 +40,7 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 @Internal
 public class ValuesResolver {
 
-    /**
+    /**https://spec.graphql.org/draft/#CoerceVariableValues()
      * This method coerces the "raw" variables values provided to the engine. The coerced values will be used to
      * provide arguments to {@link graphql.schema.DataFetchingEnvironment}
      * The coercing is ultimately done via {@link Coercing}.
@@ -55,26 +55,26 @@ public class ValuesResolver {
                                                     //变量定义：名称、类型(注意，只有List、NonNull和TypeName三种)、默认值和变量指令
                                                     List<VariableDefinition> variableDefinitions,
                                                     Map<String, Object> variableValues) {//变量池
-        //控制字段的可见性，fixme 全局只有一个
+        //控制字段的可见性， 全局只有一个
         GraphqlFieldVisibility fieldVisibility = schema.getCodeRegistry().getFieldVisibility();
-        //转换后的值
-        Map<String, Object> coercedValues = new LinkedHashMap<>();
-        //注意对默认值的处理：map没有数据、则使用变量定义中的数据。
-        for (VariableDefinition variableDefinition : variableDefinitions) {
 
+        //fixme result
+        Map<String, Object> coercedValues = new LinkedHashMap<>();
+
+        // 遍历查询文档的变量定义，结合定义和输入map、按照规则进行转换
+        for (VariableDefinition variableDefinition : variableDefinitions) {
             //获取变量名称、也是入参variableValues的key
             String variableName = variableDefinition.getName();
 
-            // 获取变量对应的GraphQL类型
-            // 根据 类型名称/typeName 得到，因为typeName是全局唯一的
+            // 获取变量对应的GraphQL类型、一般是scalar
+            // 根据 typeName(类型名称) 得到，因为typeName是全局唯一的
             GraphQLType variableType = TypeFromAST.getTypeFromAST(schema, variableDefinition.getType());
 
             //如果变量定义没有对应的输入值
             //HashMap的containsKey底层还是使用的hash查找，O(1)操作
             if (!variableValues.containsKey(variableName)) {
-                //获取默认值
+                //如果默认值不为null，则使用默认值作为输入值：fixme 默认值优先级很高、即使变量定义是非null、若默认值设置了null、仍然可以赋值为null。
                 Value defaultValue = variableDefinition.getDefaultValue();
-                //如果默认值不为null，则使用默认值作为输入值
                 if (defaultValue != null) {
                     Object coercedValue = coerceValueAst(fieldVisibility, variableType, defaultValue, null);
                     coercedValues.put(variableName, coercedValue);
@@ -88,7 +88,7 @@ public class ValuesResolver {
             else {
                 //从入参中获取变量值；
                 Object value = variableValues.get(variableName);
-                //获取转换后的变量值
+                //fixme 获取转换后的变量值
                 Object coercedValue = getVariableValue(fieldVisibility, variableDefinition, variableType, value);
                 coercedValues.put(variableName, coercedValue);
             }
@@ -114,11 +114,10 @@ public class ValuesResolver {
                                     GraphQLType variableType,//变量字段的GraphQL类型、VariableDefinition 的 typeName 对应的类型
                                     Object value) {//变量值
 
-        //如果入参为null、而且默认值不为null
+        //如果入参为null、而且默认值不为null。默认值是不可能为变量引用的
         if (value == null && variableDefinition.getDefaultValue() != null) {
             return coerceValueAst(fieldVisibility, variableType, variableDefinition.getDefaultValue(), null);
         }
-
 
         return coerceValue(fieldVisibility, variableDefinition, variableDefinition.getName(), variableType, value);
     }
@@ -128,11 +127,22 @@ public class ValuesResolver {
         return getArgumentValuesImpl(codeRegistry, argumentTypes, arguments, variables);
     }
 
-    public Map<String, Object> getArgumentValues(GraphQLCodeRegistry codeRegistry, List<GraphQLArgument> argumentTypes, List<Argument> arguments, Map<String, Object> variables) {
+    //获取某个字段的参数
+    public Map<String, Object> getArgumentValues(GraphQLCodeRegistry codeRegistry,
+                                                 List<GraphQLArgument> argumentTypes, //字段定义定义上的参数定义、包括描述等信息
+                                                 List<Argument> arguments, // 查询文档字段上的参数信息：只有名称和Value、Value可能是引用或者常量
+                                                 Map<String, Object> variables) { //输入变量
         return getArgumentValuesImpl(codeRegistry, argumentTypes, arguments, variables);
     }
 
-    private Map<String, Object> getArgumentValuesImpl(GraphQLCodeRegistry codeRegistry, List<GraphQLArgument> argumentTypes, List<Argument> arguments, Map<String, Object> variables) {
+
+
+    //https://spec.graphql.org/draft/#sec-Coercing-Field-Arguments
+    private Map<String, Object> getArgumentValuesImpl(GraphQLCodeRegistry codeRegistry,
+                                                      List<GraphQLArgument> argumentTypes,
+                                                      List<Argument> arguments, //ihg
+                                                      Map<String, Object> variables) {
+        //如果该字段没有参数、则返回空map
         if (argumentTypes.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -177,22 +187,19 @@ public class ValuesResolver {
     }
 
 
-    /**
-     *
-     * @param fieldVisibility 自定可见性定义
-     * @param variableDefinition 变量定义
-     * @param inputName 变量名称、来自变量定义
-     * @param graphQLType 变量类型
-     * @param value 入参变量值
-     * @return
-     */
     @SuppressWarnings("unchecked")
-    private Object coerceValue(GraphqlFieldVisibility fieldVisibility, VariableDefinition variableDefinition,
-                               String inputName, GraphQLType graphQLType, Object value) {
+    private Object coerceValue(GraphqlFieldVisibility fieldVisibility, //自定可见性定义
+                               VariableDefinition variableDefinition, //变量定义
+                               String inputName, //变量名称、来自变量定义
+                               GraphQLType graphQLType, //变量类型：VariableDefinition 的 typeName 对应的类型
+                               Object value //变量值
+    ) {
         try {
+            //如果是非空类型、则拆箱后在递归回去
             if (isNonNull(graphQLType)) {
                 Object returnValue =
                         coerceValue(fieldVisibility, variableDefinition, inputName, unwrapOne(graphQLType), value);
+                //变量类型：scalar、枚举和自定义的类型：一般也不会用non-null修饰
                 if (returnValue == null) {
                     throw new NonNullableValueCoercedAsNullException(variableDefinition, inputName, graphQLType);
                 }
@@ -229,23 +236,32 @@ public class ValuesResolver {
                     .message("Variable '" + inputName + "' has an invalid value : " + e.getMessage())
                     .extensions(e.getExtensions())
                     .cause(e.getCause())
+                    //强转哪个变量的时候遇到的问题
                     .sourceLocation(variableDefinition.getSourceLocation())
                     .build();
         }
 
     }
 
-    private Object coerceValueForInputObjectType(GraphqlFieldVisibility fieldVisibility, VariableDefinition variableDefinition, GraphQLInputObjectType inputObjectType, Map<String, Object> input) {
+    //强转输入对象为一个Map
+    private Object coerceValueForInputObjectType(GraphqlFieldVisibility fieldVisibility,
+                                                 VariableDefinition variableDefinition,
+                                                 GraphQLInputObjectType inputObjectType,//变量类型、是个输入类型
+                                                 Map<String, Object> input) {
         Map<String, Object> result = new LinkedHashMap<>();
-        List<GraphQLInputObjectField> fields = fieldVisibility.getFieldDefinitions(inputObjectType);
-        List<String> fieldNames = fields.stream().map(GraphQLInputObjectField::getName).collect(Collectors.toList());
+
+        //获取所有输入类型的所有的字段定义
+        List<GraphQLInputObjectField> inputObjectFieldList = fieldVisibility.getFieldDefinitions(inputObjectType);
+        List<String> objectFieldNameList = inputObjectFieldList.stream().map(GraphQLInputObjectField::getName).collect(Collectors.toList());
         for (String inputFieldName : input.keySet()) {
-            if (!fieldNames.contains(inputFieldName)) {
+            // In either case, the input object literal or unordered map must not contain any entries
+            // with names not defined by a field of this input object type, otherwise an error must be thrown
+            if (!objectFieldNameList.contains(inputFieldName)) {
                 throw new InputMapDefinesTooManyFieldsException(inputObjectType, inputFieldName);
             }
         }
 
-        for (GraphQLInputObjectField inputField : fields) {
+        for (GraphQLInputObjectField inputField : inputObjectFieldList) {
             if (input.containsKey(inputField.getName()) || alwaysHasValue(inputField)) {
                 Object value = coerceValue(fieldVisibility, variableDefinition,
                         inputField.getName(),
@@ -262,22 +278,28 @@ public class ValuesResolver {
                 || isNonNull(inputField.getType());
     }
 
+    //解析标量
     private Object coerceValueForScalar(GraphQLScalarType graphQLScalarType, Object value) {
         return graphQLScalarType.getCoercing().parseValue(value);
     }
 
+    //解析枚举
     private Object coerceValueForEnum(GraphQLEnumType graphQLEnumType, Object value) {
         return graphQLEnumType.parseValue(value);
     }
 
+    //解析list，fixme 每个元素递归回coerceValue
     private List coerceValueForList(GraphqlFieldVisibility fieldVisibility, VariableDefinition variableDefinition, String inputName, GraphQLList graphQLList, Object value) {
         if (value instanceof Iterable) {
             List<Object> result = new ArrayList<>();
             for (Object val : (Iterable) value) {
-                result.add(coerceValue(fieldVisibility, variableDefinition, inputName, graphQLList.getWrappedType(), val));
+                Object coercedValue = coerceValue(fieldVisibility, variableDefinition, inputName, graphQLList.getWrappedType(), val);
+                result.add(coercedValue);
             }
             return result;
         } else {
+            // https://spec.graphql.org/draft/#sec-Type-System.List.Input-Coercion
+            // "类型是数组，只有一个元素的时候、将这一个元素作为数组的唯一元素"
             return Collections.singletonList(coerceValue(fieldVisibility, variableDefinition, inputName, graphQLList.getWrappedType(), value));
         }
     }
@@ -296,7 +318,7 @@ public class ValuesResolver {
                                   Value inputValue,//默认值的value对象
                                   Map<String, Object> variables) {
 
-        //如果是变量引用、则从变量集合中获取默认值
+        //如果是变量引用、则从变量集合中获取默认值。注：默认值不会是变量引用
         if (inputValue instanceof VariableReference) {
             return variables.get(((VariableReference) inputValue).getName());
         }
@@ -306,19 +328,26 @@ public class ValuesResolver {
             return null;
         }
 
-        /**
-         * 判断type
-         */
         //如果是标量类型
         if (type instanceof GraphQLScalarType) {
-                    //输入值、标量强转器、变量集合(输入值是变量引用的情况要泳道)
+                    //输入值、标量强转器、变量集合(输入值是变量引用的情况要用到)
                     //variables放在里边，是防止自定义的scalars继承了 coercing.parseLiteral(inputValue, variables) 方法
             return parseLiteral(inputValue, ((GraphQLScalarType) type).getCoercing(), variables);
+        }
+
+        //type是枚举
+        if (type instanceof GraphQLEnumType) {
+            return ((GraphQLEnumType) type).parseLiteral(inputValue);
         }
 
         //nonNull，拆包装、递归回来
         if (isNonNull(type)) {
             return coerceValueAst(fieldVisibility, unwrapOne(type), inputValue, variables);
+        }
+
+        //type是list
+        if (isList(type)) {
+            return coerceValueAstForList(fieldVisibility, (GraphQLList) type, inputValue, variables);
         }
 
         //输入对象类型
@@ -328,22 +357,17 @@ public class ValuesResolver {
             return coerceValueAstForInputObject(fieldVisibility, inputObjectType, objectValue, variables);
         }
 
-        //type是枚举
-        if (type instanceof GraphQLEnumType) {
-            return ((GraphQLEnumType) type).parseLiteral(inputValue);
-        }
-        //type是list
-        if (isList(type)) {
-            return coerceValueAstForList(fieldVisibility, (GraphQLList) type, inputValue, variables);
-        }
-
         //todo 貌似永远不可能发生
         return null;
     }
 
-    private Object parseLiteral(Value inputValue,
-                                Coercing coercing,
-                                Map<String, Object> variables) {
+    private Object parseLiteral(
+                                //fixme: 如果是直接从map中获取的值、就不会是value类型的了
+                                //todo：但似乎总是map取的值啊、而且这又是个private方法。
+                                Value inputValue,//输入变量、可能是引用或者常量、查看其子类即可。
+                                Coercing coercing,//类型强转器具
+                                Map<String, Object> variables//变量集合(输入值是变量引用的情况要用到)
+    ) {
         // the CoercingParseLiteralException exception that could happen here has been validated earlier via ValidationUtil
         //默认调用各个scalars的 parseLiteral(input);
         return coercing.parseLiteral(inputValue, variables);

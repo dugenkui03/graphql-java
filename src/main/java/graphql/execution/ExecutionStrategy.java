@@ -415,9 +415,7 @@ public abstract class ExecutionStrategy {
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, fieldDef, executionStepInfo, fetchedValue);
-        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(
-                instrumentationParams
-        );
+        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(instrumentationParams);
 
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
         Map<String, Object> argumentValues = valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables());

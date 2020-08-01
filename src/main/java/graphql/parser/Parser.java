@@ -22,7 +22,6 @@ import java.util.List;
 @PublicApi
 public class Parser {
 
-
     public static Document parse(String input) {
         return new Parser().parseDocument(input);
     }
@@ -32,10 +31,11 @@ public class Parser {
     }
 
     public Document parseDocument(String input, String sourceName) throws InvalidSyntaxException {
-        MultiSourceReader multiSourceReader = MultiSourceReader.newMultiSourceReader()
-                .string(input, sourceName)
-                .trackData(true)
-                .build();
+        MultiSourceReader multiSourceReader =
+                MultiSourceReader.newMultiSourceReader()
+                        .string(input, sourceName)
+                        .trackData(true)
+                        .build();
         return parseDocument(multiSourceReader);
     }
 
@@ -49,12 +49,16 @@ public class Parser {
         }
         CodePointCharStream charStream;
         try {
+            //fixme step 1
             charStream = CharStreams.fromReader(multiSourceReader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
+        //fixme step 2: 词法分析程序
         GraphqlLexer lexer = new GraphqlLexer(charStream);
+
+        //fixme step 3
         lexer.removeErrorListeners();
         lexer.addErrorListener(new BaseErrorListener() {
             @Override
@@ -65,8 +69,10 @@ public class Parser {
             }
         });
 
+        //fixme step 4
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
+        //fixme step 5: 语法分析程序
         GraphqlParser parser = new GraphqlParser(tokens);
         parser.removeErrorListeners();
         parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
@@ -74,14 +80,21 @@ public class Parser {
         ExtendedBailStrategy bailStrategy = new ExtendedBailStrategy(multiSourceReader);
         parser.setErrorHandler(bailStrategy);
 
-        GraphqlAntlrToLanguage toLanguage = getAntlrToLanguage(tokens, multiSourceReader);
+        //fixme step 6：解析的文档上下文
         GraphqlParser.DocumentContext documentContext = parser.document();
 
+        //fixme step 7：文档上下文转换为Document
+        GraphqlAntlrToLanguage toLanguage = getAntlrToLanguage(tokens, multiSourceReader);
         Document doc = toLanguage.createDocument(documentContext);
 
+        //获取上下文中最后的token
         Token stop = documentContext.getStop();
+        //上下文中所有的token
         List<Token> allTokens = tokens.getTokens();
+
+        //如果最后的token不为null、且所有的token不未空
         if (stop != null && allTokens != null && !allTokens.isEmpty()) {
+            //获取最后一个token
             Token last = allTokens.get(allTokens.size() - 1);
             //
             // do we have more tokens in the stream than we consumed in the parse?
@@ -96,13 +109,7 @@ public class Parser {
         return doc;
     }
 
-    /**
-     * Allows you to override the ANTLR to AST code.
-     *
-     * @param tokens            the toke stream
-     * @param multiSourceReader the source of the query document
-     * @return a new GraphqlAntlrToLanguage instance
-     */
+    // Allows you to override the ANTLR to AST code.
     protected GraphqlAntlrToLanguage getAntlrToLanguage(CommonTokenStream tokens, MultiSourceReader multiSourceReader) {
         return new GraphqlAntlrToLanguage(tokens, multiSourceReader);
     }

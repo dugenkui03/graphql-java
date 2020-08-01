@@ -16,9 +16,13 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * 查询dsl上定义的参数对象；
+ *
+ * 对比GraphQLArgument、是实体定义对应的参数，GraphQLArgument可有默认值、描述等信息。
+ */
 @PublicApi
 public class Argument extends AbstractNode<Argument> implements NamedNode<Argument> {
-
     private final String name;
     private final Value value;
 
