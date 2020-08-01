@@ -54,7 +54,7 @@ public class GraphQLCodeRegistry {
      * 获取字段关联的DF
      * Returns a data fetcher associated with a field within a container type
      *
-     * @param parentType      the container type 该字段所在的类型
+     * @param parentType      the container type 该字段所在的类型。这个接口的实现类有：GraphQLInterfaceType、GraphQLObjectType
      * @param fieldDefinition the field definition 字段的定义
      * @return the DataFetcher associated with this field.  All fields have data fetchers
      */
