@@ -22,6 +22,11 @@ import graphql.schema.GraphQLTypeUtil;
 public class NonNullableValueCoercedAsNullException extends GraphQLException implements GraphQLError {
     private List<SourceLocation> sourceLocations;
 
+    public NonNullableValueCoercedAsNullException(SourceLocation sourceLocation) {
+        super(format("Variable has coerced Null value for NonNull type "));
+        this.sourceLocations = Collections.singletonList(sourceLocation);
+    }
+
     public NonNullableValueCoercedAsNullException(VariableDefinition variableDefinition, GraphQLType graphQLType) {
         super(format("Variable '%s' has coerced Null value for NonNull type '%s'",
                 variableDefinition.getName(), GraphQLTypeUtil.simplePrint(graphQLType)));

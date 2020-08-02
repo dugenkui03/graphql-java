@@ -4,6 +4,7 @@ package graphql.execution;
 import graphql.Internal;
 import graphql.language.Argument;
 import graphql.language.ArrayValue;
+import graphql.language.NonNullType;
 import graphql.language.NullValue;
 import graphql.language.ObjectField;
 import graphql.language.ObjectValue;
@@ -17,6 +18,7 @@ import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLInputObjectField;
 import graphql.schema.GraphQLInputObjectType;
+import graphql.schema.GraphQLInputType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
@@ -100,31 +102,52 @@ public class ValuesResolver {
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
-        Map<String, Argument> argumentMap = argumentMap(arguments);
+        Map<String, Argument> argumentValues = argumentMap(arguments);
         for (GraphQLArgument fieldArgument : argumentTypes) {
-            String argName = fieldArgument.getName();
-            Argument argument = argumentMap.get(argName);
-            Object value = null;
-            if (argument != null) {
-                value = coerceValueAst(codeRegistry.getFieldVisibility(), fieldArgument.getType(), argument.getValue(), variables);
+            String argumentName = fieldArgument.getName();
+            GraphQLInputType argumentType = fieldArgument.getType();
+            Object defaultValue = fieldArgument.getDefaultValue();
+            Argument argument = argumentValues.get(argumentName);
+            boolean hasValue = false;
+            if(argumentValues.containsKey(argumentName) && variables.containsKey(argumentName)){
+                hasValue=true;
             }
-            if (value == null) {
-                value = fieldArgument.getDefaultValue();
+
+            if (!hasValue && defaultValue != null) {
+                result.put(argumentName, defaultValue);
             }
-            boolean wasValueProvided = false;
-            if (argumentMap.containsKey(argName)) {
-                if (argument.getValue() instanceof VariableReference) {
-                    wasValueProvided = variables.containsKey(((VariableReference) argument.getValue()).getName());
-                } else {
-                    wasValueProvided = true;
+            //此处应该获取的是值引用指向的数据 或者是 常量数据，所以不用关心：argument.getValue() instanceof VariableReference
+            else if (argument != null ) {
+                Object value = coerceValueAst(codeRegistry.getFieldVisibility(), argumentType, argument.getValue(), variables);
+                if (value == null && argumentType instanceof NonNullType) {
+                    throw new NonNullableValueCoercedAsNullException(argument.getSourceLocation());
                 }
+                result.put(argumentName, value);
             }
-            if (fieldArgument.hasSetDefaultValue()) {
-                wasValueProvided = true;
-            }
-            if (wasValueProvided) {
-                result.put(argName, value);
-            }
+
+
+//            Object value =null;
+//            if (argument != null) {
+//                value = coerceValueAst(codeRegistry.getFieldVisibility(), fieldArgument.getType(), argument.getValue(), variables);
+//            }
+//            if (value == null) {
+//                value = fieldArgument.getDefaultValue();
+//            }
+//            boolean wasValueProvided = false;
+//            //如果变量中包含、而且
+//            if (argumentValues.containsKey(argumentName)) {
+//                if (argument.getValue() instanceof VariableReference) {
+//                    wasValueProvided = variables.containsKey(((VariableReference) argument.getValue()).getName());
+//                } else {
+//                    wasValueProvided = true;
+//                }
+//            }
+//            if (fieldArgument.hasSetDefaultValue()) {
+//                wasValueProvided = true;
+//            }
+//            if (wasValueProvided) {
+//                result.put(argumentName, value);
+//            }
         }
         return result;
     }
