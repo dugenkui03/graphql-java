@@ -53,8 +53,8 @@ public class GraphQLArgument implements GraphQLNamedSchemaElement, GraphQLInputV
     public static final String CHILD_DIRECTIVES = "directives";
     public static final String CHILD_TYPE = "type";
 
-    private static final Object DEFAULT_VALUE_SENTINEL = new Object() {
-    };
+    //默认值标记：默认值指向该对象表示没有设置默认值
+    private static final Object DEFAULT_VALUE_SENTINEL = new Object() {};
 
     /**
      * @param name         the arg name

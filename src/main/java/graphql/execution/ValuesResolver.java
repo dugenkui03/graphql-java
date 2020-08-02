@@ -139,23 +139,35 @@ public class ValuesResolver {
 
     //https://spec.graphql.org/draft/#sec-Coercing-Field-Arguments
     private Map<String, Object> getArgumentValuesImpl(GraphQLCodeRegistry codeRegistry,
-                                                      List<GraphQLArgument> argumentTypes,
-                                                      List<Argument> arguments, //ihg
+                                                      List<GraphQLArgument> argumentTypes,// 类型系统中的ArgumentDefinition
+                                                      List<Argument> argumentValues, //查询下dsl中的变量名称和 值引用/常量
                                                       Map<String, Object> variables) {
         //如果该字段没有参数、则返回空map
         if (argumentTypes.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> result = new LinkedHashMap<>();
-        Map<String, Argument> argumentMap = argumentMap(arguments);
+
+        Map<String, Object> coercedValues = new LinkedHashMap<>();
+        Map<String, Argument> argumentMap = argumentMap(argumentValues);
+
+        // Let argumentDefinitions be the arguments defined by objectType for the field named fieldName.
+        // For each argumentDefinition in argumentDefinitions.
+        // 从类型系统出发、遍历该字段上的参数定义。
+        // todo 万一此次查询只用到了部分参数、而没用到的参数有默认值呢？没用到的参数会在dataFetcher中出现吗
         for (GraphQLArgument fieldArgument : argumentTypes) {
+            //获取查询dsl中的变量
             String argName = fieldArgument.getName();
             Argument argument = argumentMap.get(argName);
+
             Object value = null;
+            //fixme 如果查询使用到了该变量
             if (argument != null) {
+                // argument.getValue()可能是常量、变量引用和NullValue，
+                // fixme 后两者都可能为null、但是此时不应该去找默认值了。
                 value = coerceValueAst(codeRegistry.getFieldVisibility(), fieldArgument.getType(), argument.getValue(), variables);
             }
+
             if (value == null) {
                 value = fieldArgument.getDefaultValue();
             }
@@ -171,10 +183,10 @@ public class ValuesResolver {
                 wasValueProvided = true;
             }
             if (wasValueProvided) {
-                result.put(argName, value);
+                coercedValues.put(argName, value);
             }
         }
-        return result;
+        return coercedValues;
     }
 
 
