@@ -13,10 +13,11 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLUnionType;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
 import static graphql.execution.TypeFromAST.getTypeFromAST;
@@ -32,7 +33,7 @@ public class FieldCollector {
 
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, MergedField mergedField) {
         Map<String, MergedField> subFields = new LinkedHashMap<>();
-        List<String> visitedFragments = new ArrayList<>();
+        Set<String> visitedFragments = new LinkedHashSet<>();
         for (Field field : mergedField.getFields()) {
             if (field.getSelectionSet() == null) {
                 continue;
@@ -60,7 +61,7 @@ public class FieldCollector {
         //结果数据
         Map<String, MergedField> subFields = new LinkedHashMap<>();
         //已经遍历过的Set
-        List<String> visitedFragments = new ArrayList<>();
+        Set<String> visitedFragments = new LinkedHashSet<>();
         this.collectFields(parameters, selectionSet, visitedFragments, subFields);
         //subFields的类型是此对象类型MergedSelectionSet的唯一属性，可以解围返回了subFields
         return newMergedSelectionSet().subFields(subFields).build();
@@ -70,7 +71,7 @@ public class FieldCollector {
     private void collectFields(
             FieldCollectorParameters parameters,
             SelectionSet selectionSet,
-            List<String> visitedFragments,
+            Set<String> visitedFragments,
             Map<String, MergedField> resultFields) {
         //fixme 该层对象的所有要查询的字段，如果是片段、则已经在递归中展开了
         for (Selection selection : selectionSet.getSelections()) {
@@ -111,7 +112,7 @@ public class FieldCollector {
      * @param fields fixme 数据存放集合
      * @param fragmentSpread 片段定义
      */
-    private void collectFragmentSpread(FieldCollectorParameters collectorParameters, List<String> visitedFragments,
+    private void collectFragmentSpread(FieldCollectorParameters collectorParameters, Set<String> visitedFragments,
                                        Map<String, MergedField> fields, FragmentSpread fragmentSpread) {
         //如果片段字段已经被收集过、则返回
         if (visitedFragments.contains(fragmentSpread.getName())) {
@@ -143,7 +144,7 @@ public class FieldCollector {
     }
 
     private void collectInlineFragment(FieldCollectorParameters parameters,
-                                       List<String> visitedFragments, //已经别访问过的inlineFragment
+                                       Set<String> visitedFragments, //已经别访问过的inlineFragment
                                        Map<String, MergedField> resultFields, //结果集
                                        InlineFragment inlineFragment) {
         //如果使用指令或者 doesFragmentConditionMatch 过滤了该片段
