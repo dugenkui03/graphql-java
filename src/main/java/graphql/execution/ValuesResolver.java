@@ -142,7 +142,7 @@ public class ValuesResolver {
                                                       List<GraphQLArgument> argumentTypes,// 类型系统中的ArgumentDefinition
                                                       List<Argument> argumentValues, //查询下dsl中的变量名称和 值引用/常量
                                                       Map<String, Object> variables) {
-        //如果该字段没有参数、则返回空map
+        //如果该字段没有参数、则返回空map。fixme 即使有默认值
         if (argumentTypes.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -168,20 +168,31 @@ public class ValuesResolver {
                 value = coerceValueAst(codeRegistry.getFieldVisibility(), fieldArgument.getType(), argument.getValue(), variables);
             }
 
+            // fixme 查询dsl中没有此变量；有此变量、但值是常量null；有此变量、但值引用的变量是null；
             if (value == null) {
                 value = fieldArgument.getDefaultValue();
             }
+
+            /**
+             * 一共有三种情况表示提供了值
+             */
             boolean wasValueProvided = false;
+
             if (argumentMap.containsKey(argName)) {
+                // fixme case 1: 如果查询用到了此变量、且是值引用：wasValueProvided表示输入变量中是否有此变量
                 if (argument.getValue() instanceof VariableReference) {
                     wasValueProvided = variables.containsKey(((VariableReference) argument.getValue()).getName());
                 } else {
+                    //fixme case 2: 如果查询用到了此变量、且是常量值，wasValueProvided为true、一定提供了数据。
                     wasValueProvided = true;
                 }
             }
+
+            //fixme case 3: 如果值定义有默认值、那也是提供了值
             if (fieldArgument.hasSetDefaultValue()) {
                 wasValueProvided = true;
             }
+
             if (wasValueProvided) {
                 coercedValues.put(argName, value);
             }
