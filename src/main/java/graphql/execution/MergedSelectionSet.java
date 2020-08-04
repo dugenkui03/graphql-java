@@ -13,6 +13,7 @@ import java.util.Set;
 @PublicApi
 public class MergedSelectionSet {
 
+    // fixme 他的key是别名
     private final Map<String, MergedField> subFields;
 
     private MergedSelectionSet(Map<String, MergedField> subFields) {

@@ -18,6 +18,11 @@ import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
+/**
+ * ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues)
+ *
+ * selectionSet：某一层级的字段列表
+ */
 @PublicApi
 public class SelectionSet extends AbstractNode<SelectionSet> {
 

@@ -31,6 +31,7 @@ public class FieldCollector {
 
     private final ConditionalNodes conditionalNodes = new ConditionalNodes();
 
+    //在ExecutionStrategy.completeValueForObject()中被调用
     public MergedSelectionSet collectFields(FieldCollectorParameters parameters, MergedField mergedField) {
         Map<String, MergedField> subFields = new LinkedHashMap<>();
         Set<String> visitedFragments = new LinkedHashSet<>();
@@ -43,36 +44,37 @@ public class FieldCollector {
         return newMergedSelectionSet().subFields(subFields).build();
     }
 
-    /**
-     * 在Execution中别调用。
-     * Given a selection set this will collect the sub-field selections and return it as a map
-     *
-     * @param parameters   the parameters to this method
-     * @param selectionSet the selection set to collect on
+    /** fixme
+     *      1. 在Execution.executeOperation()中被调用;
+     *      2. List< Field | FragmentSpread | InlineFragment > -> Map<String,List<Field>>
      *
      * @return a map of the sub field selections
      *              该层的 Selection k-v集合，k是该层的字段名字，value是名字对应的MergedField
      *              MergedField 包含 List<Field>、字段名称、字段别名、第一个Field对象等信息
      *                      具体不同的字段、参数、指令不同，可在list中获取到
      */
-    public MergedSelectionSet collectFields(FieldCollectorParameters parameters,
-                                            SelectionSet selectionSet) {//Selection集合，Selection介绍：
-                                                                        //https://spec.graphql.org/draft/#sec-Selection-Sets。
-        //结果数据
+    public MergedSelectionSet collectFields(FieldCollectorParameters parameters, // schema、FragmentDefinition 和 变量(@include和@skip使用)
+                                            SelectionSet selectionSet) { //Selection:  Field | FragmentSpread | InlineFragment
+                                                                        // https://spec.graphql.org/draft/#sec-Selection-Sets。
+
+        /**
+         * 结果和中间数据都存放在参数中
+         */
         Map<String, MergedField> subFields = new LinkedHashMap<>();
-        //已经遍历过的Set
         Set<String> visitedFragments = new LinkedHashSet<>();
+
         this.collectFields(parameters, selectionSet, visitedFragments, subFields);
-        //subFields的类型是此对象类型MergedSelectionSet的唯一属性，可以解围返回了subFields
+
+        // 将结果包装后返回
         return newMergedSelectionSet().subFields(subFields).build();
     }
 
 
     private void collectFields(
-            FieldCollectorParameters parameters,
-            SelectionSet selectionSet,
-            Set<String> visitedFragments,
-            Map<String, MergedField> resultFields) {
+            FieldCollectorParameters parameters, // schema、片段、变量
+            SelectionSet selectionSet, // List<Field | InlineFragment | FragmentDefinition>
+            Set<String> visitedFragments, // 已经遍历过的片段
+            Map<String, MergedField> resultFields) { //结果 <alias or fieldName,List<Field>>
         //fixme 该层对象的所有要查询的字段，如果是片段、则已经在递归中展开了
         for (Selection selection : selectionSet.getSelections()) {
             //如果是查询文档中的Field
@@ -143,12 +145,22 @@ public class FieldCollector {
         collectFields(collectorParameters, fragmentDefinition.getSelectionSet(), visitedFragments, fields);
     }
 
-    private void collectInlineFragment(FieldCollectorParameters parameters,
+    //收集内敛片段
+
+    /**
+     *  ...@include(if:$varX){
+     *      a
+     *      b
+     *      c
+     *  }
+     */
+    private void collectInlineFragment(FieldCollectorParameters parameters, // schema、片段、变量
                                        Set<String> visitedFragments, //已经别访问过的inlineFragment
                                        Map<String, MergedField> resultFields, //结果集
                                        InlineFragment inlineFragment) {
-        //如果使用指令或者 doesFragmentConditionMatch 过滤了该片段
+        //如果使用指令、即not hould include
         if (!conditionalNodes.shouldInclude(parameters.getVariables(), inlineFragment.getDirectives()) ||
+                //或者 或者 doesFragmentConditionMatch 过滤了该片段
                 !doesFragmentConditionMatch(parameters, inlineFragment)) {
             return;
         }
@@ -159,25 +171,26 @@ public class FieldCollector {
 
 
     /**
-     * 判断field是否 被指令跳过，
-     * 如果没有被跳过，则将其name和field构造的MergedField放到结果集中。
+     * 1. 判断是否会被指令跳过；
+     * 2. 获取响应key名称；
+     * 3. 构造 MergedField，即List<Field>。
      */
     private void collectField(
             FieldCollectorParameters parameters, //schema、片段定义、variables和要被收集字段的类型等。
             Map<String, MergedField> resultFields, //存放结果的集合
-            Field field) { // 要被"收集"的字段-此字段是个Field，而非片段
+            Field field) { // 要被"收集"的字段
 
-        //查看该指令是否会被 include 或者 skip跳过
+        //查看该指令是否会被 include 或者 skip过滤掉
         if (!conditionalNodes.shouldInclude(parameters.getVariables(), field.getDirectives())) {
             return;
         }
 
+        //获取响应key
         String name = getAliasOrName(field);
         /**
          * fixme
          *      非常非常非常重要的逻辑；
          *      注意，在这里的字段、都是对象类型的；
-         *
          */
         //如果结果集中已经收集过此字段类型的字段集合
         if (resultFields.containsKey(name)) {
@@ -201,12 +214,17 @@ public class FieldCollector {
     }
 
 
-    private boolean doesFragmentConditionMatch(FieldCollectorParameters parameters, InlineFragment inlineFragment) {
+    private boolean doesFragmentConditionMatch(FieldCollectorParameters parameters,// schema、片段、变量
+                                               InlineFragment inlineFragment) {
+        //所在类型名称为null、match
         if (inlineFragment.getTypeCondition() == null) {
             return true;
         }
-        GraphQLType conditionType;
-        conditionType = getTypeFromAST(parameters.getGraphQLSchema(), inlineFragment.getTypeCondition());
+
+        //根据类型名称获取确定的类型
+        GraphQLType conditionType = getTypeFromAST(parameters.getGraphQLSchema(), inlineFragment.getTypeCondition());
+
+        //
         return checkTypeCondition(parameters, conditionType);
     }
 
@@ -216,18 +234,27 @@ public class FieldCollector {
     }
 
     /**
-     * 判断 片段所属的类型 和 要解析的类型是否相同？ todo:啥时候会出现不同的情况呢？
+     * 判断 片段所属的类型 和 要解析的类型是否相同？
+     * https://spec.graphql.org/draft/#DoesFragmentTypeApply()
+     *
+     * todo:啥时候会出现不同的情况呢？
      */
-    private boolean checkTypeCondition(FieldCollectorParameters parameters, GraphQLType conditionType) {
+    private boolean checkTypeCondition(FieldCollectorParameters parameters,
+                                       GraphQLType conditionType) {
         GraphQLObjectType type = parameters.getObjectType();
+        //对果是片段是对象类型、则判断两者是否相同
         if (conditionType.equals(type)) {
             return true;
         }
 
+        //如果是接口类型，则判断是否是实现类
         if (conditionType instanceof GraphQLInterfaceType) {
             List<GraphQLObjectType> implementations = parameters.getGraphQLSchema().getImplementations((GraphQLInterfaceType) conditionType);
             return implementations.contains(type);
-        } else if (conditionType instanceof GraphQLUnionType) {
+        }
+
+        //如果是union、则判断是否是 types 成员
+        else if (conditionType instanceof GraphQLUnionType) {
             return ((GraphQLUnionType) conditionType).getTypes().contains(type);
         }
         return false;

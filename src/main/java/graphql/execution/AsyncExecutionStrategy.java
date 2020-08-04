@@ -49,6 +49,9 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         List<String> fieldNames = new ArrayList<>(mergedSelectionSet.keySet());
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
         List<String> resolvedFields = new ArrayList<>();
+
+        // Let fieldName be the name of the first entry in fields.
+        // Note: This value is unaffected if an alias is used.
         for (String fieldName : fieldNames) {
             //本质是个list
             MergedField currentField = mergedSelectionSet.getSubField(fieldName);
@@ -65,6 +68,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
                     .transform(builder -> builder.field(currentField).path(fieldPath).parent(strategyParameters));
 
             resolvedFields.add(fieldName);
+            //Let fieldType be the return type defined for the field fieldName of objectType.
             CompletableFuture<FieldValueInfo> future = resolveFieldWithInfo(executionContext, newParameters);
             futures.add(future);
         }
