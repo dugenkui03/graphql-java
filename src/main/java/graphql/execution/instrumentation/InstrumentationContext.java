@@ -16,13 +16,14 @@ import java.util.concurrent.CompletableFuture;
 public interface InstrumentationContext<T> {
 
     /**
+     * fixme 行为还未执行的时候
      * This is invoked when the instrumentation step is initially dispatched
      *
      * @param result the result of the step as a completable future
      */
     void onDispatched(CompletableFuture<T> result);
 
-    /**
+    /**fixme 对结果进行instrument
      * This is invoked when the instrumentation step is fully completed
      *
      * @param result the result of the step (which may be null)

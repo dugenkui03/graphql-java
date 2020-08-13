@@ -23,7 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import static graphql.execution.instrumentation.SimpleInstrumentationContext.noOp;
 
 /**
- * Provides the capability to instrument the execution steps of a GraphQL query.
+ * 提供了在GraphQL各个步骤进行instrument的能力。比如、你可能想跟踪获取哪个 字段/实体 的时候花了更多的时间，或者记录请求了什么字段。
+ * fixme： 切记graphql执行是跨线程的，因此需要注意instrumentation是否需要保证线程安全。
  *
  * For example you might want to track which fields are taking the most time to fetch from the backing database
  * or log what fields are being asked for.
@@ -31,6 +32,7 @@ import static graphql.execution.instrumentation.SimpleInstrumentationContext.noO
  * Remember that graphql calls can cross threads so make sure you think about the thread safety of any instrumentation
  * code when you are writing it.
  *
+ * fixme 每一个instrumentation方法都返回了一个InstrumentationContext对象、其包含了两个回调方法：dispatched和completed。
  * Each step gives back an {@link graphql.execution.instrumentation.InstrumentationContext} object.  This has two callbacks on it,
  * one for the step is `dispatched` and one for when the step has `completed`.  This is done because many of the "steps" are asynchronous
  * operations such as fetching data and resolving it into objects.
@@ -38,10 +40,10 @@ import static graphql.execution.instrumentation.SimpleInstrumentationContext.noO
 @PublicSpi
 public interface Instrumentation {
 
-    /**
-     * This will be called just before execution to create an object that is given back to all instrumentation methods
-     * to allow them to have per execution request state
+    /** 创建一个 有状态的对象，记录执行信息。
      *
+     * This will be called just before execution to create an object that is given back to all instrumentation methods
+     * to allow them to have per execution request state、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、
      * @return a state object that is passed to each method
      */
     default InstrumentationState createState() {
@@ -49,6 +51,8 @@ public interface Instrumentation {
     }
 
     /**
+     * fixme 使用schema和executeInput创建instrument的 状态记录对象。
+     *
      * This will be called just before execution to create an object that is given back to all instrumentation methods
      * to allow them to have per execution request state
      *
@@ -61,15 +65,17 @@ public interface Instrumentation {
     }
 
     /**
+     * fixme 处理最后结果、不处理中间过程，见GraphQl.executeAsync方法
      * This is called right at the start of query execution and its the first step in the instrumentation chain.
      *
      * @param parameters the parameters to this step
      *
-     * @return a non null {@link InstrumentationContext} object that will be called back when the step ends
+     * @return fixme 回调方法、泛形为每次最终输出结果接口。
      */
     InstrumentationContext<ExecutionResult> beginExecution(InstrumentationExecutionParameters parameters);
 
     /**
+     * fixme 回调方法在开始、结束解析文档的时候执行、可以修改文档内容、修改输入变量等。
      * This is called just before a query is parsed.
      *
      * @param parameters the parameters to this step
@@ -79,6 +85,7 @@ public interface Instrumentation {
     InstrumentationContext<Document> beginParse(InstrumentationExecutionParameters parameters);
 
     /**
+     * fixme 在解析的文档在验证的时候执行、可以对验证错误进行记录。
      * This is called just before the parsed query document is validated.
      *
      * @param parameters the parameters to this step
@@ -88,6 +95,7 @@ public interface Instrumentation {
     InstrumentationContext<List<ValidationError>> beginValidation(InstrumentationValidationParameters parameters);
 
     /**
+     * fixme 对最终的结果或者异常进行处理？详情见Execution
      * This is called just before the execution of the query operation is started.
      *
      * @param parameters the parameters to this step
@@ -96,7 +104,9 @@ public interface Instrumentation {
      */
     InstrumentationContext<ExecutionResult> beginExecuteOperation(InstrumentationExecuteOperationParameters parameters);
 
-    /**
+    /**fixme:
+     *      1. 在ExecutionStrategyInstrumentationContext中对回调方法进行了拓展；
+     *      2.
      * This is called each time an {@link graphql.execution.ExecutionStrategy} is invoked, which may be multiple times
      * per query as the engine recursively descends down over the query.
      *
@@ -108,7 +118,8 @@ public interface Instrumentation {
 
 
     /**
-     * This is called each time a subscription field produces a new reactive stream event value and it needs to be mapped over via the graphql field subselection.
+     * This is called each time a subscription field produces a new reactive stream event value
+     * and it needs to be mapped over via the graphql field subselection.
      *
      * @param parameters the parameters to this step
      *

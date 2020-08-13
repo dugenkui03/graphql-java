@@ -476,6 +476,7 @@ public class GraphQL {
             }
             executionInput = ensureInputHasId(executionInput);
 
+            // fixme 使用schema和请求信息构造状态对象。
             InstrumentationState instrumentationState = instrumentation.createState(new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput));
 
             InstrumentationExecutionParameters inputInstrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
