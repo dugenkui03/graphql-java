@@ -126,7 +126,7 @@ public class CodeAnalysis {
 
 
     public static void main(String[] args) throws IOException {
-        System.out.println(countCodeLine("/Users/moriushitorasakigake/github/thrift", Arrays.asList(".java")));
+        System.out.println(countCodeLine("/Users/moriushitorasakigake/github/flink/flink-runtime", Arrays.asList(".java")));
     }
 
 }

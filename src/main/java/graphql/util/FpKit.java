@@ -44,11 +44,12 @@ public class FpKit {
     }
 
     public static <T, NewKey> Map<NewKey, T> groupingByUniqueKey(Collection<T> list, Function<T, NewKey> keyFunction) {
+        // fixme 使用的是toMap，而非groupingBy
         return list.stream().collect(Collectors.toMap(
-                keyFunction,
-                identity(),
-                throwingMerger(),
-                LinkedHashMap::new)
+                keyFunction, // 例如 VO::getFieldName()
+                identity(), // 唯一
+                throwingMerger(), //如果有重复key后的异常处理方式
+                LinkedHashMap::new) // 最后存放数据的map
         );
     }
 
