@@ -33,18 +33,35 @@ import graphql.validation.rules.VariablesAreInputTypes;
 import java.util.ArrayList;
 import java.util.List;
 
+// 模板验证类
 @Internal
 public class Validator {
 
+    /**
+     * 构造验证对象
+     * @param schema 类型配置上下文
+     * @param document 查询dsl文档对象
+     *
+     * @return 验证结果
+     */
     public List<ValidationError> validateDocument(GraphQLSchema schema, Document document) {
+        // 结果类，保存错误信息
+        ValidationErrorCollector validationErrorCollector = new ValidationErrorCollector();
+
+        // 验证上下文：类型、查询dsl、片段、遍历工具
         ValidationContext validationContext = new ValidationContext(schema, document);
 
-
-        ValidationErrorCollector validationErrorCollector = new ValidationErrorCollector();
+        // 创建document验证规则
         List<AbstractRule> rules = createRules(validationContext, validationErrorCollector);
-        LanguageTraversal languageTraversal = new LanguageTraversal();
-        languageTraversal.traverse(document, new RulesVisitor(validationContext, rules));
 
+        // 继承 DocumentVisitor，使用特定规则
+        RulesVisitor documentRulerVisitor = new RulesVisitor(validationContext, rules);
+        // 文档遍历工具
+        LanguageTraversal languageTraversal = new LanguageTraversal();
+        // fixme 错误信息类ValidationErrorCollector 是 规则类的一个字段，而非遍历工具的上下文
+        languageTraversal.traverse(document, documentRulerVisitor);
+
+        // 返回验证错误信息
         return validationErrorCollector.getErrors();
     }
 

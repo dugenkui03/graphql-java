@@ -55,7 +55,9 @@ public class RulesVisitor implements DocumentVisitor {
 
     @Override
     public void enter(Node node, List<Node> ancestors) {
-        validationContext.getTraversalContext().enter(node, ancestors);
+        TraversalContext traversalContext = validationContext.getTraversalContext();
+        traversalContext.enter(node, ancestors);
+
         Set<AbstractRule> tmpRulesSet = new LinkedHashSet<>(this.rules);
         tmpRulesSet.removeAll(rulesToSkip);
         List<AbstractRule> rulesToConsider = new ArrayList<>(tmpRulesSet);
@@ -187,7 +189,8 @@ public class RulesVisitor implements DocumentVisitor {
 
     @Override
     public void leave(Node node, List<Node> ancestors) {
-        validationContext.getTraversalContext().leave(node, ancestors);
+        TraversalContext traversalContext = validationContext.getTraversalContext();
+        traversalContext.leave(node, ancestors);
 
         if (node instanceof Document) {
             documentFinished((Document) node);
@@ -201,8 +204,6 @@ public class RulesVisitor implements DocumentVisitor {
             rulesToSkip.removeAll(rulesToSkipByUntilNode.get(node));
             rulesToSkipByUntilNode.remove(node);
         }
-
-
     }
 
     private void leaveSelectionSet(SelectionSet selectionSet) {

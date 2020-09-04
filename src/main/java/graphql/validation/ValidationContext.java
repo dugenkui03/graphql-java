@@ -17,13 +17,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 验证上线文对象，只有getter方法
+ */
 @Internal
 public class ValidationContext {
-
+    // 验证数据
     private final GraphQLSchema schema;
     private final Document document;
 
+    // 验证工具类
+
+    // 遍历上下文：类型信息
     private final TraversalContext traversalContext;
+
+    // 片段定义
     private final Map<String, FragmentDefinition> fragmentDefinitionMap = new LinkedHashMap<>();
 
 
@@ -31,14 +39,18 @@ public class ValidationContext {
         this.schema = schema;
         this.document = document;
         this.traversalContext = new TraversalContext(schema);
+        // todo 会不会发生逃逸
         buildFragmentMap();
     }
 
+    // 获取文档对象中的片段定义信息
     private void buildFragmentMap() {
         for (Definition definition : document.getDefinitions()) {
-            if (!(definition instanceof FragmentDefinition)) continue;
-            FragmentDefinition fragmentDefinition = (FragmentDefinition) definition;
-            fragmentDefinitionMap.put(fragmentDefinition.getName(), fragmentDefinition);
+            // 如果是文档定义
+            if (definition instanceof FragmentDefinition){
+                FragmentDefinition fragmentDefinition = (FragmentDefinition) definition;
+                fragmentDefinitionMap.put(fragmentDefinition.getName(), fragmentDefinition);
+            }
         }
     }
 

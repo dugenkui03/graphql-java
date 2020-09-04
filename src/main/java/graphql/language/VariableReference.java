@@ -17,10 +17,11 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.assertNewChildrenAreEmpty;
 import static java.util.Collections.emptyMap;
 
-//变量引用：引用的变量名称
+//变量引用：引用的变量名称 userId:$userId
 @PublicApi
 public class VariableReference extends AbstractNode<VariableReference> implements Value<VariableReference>, NamedNode<VariableReference> {
 
+    // 变量引用的名称
     private final String name;
 
     @Internal
