@@ -17,6 +17,7 @@ import java.util.List;
  */
 @PublicApi
 public class InputMapDefinesTooManyFieldsException extends GraphQLException implements GraphQLError {
+    private static final long serialVersionUID = 1635360136957291549L;
 
     public InputMapDefinesTooManyFieldsException(GraphQLType graphQLType, String fieldName) {
         super(String.format("The variables input contains a field name '%s' that is not defined for input object type '%s' ", fieldName, GraphQLTypeUtil.simplePrint(graphQLType)));

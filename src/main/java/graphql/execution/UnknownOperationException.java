@@ -16,6 +16,8 @@ import java.util.List;
  */
 @PublicApi
 public class UnknownOperationException extends GraphQLException implements GraphQLError {
+    private static final long serialVersionUID = 4379523777263222725L;
+
     public UnknownOperationException(String message) {
         super(message);
     }

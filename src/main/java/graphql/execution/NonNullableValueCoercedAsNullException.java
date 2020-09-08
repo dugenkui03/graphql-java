@@ -20,6 +20,9 @@ import graphql.schema.GraphQLTypeUtil;
  */
 @PublicApi
 public class NonNullableValueCoercedAsNullException extends GraphQLException implements GraphQLError {
+
+    private static final long serialVersionUID = 273993805358582834L;
+
     private List<SourceLocation> sourceLocations;
 
     public NonNullableValueCoercedAsNullException(VariableDefinition variableDefinition, GraphQLType graphQLType) {

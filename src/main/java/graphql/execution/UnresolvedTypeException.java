@@ -13,6 +13,8 @@ import graphql.schema.GraphQLTypeUtil;
 @PublicApi
 public class UnresolvedTypeException extends GraphQLException {
 
+    private static final long serialVersionUID = -6721087379719586314L;
+
     private final GraphQLNamedOutputType interfaceOrUnionType;
 
     /**

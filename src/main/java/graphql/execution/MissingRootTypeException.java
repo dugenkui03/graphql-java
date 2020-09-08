@@ -14,6 +14,9 @@ import graphql.language.SourceLocation;
  */
 @PublicApi
 public class MissingRootTypeException extends GraphQLException implements GraphQLError {
+
+    private static final long serialVersionUID = -2007432225915567278L;
+
     private List<SourceLocation> sourceLocations;
 
     public MissingRootTypeException(String message, SourceLocation sourceLocation) {

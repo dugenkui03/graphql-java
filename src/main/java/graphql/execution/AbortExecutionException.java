@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
  */
 @PublicApi
 public class AbortExecutionException extends GraphQLException implements GraphQLError {
+    private static final long serialVersionUID = -5293522658696796597L;
 
     private final List<GraphQLError> underlyingErrors;
 

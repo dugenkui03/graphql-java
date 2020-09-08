@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @PublicApi
 public class GraphqlErrorException extends GraphQLException implements GraphQLError {
+    private static final long serialVersionUID = 1717740928043661402L;
 
     private final List<SourceLocation> locations;
     private final Map<String, Object> extensions;
