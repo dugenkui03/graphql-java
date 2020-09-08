@@ -109,7 +109,13 @@ public class Parser {
         return doc;
     }
 
-    // Allows you to override the ANTLR to AST code.
+    /**
+     * Allows you to override the ANTLR to AST code.
+     *
+     * @param tokens            the token stream
+     * @param multiSourceReader the source of the query document
+     * @return a new GraphqlAntlrToLanguage instance
+     */
     protected GraphqlAntlrToLanguage getAntlrToLanguage(CommonTokenStream tokens, MultiSourceReader multiSourceReader) {
         return new GraphqlAntlrToLanguage(tokens, multiSourceReader);
     }

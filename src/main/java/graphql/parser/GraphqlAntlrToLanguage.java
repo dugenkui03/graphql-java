@@ -64,6 +64,7 @@ import graphql.util.FpKit;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -757,8 +758,8 @@ public class GraphqlAntlrToLanguage {
             NullValue.Builder nullValue = NullValue.newNullValue();
             addCommonData(nullValue, ctx);
             return nullValue.build();
-        } else if (ctx.stringValue() != null) {
-            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(ctx.stringValue()));
+        } else if (ctx.StringValue() != null) {
+            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(ctx.StringValue()));
             addCommonData(stringValue, ctx);
             return stringValue.build();
         } else if (ctx.enumValue() != null) {
@@ -815,9 +816,8 @@ public class GraphqlAntlrToLanguage {
             NullValue.Builder nullValue = NullValue.newNullValue();
             addCommonData(nullValue, valueContext);
             return nullValue.build();
-        }
-        else if (valueContext.stringValue() != null) {
-            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(valueContext.stringValue()));
+        } else if (valueContext.StringValue() != null) {
+            StringValue.Builder stringValue = StringValue.newStringValue().value(quotedString(valueContext.StringValue()));
             addCommonData(stringValue, valueContext);
             return stringValue.build();
         } else if (valueContext.enumValue() != null) {
@@ -853,9 +853,9 @@ public class GraphqlAntlrToLanguage {
         return assertShouldNeverHappen();
     }
 
-    static String quotedString(GraphqlParser.StringValueContext ctx) {
-        boolean multiLine = ctx.TripleQuotedStringValue() != null;
-        String strText = ctx.getText();
+    static String quotedString(TerminalNode terminalNode) {
+        boolean multiLine = terminalNode.getText().startsWith("\"\"\"");
+        String strText = terminalNode.getText();
         if (multiLine) {
             return parseTripleQuotedString(strText);
         } else {
@@ -947,12 +947,12 @@ public class GraphqlAntlrToLanguage {
         if (descriptionCtx == null) {
             return null;
         }
-        GraphqlParser.StringValueContext stringValueCtx = descriptionCtx.stringValue();
-        if (stringValueCtx == null) {
+        TerminalNode terminalNode = descriptionCtx.StringValue();
+        if (terminalNode == null) {
             return null;
         }
-        boolean multiLine = stringValueCtx.TripleQuotedStringValue() != null;
-        String content = stringValueCtx.getText();
+        String content = terminalNode.getText();
+        boolean multiLine = content.startsWith("\"\"\"");
         if (multiLine) {
             content = parseTripleQuotedString(content);
         } else {
