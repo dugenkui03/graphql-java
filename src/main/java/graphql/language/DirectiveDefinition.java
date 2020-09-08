@@ -1,6 +1,7 @@
 package graphql.language;
 
 
+import graphql.Assert;
 import graphql.Internal;
 import graphql.PublicApi;
 import graphql.util.TraversalControl;
@@ -19,8 +20,11 @@ import static java.util.Collections.emptyMap;
 // 类型系统定义
 @PublicApi
 public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefinition> implements SDLDefinition<DirectiveDefinition>, NamedNode<DirectiveDefinition> {
+    // 指令名称
     private final String name;
+    // 指令入参
     private final List<InputValueDefinition> inputValueDefinitions;
+    // 有效位置
     private final List<DirectiveLocation> directiveLocations;
 
     public static final String CHILD_INPUT_VALUE_DEFINITIONS = "inputValueDefinitions";
@@ -28,6 +32,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
 
     @Internal
     protected DirectiveDefinition(String name,
+                                  // 描述内容
                                   Description description,
                                   List<InputValueDefinition> inputValueDefinitions,
                                   List<DirectiveLocation> directiveLocations,
@@ -38,7 +43,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         super(sourceLocation, comments, ignoredChars, additionalData, description);
         this.name = name;
         this.inputValueDefinitions = inputValueDefinitions;
-        this.directiveLocations = directiveLocations;
+        this.directiveLocations = Assert.assertNotNull(directiveLocations);
     }
 
     /**
@@ -66,6 +71,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
     @Override
     public List<Node> getChildren() {
         List<Node> result = new ArrayList<>();
+        // 这两个变量在初始化的时候、即使没有值、也用空list赋值了
         result.addAll(inputValueDefinitions);
         result.addAll(directiveLocations);
         return result;
@@ -131,6 +137,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         return new Builder();
     }
 
+    // 默默背一下：将当前对象转换为一个新对象：引用指向的属性是相同的
     public DirectiveDefinition transform(Consumer<Builder> builderConsumer) {
         Builder builder = new Builder(this);
         builderConsumer.accept(builder);

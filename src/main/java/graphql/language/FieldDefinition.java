@@ -106,6 +106,8 @@ public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> impl
 
         FieldDefinition that = (FieldDefinition) o;
 
+        // todo 之比较名称而不比较是否同一类型，太奇怪了
+        //  return ... && Objects.equals(this.type,that.type)
         return NodeUtil.isEqualTo(this.name, that.name);
     }
 

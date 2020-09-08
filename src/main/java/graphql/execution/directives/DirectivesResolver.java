@@ -26,13 +26,23 @@ public class DirectivesResolver {
     public Map<String, GraphQLDirective> resolveDirectives(List<Directive> directives, GraphQLSchema schema, Map<String, Object> variables) {
         GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();
         Map<String, GraphQLDirective> directiveMap = new LinkedHashMap<>();
-        directives.forEach(directive -> {
+
+        for (Directive directive : directives) {
+            // 根据指令名称获取 GraphQLDirective 对象
             GraphQLDirective protoType = schema.getDirective(directive.getName());
             if (protoType != null) {
                 GraphQLDirective newDirective = protoType.transform(builder -> buildArguments(builder, codeRegistry, protoType, directive, variables));
                 directiveMap.put(newDirective.getName(), newDirective);
             }
-        });
+        }
+
+//        directives.forEach(directive -> {
+//            GraphQLDirective protoType = schema.getDirective(directive.getName());
+//            if (protoType != null) {
+//                GraphQLDirective newDirective = protoType.transform(builder -> buildArguments(builder, codeRegistry, protoType, directive, variables));
+//                directiveMap.put(newDirective.getName(), newDirective);
+//            }
+//        });
         return directiveMap;
     }
 

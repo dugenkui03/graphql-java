@@ -27,6 +27,7 @@ public abstract class AbstractNode<T extends Node> implements Node<T> {
     }
 
     public AbstractNode(SourceLocation sourceLocation, List<Comment> comments, IgnoredChars ignoredChars, Map<String, String> additionalData) {
+        // 不知道为什么不可为null、其子类都会用空list作为不存在的时候的值；
         Assert.assertNotNull(comments, () -> "comments can't be null");
         Assert.assertNotNull(ignoredChars, () -> "ignoredChars can't be null");
         Assert.assertNotNull(additionalData, () -> "additionalData can't be null");

@@ -28,12 +28,16 @@ import static graphql.util.FpKit.getByName;
 @SuppressWarnings("DeprecatedIsStillUsed") // because the graphql spec still has some of these deprecated fields
 @PublicApi
 public class GraphQLDirective implements GraphQLNamedSchemaElement {
-
+    // 指令名称
     private final String name;
+    // 描述内容
     private final String description;
+    // 指令位置
     private final EnumSet<DirectiveLocation> locations;
+    // 指令上的参数
     private final List<GraphQLArgument> arguments = new ArrayList<>();
-    // 从GraphqlAntlrToLanguage中解析得来的数据
+
+    // todo 从GraphqlAntlrToLanguage中解析得来的数据
     private final DirectiveDefinition definition;
 
 
@@ -55,8 +59,11 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
                              EnumSet<DirectiveLocation> locations,
                              List<GraphQLArgument> arguments,
                              DirectiveDefinition definition) {
+        // 有效的名称定义
         assertValidName(name);
+        // 参数不是null、但是可以为 空list
         assertNotNull(arguments, () -> "arguments can't be null");
+        // 指令名称、描述、可用位置、指令定义
         this.name = name;
         this.description = description;
         this.locations = locations;

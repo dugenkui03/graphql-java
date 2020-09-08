@@ -7,6 +7,7 @@ import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import java.util.function.Consumer;
 import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.argumentsByName;
-import static java.util.Collections.emptyMap;
 
 /**
  * 由antlr解析语法得来，特质用在元素上的指令、参见FieldDefinition、VariableDefinition等
@@ -25,6 +25,7 @@ import static java.util.Collections.emptyMap;
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
     private final String name;
+    // Argument：参数名称name、参数值 Value-value
     private final List<Argument> arguments = new ArrayList<>();
 
     public static final String CHILD_ARGUMENTS = "arguments";
@@ -43,7 +44,8 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
      * @param arguments of the directive
      */
     public Directive(String name, List<Argument> arguments) {
-        this(name, arguments, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        // new ArrayList<>() 中elementData指向空数组
+        this(name, arguments, null, new ArrayList<>(), IgnoredChars.EMPTY, Collections.emptyMap());
     }
 
 
@@ -53,10 +55,11 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
      * @param name of the directive
      */
     public Directive(String name) {
-        this(name, new ArrayList<>(), null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, new ArrayList<>(), null, new ArrayList<>(), IgnoredChars.EMPTY, Collections.emptyMap());
     }
 
     public List<Argument> getArguments() {
+        // 指向的元素是相同的
         return new ArrayList<>(arguments);
     }
 
@@ -77,6 +80,11 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
 
     @Override
     public List<Node> getChildren() {
+        // fixme
+        //      相当于新建了一个list
+        //      在新建的list上执行remove或者add，都不会影响当前list的内容
+        //      比较安全，同理，如果当前对象改变的化、也不会被返回的备份感知
+        //      flink中的实现是 return Collections.unmodifiableList(arguments)—— 这个是不可修改的list
         return new ArrayList<>(arguments);
     }
 

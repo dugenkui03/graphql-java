@@ -9,7 +9,7 @@ import java.util.List;
 
 @PublicApi
 public class IgnoredChars implements Serializable {
-
+    // ?有效字符左侧、右侧忽略的数据?
     private final List<IgnoredChar> left;
     private final List<IgnoredChar> right;
 
