@@ -76,27 +76,6 @@ public class QueryDirectivesImpl implements QueryDirectives {
                     byName.get(name).add(directive);
                 }
             }
-
-
-//            final Map<Field, List<GraphQLDirective>> byField = new LinkedHashMap<>();
-//            mergedField.getFields().forEach(field -> {
-//                List<Directive> directives = field.getDirectives();
-//                List<GraphQLDirective> resolvedDirectives = new ArrayList<>(
-//                        directivesResolver
-//                                .resolveDirectives(directives, schema, variables)
-//                                .values()
-//                );
-//                byField.put(field, Collections.unmodifiableList(resolvedDirectives));
-//            });
-
-//            Map<String, List<GraphQLDirective>> byName = new LinkedHashMap<>();
-//            byField.forEach((field, directiveList) -> directiveList.forEach(directive -> {
-//                String name = directive.getName();
-//                byName.computeIfAbsent(name, k -> new ArrayList<>());
-//                byName.get(name).add(directive);
-//            }));
-//            this.fieldDirectivesByName = Collections.unmodifiableMap(byName);
-//            this.fieldDirectivesByField = Collections.unmodifiableMap(byField);
         }
     }
 

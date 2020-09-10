@@ -27,9 +27,16 @@ import static java.util.Collections.unmodifiableList;
 @PublicApi
 public class DataFetcherResult<T> {
 
+    // dataFetcher返回被包装的数据
     private final T data;
+
+    // 并存的错误信息
     private final List<GraphQLError> errors;
+
+    // fixme 传递给子节点的上下文信息
     private final Object localContext;
+
+
     private final boolean mapRelativeErrors;
 
     /**
@@ -48,6 +55,7 @@ public class DataFetcherResult<T> {
 
     private DataFetcherResult(T data, List<GraphQLError> errors, Object localContext, boolean mapRelativeErrors) {
         this.data = data;
+        // 错误信息是不可修改的
         this.errors = unmodifiableList(assertNotNull(errors));
         this.localContext = localContext;
         this.mapRelativeErrors = mapRelativeErrors;
@@ -84,10 +92,12 @@ public class DataFetcherResult<T> {
     }
 
     /**
-     * When this returns true, the data fetching code will map this error as being a relative error from the existing field.
+     * When this returns true, the data fetching code will map
+     * this error as being a relative error from the existing field.
      * <p>
-     * This is useful when you are calling a down stream graphql system and you want to make the errors appear to be from a point
-     * relative to the currently executing field.
+     * This is useful when you are calling a down stream graphql
+     * system and you want to make the errors appear to be from
+     * a point relative to the currently executing field.
      * <p>
      * By default this behavior is off
      *

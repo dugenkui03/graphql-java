@@ -9,8 +9,7 @@ import static graphql.Assert.assertNotNull;
 //没有参数的函数、不是缓存函数
 @Internal
 class MemoizedSupplier<T> implements Supplier<T> {
-    private final static Object SENTINEL = new Object() {
-    };
+    private final static Object SENTINEL = new Object() {};
 
     @SuppressWarnings("unchecked")
     private T value = (T) SENTINEL;

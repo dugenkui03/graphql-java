@@ -36,11 +36,15 @@ import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.unwrapOne;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
 
+/**
+ * todo
+ *      解析变量和Field参数，当前的算法是有问题的。
+ */
 @SuppressWarnings("rawtypes")
 @Internal
 public class ValuesResolver {
 
-    /**https://spec.graphql.org/draft/#CoerceVariableValues()
+    /** https://spec.graphql.org/draft/#CoerceVariableValues()
      * This method coerces the "raw" variables values provided to the engine. The coerced values will be used to
      * provide arguments to {@link graphql.schema.DataFetchingEnvironment}
      * The coercing is ultimately done via {@link Coercing}.
