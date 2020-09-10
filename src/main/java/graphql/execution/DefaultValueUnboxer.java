@@ -14,7 +14,6 @@ import java.util.OptionalLong;
 @PublicApi
 public class DefaultValueUnboxer implements ValueUnboxer {
 
-
     @Override
     public Object unbox(final Object object) {
         return unboxValue(object);
@@ -24,32 +23,16 @@ public class DefaultValueUnboxer implements ValueUnboxer {
     public static Object unboxValue(Object result) {
         if (result instanceof Optional) {
             Optional optional = (Optional) result;
-            if (optional.isPresent()) {
-                return optional.get();
-            } else {
-                return null;
-            }
+            return optional.orElse(null);
         } else if (result instanceof OptionalInt) {
             OptionalInt optional = (OptionalInt) result;
-            if (optional.isPresent()) {
-                return optional.getAsInt();
-            } else {
-                return null;
-            }
+            return optional.isPresent() ? optional.getAsInt() : null;
         } else if (result instanceof OptionalDouble) {
             OptionalDouble optional = (OptionalDouble) result;
-            if (optional.isPresent()) {
-                return optional.getAsDouble();
-            } else {
-                return null;
-            }
+            return optional.isPresent() ? optional.getAsDouble() : null;
         } else if (result instanceof OptionalLong) {
             OptionalLong optional = (OptionalLong) result;
-            if (optional.isPresent()) {
-                return optional.getAsLong();
-            } else {
-                return null;
-            }
+            return optional.isPresent() ? optional.getAsLong() : null;
         }
 
         return result;
