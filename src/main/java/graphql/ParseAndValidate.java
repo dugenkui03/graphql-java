@@ -10,9 +10,11 @@ import graphql.validation.Validator;
 import java.util.List;
 
 /**
- * This class allows you to parse and validate a graphql query without executing it.  It will tell you
- * if its syntactically valid and also semantically valid according to the graphql specification
- * and the provided schema.
+ * This class allows you to parse and validate a graphql query without executing it.
+ * It will tell you if its syntactically valid and also semantically valid according
+ * to the graphql specification and the provided schema.
+ *
+ * fixme 不执行查询，仅仅校验指定的语句在指定的上下文中是否合法。
  */
 @PublicApi
 public class ParseAndValidate {
@@ -52,6 +54,9 @@ public class ParseAndValidate {
 
     /**
      * This can be called to validate a parsed graphql query.
+     * 验证已经解析好的document类。
+     *
+     * todo：如果参数类型不匹配的话，会在这里校验出来吗
      *
      * @param graphQLSchema  the graphql schema to validate against
      * @param parsedDocument the previously parsed document

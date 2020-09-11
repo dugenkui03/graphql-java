@@ -4,6 +4,7 @@ package graphql.schema;
 import graphql.Internal;
 import graphql.TypeResolutionEnvironment;
 
+// 类型解析代理类
 @Internal
 public class TypeResolverProxy implements TypeResolver {
 

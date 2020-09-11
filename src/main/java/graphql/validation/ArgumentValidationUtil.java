@@ -19,12 +19,14 @@ import java.util.Set;
 public class ArgumentValidationUtil extends ValidationUtil {
 
     private final List<String> argumentNames = new ArrayList<>();
-    private Value<?> argumentValue;
-    private String errorMessage;
     private final List<Object> arguments = new ArrayList<>();
+
+    private Value<?> argumentValue;
+    private final String argumentName;
+
+    private String errorMessage;
     private Map<String, Object> errorExtensions;
 
-    private final String argumentName;
 
     public ArgumentValidationUtil(Argument argument) {
         argumentName = argument.getName();

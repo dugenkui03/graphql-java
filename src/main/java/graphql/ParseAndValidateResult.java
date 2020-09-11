@@ -12,15 +12,24 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * A result object used in {@link graphql.ParseAndValidate} helper that indicates the outcomes of a parse
- * and validate operation.
+ * A result object used in {@link graphql.ParseAndValidate} helper
+ * that indicates the outcomes of a parse and validate operation.
+ *
+ * 解析和验证操作结果
  */
 @PublicApi
 public class ParseAndValidateResult {
 
+    // 解析的文档
     private final Document document;
+
+    // 查询变量
     private final Map<String, Object> variables;
+
+    // 语法错误(解析都解析不了)
     private final InvalidSyntaxException syntaxException;
+
+    // 验证错误
     private final List<ValidationError> validationErrors;
 
     private ParseAndValidateResult(Builder builder) {

@@ -8,6 +8,7 @@ import java.util.Map;
 
 /**
  * This is passed to a {@link graphql.schema.TypeResolver} to help with object type resolution.
+ * 传递给TypeResolver、辅助类型的解析。
  *
  * See {@link graphql.schema.TypeResolver#getType(TypeResolutionEnvironment)} for how this is used
  */
@@ -45,6 +46,7 @@ public class TypeResolutionEnvironment {
 
     /**
      * @return the runtime arguments to this the graphql field
+     * todo 用不用返回拷贝、或者不可变的视图
      */
     public Map<String, Object> getArguments() {
         return arguments;

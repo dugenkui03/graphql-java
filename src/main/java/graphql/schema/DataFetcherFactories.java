@@ -20,6 +20,8 @@ public class DataFetcherFactories {
      * @return a data fetcher factory that always returns the provided data fetcher
      */
     public static <T> DataFetcherFactory<T> useDataFetcher(DataFetcher<T> dataFetcher) {
+        // fixme：无论如何都返回参数中的dataFetcher
+        //      fieldDefinition表示入参、dataFetcher是省略 return 的返回值
         return fieldDefinition -> dataFetcher;
     }
 

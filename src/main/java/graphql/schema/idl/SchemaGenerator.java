@@ -785,8 +785,11 @@ public class SchemaGenerator {
         return fieldDefinition;
     }
 
-    private DataFetcherFactory buildDataFetcherFactory(BuildContext buildCtx, TypeDefinition
-            parentType, FieldDefinition fieldDef, GraphQLOutputType fieldType, List<GraphQLDirective> directives) {
+    private DataFetcherFactory buildDataFetcherFactory(BuildContext buildCtx,
+                                                       TypeDefinition parentType,
+                                                       FieldDefinition fieldDef,
+                                                       GraphQLOutputType fieldType,
+                                                       List<GraphQLDirective> directives) {
         String fieldName = fieldDef.getName();
         String parentTypeName = parentType.getName();
         TypeDefinitionRegistry typeRegistry = buildCtx.getTypeRegistry();

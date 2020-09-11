@@ -45,64 +45,100 @@ public class GraphQLCodeRegistry {
         this.defaultDataFetcherFactory = builder.defaultDataFetcherFactory;
     }
 
-    /**
-     * @return the {@link graphql.schema.visibility.GraphqlFieldVisibility}
-     */
+    //return the {@link graphql.schema.visibility.GraphqlFieldVisibility}
     public GraphqlFieldVisibility getFieldVisibility() {
         return fieldVisibility;
     }
 
     /**
-     * 获取字段关联的DF
      * Returns a data fetcher associated with a field within a container type
      *
-     * @param parentType      the container type 该字段所在的类型。这个接口的实现类有：GraphQLInterfaceType、GraphQLObjectType
-     * @param fieldDefinition the field definition 字段的定义
+     * @param parentType      the container type
+     *                        GraphQLFieldsContainer：该接口表示类型包含字段
+     *
+     * @param fieldDefinition the field definition
+     *                        字段的定义
+     *
      * @return the DataFetcher associated with this field.  All fields have data fetchers
+     *         返回和此字段绑定的dataFetcher。默认PropertyDataFetcher
      */
-    public DataFetcher<?> getDataFetcher(GraphQLFieldsContainer parentType, GraphQLFieldDefinition fieldDefinition) {
-        //使用类型名称、字段名称和默认的 非系统坐标标识，构建一个新的字段坐标
+    public DataFetcher<?> getDataFetcher(GraphQLFieldsContainer parentType,
+                                         GraphQLFieldDefinition fieldDefinition) {
+        //使用类型名称、字段名称和默认的 非系统坐标标识，构建一个新的字段坐标，调用的静态方法
         FieldCoordinates fieldCoordinates = coordinates(parentType, fieldDefinition);
-        return getDataFetcherImpl(fieldCoordinates, fieldDefinition, dataFetcherMap, systemDataFetcherMap, defaultDataFetcherFactory);
+
+        return getDataFetcherImpl(fieldCoordinates,
+                fieldDefinition,
+                dataFetcherMap,
+                systemDataFetcherMap,
+                defaultDataFetcherFactory);
     }
 
     /**
      * Returns a data fetcher associated with a field located at specified coordinates.
      *
      * @param coordinates     the field coordinates
+     *                        字段坐标(类型名称,字段名称)
+     *
      * @param fieldDefinition the field definition
+     *                        字段定义
+     *
      * @return the DataFetcher associated with this field.  All fields have data fetchers
+     *          返回和此字段坐标绑定的dataFetcher。默认PropertyDataFetcher
      */
-    public DataFetcher<?> getDataFetcher(FieldCoordinates coordinates, GraphQLFieldDefinition fieldDefinition) {
+    public DataFetcher<?> getDataFetcher(FieldCoordinates coordinates,
+                                         GraphQLFieldDefinition fieldDefinition) {
         return getDataFetcherImpl(coordinates, fieldDefinition, dataFetcherMap, systemDataFetcherMap, defaultDataFetcherFactory);
     }
 
-    //获取 coordinates 对应的dataFetcher
+    /**
+     * @param coordinates 字段坐标
+     * @param fieldDefinition 字段定义
+     * @param dataFetcherMap <字段坐标,dataFetcher>
+     * @param systemDataFetcherMap <系统字段名称,dataFetcher>
+     * @param defaultDataFetcherFactory fixme 默认的dataFetcher工厂类
+     *
+     * @return 返回指定坐标的字段绑定的dataFetcher
+     */
     private static DataFetcher<?>
             getDataFetcherImpl(FieldCoordinates coordinates, //字段坐标：类型名称、字段名称、是否是系统坐标
                                GraphQLFieldDefinition fieldDefinition,//字段定义
-                               Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap,//字段坐标
-                               Map<String, DataFetcherFactory<?>> systemDataFetcherMap,
-                               DataFetcherFactory<?> defaultDataFetcherFactory) {
+                               Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap,// 类型系统fetcher
+                               Map<String, DataFetcherFactory<?>> systemDataFetcherMap, // 内省系统fetcher
+                               DataFetcherFactory<?> defaultDataFetcherFactory) { // 默认的fetcher工厂类
+        // 判断坐标非空、字段定义非空
         assertNotNull(coordinates);
         assertNotNull(fieldDefinition);
 
-        // 如果该字段名称对应的DataFetcherFactory为null，
-        // 则从字段坐标获取对应的dataFetcher，
-        // 如果坐标也没有对应的fetcher、则使用默认的fetcher；
+        // 判断从内省系统中、根据字段名称获取dataFetcher
+        // 注：使用fieldDefinition.getName 和 使用coordinates.getFieldName()都一样
         DataFetcherFactory<?> dataFetcherFactory = systemDataFetcherMap.get(fieldDefinition.getName());
+
+
         if (dataFetcherFactory == null) {
+            // 从内省系统中获取dataFetcher失败，
+            // 则从类型系统中、根据坐标获取dataFetcher
             dataFetcherFactory = dataFetcherMap.get(coordinates);
             if (dataFetcherFactory == null) {
+                // 内省系统和类型系统都获取dataFetcher失败，则使用默认的dataFetcher
                 dataFetcherFactory = defaultDataFetcherFactory;
             }
         }
-        return dataFetcherFactory.get(newDataFetchingFactoryEnvironment()
-                .fieldDefinition(fieldDefinition)
-                .build());
+
+        // fetcher工厂的参数：字段定义GraphQLFieldDefinition
+        // fixme 为啥要这个字段参数啊、因为要指定fetcher解析的字段名称
+        DataFetcherFactoryEnvironment fetcherFactoryEnvironment =
+                newDataFetchingFactoryEnvironment().fieldDefinition(fieldDefinition).build();
+
+        return dataFetcherFactory.get(fetcherFactoryEnvironment);
     }
 
-    private static boolean hasDataFetcherImpl(FieldCoordinates coords, Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap, Map<String, DataFetcherFactory<?>> systemDataFetcherMap) {
+
+    // ？？返回该字段是否绑定了dataFetcher？？
+    private static boolean hasDataFetcherImpl(FieldCoordinates coords,
+                                              Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap,
+                                              Map<String, DataFetcherFactory<?>> systemDataFetcherMap) {
+        // 字段坐标不为空
         assertNotNull(coords);
 
         DataFetcherFactory<?> dataFetcherFactory = systemDataFetcherMap.get(coords.getFieldName());
@@ -129,7 +165,6 @@ public class GraphQLCodeRegistry {
      * @param unionType the union type
      * @return a non null {@link graphql.schema.TypeResolver}
      */
-
     public TypeResolver getTypeResolver(GraphQLUnionType unionType) {
         return getTypeResolverForUnion(unionType, typeResolverMap);
     }
@@ -187,11 +222,11 @@ public class GraphQLCodeRegistry {
         private final Map<String, DataFetcherFactory<?>> systemDataFetcherMap = new LinkedHashMap<>();
         private final Map<String, TypeResolver> typeResolverMap = new HashMap<>();
         private GraphqlFieldVisibility fieldVisibility = DEFAULT_FIELD_VISIBILITY;
+
+        // fixme 默认fetcher 的实现：指定要从资源中获取的字段名称
         private DataFetcherFactory<?> defaultDataFetcherFactory = env -> PropertyDataFetcher.fetching(env.getFieldDefinition().getName());
 
-
-        private Builder() {
-        }
+        private Builder() { }
 
         private Builder(GraphQLCodeRegistry codeRegistry) {
             this.dataFetcherMap.putAll(codeRegistry.dataFetcherMap);
@@ -208,22 +243,32 @@ public class GraphQLCodeRegistry {
          * @return the DataFetcher associated with this field.  All fields have data fetchers
          */
         public DataFetcher<?> getDataFetcher(GraphQLFieldsContainer parentType, GraphQLFieldDefinition fieldDefinition) {
-            return getDataFetcherImpl(FieldCoordinates.coordinates(parentType, fieldDefinition), fieldDefinition, dataFetcherMap, systemDataFetcherMap, defaultDataFetcherFactory);
-        }
-
-        /**
-         * Returns a data fetcher associated with a field located at specified coordinates.
-         *
-         * @param coordinates     the field coordinates
-         * @param fieldDefinition the field definition
-         * @return the DataFetcher associated with this field.  All fields have data fetchers
-         */
-        public DataFetcher<?> getDataFetcher(FieldCoordinates coordinates, GraphQLFieldDefinition fieldDefinition) {
+            // 获取字段坐标
+            // 因为逃逸分析和栈上分配，这个对象不会造成额外的gc压力
+            FieldCoordinates coordinates = coordinates(parentType, fieldDefinition);
+            // 根据坐标信息、字段名称信息，获取
             return getDataFetcherImpl(coordinates, fieldDefinition, dataFetcherMap, systemDataFetcherMap, defaultDataFetcherFactory);
         }
 
         /**
+         * Returns a data fetcher associated with a field located at specified coordinates.
+         * 返回指定坐标的字段绑定的dataFetcher
+         *
+         * @param coordinates     the field coordinates
+         * @param fieldDefinition the field definition
+         * @return the DataFetcher associated with this field.  fixme All fields have data fetchers
+         */
+        public DataFetcher<?> getDataFetcher(FieldCoordinates coordinates, GraphQLFieldDefinition fieldDefinition) {
+            return getDataFetcherImpl(coordinates,
+                    fieldDefinition,
+                    dataFetcherMap,
+                    systemDataFetcherMap,
+                    defaultDataFetcherFactory);
+        }
+
+        /**
          * Returns a data fetcher associated with a field within a container type
+         * 返回该字段是否绑定了dataFetcher(All fields have data fetchers)
          *
          * @param coordinates the field coordinates
          * @return the true if there is a data fetcher already for this field

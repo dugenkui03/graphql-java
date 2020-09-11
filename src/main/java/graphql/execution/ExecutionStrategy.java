@@ -152,7 +152,8 @@ public abstract class ExecutionStrategy {
      * @return a promise to an {@link ExecutionResult}
      * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value
      */
-    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
+    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
+                                                               ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
 
     /**
      * Called to fetch a value for a field and resolve it further in terms of the graphql query.  This will call

@@ -18,12 +18,15 @@ public class ArgumentsOfCorrectType extends AbstractRule {
         super(validationContext, validationErrorCollector);
     }
 
+    // Argument：模板上字段配置的参数
+    // (userId:$userId, age = 18)
     @Override
     public void checkArgument(Argument argument) {
         GraphQLArgument fieldArgument = getValidationContext().getArgument();
         if (fieldArgument == null) {
             return;
         }
+
         ArgumentValidationUtil validationUtil = new ArgumentValidationUtil(argument);
         if (!validationUtil.isValidLiteralValue(argument.getValue(), fieldArgument.getType(), getValidationContext().getSchema())) {
             addError(ValidationError.newValidationError()

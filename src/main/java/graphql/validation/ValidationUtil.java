@@ -74,26 +74,49 @@ public class ValidationUtil {
     protected void handleFieldNotValidError(Value<?> value, GraphQLType type, int index) {
     }
 
+    /**todo
+     * 实体中定义的非空参数
+     *
+     * 如果没有默认值
+     *
+     * 那么在查询参数中必须存在，且不为空
+     *
+     */
     public boolean isValidLiteralValue(Value<?> value, GraphQLType type, GraphQLSchema schema) {
+
+        // 如果参数值是null
         if (value == null || value instanceof NullValue) {
-            boolean valid = !(isNonNull(type));
-            if (!valid) {
+            // 参数是否是null类型
+            boolean isNullType = !(isNonNull(type));
+
+            //如果 non-null类型，处理错误
+            if (!isNullType) {
                 handleNullError(value, type);
             }
-            return valid;
+
+            // 返回校验结果
+            return isNullType;
         }
+
+        // 如果是类型引用，返回true
         if (value instanceof VariableReference) {
             return true;
         }
+
+        // 如果类型是 non-null，解析出具体类型、然后在验证
         if (isNonNull(type)) {
             return isValidLiteralValue(value, unwrapOne(type), schema);
         }
 
+        // 如果是scalar类型，且value是常量
+        // value不可能是引用了、之前已经进行了判断
         if (type instanceof GraphQLScalarType) {
             Optional<GraphQLError> invalid = parseLiteral(value, ((GraphQLScalarType) type).getCoercing());
             invalid.ifPresent(graphQLError -> handleScalarError(value, (GraphQLScalarType) type, graphQLError));
             return !invalid.isPresent();
         }
+
+        //如果是枚举类型
         if (type instanceof GraphQLEnumType) {
             Optional<GraphQLError> invalid = parseLiteralEnum(value,(GraphQLEnumType) type);
             invalid.ifPresent(graphQLError -> handleEnumError(value, (GraphQLEnumType) type, graphQLError));

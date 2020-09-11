@@ -44,6 +44,7 @@ public class EchoingWiringFactory implements WiringFactory {
 
     @Override
     public TypeResolver getTypeResolver(InterfaceWiringEnvironment environment) {
+        // 获取schema 中的queryType
         return env -> env.getSchema().getQueryType();
     }
 
@@ -54,6 +55,7 @@ public class EchoingWiringFactory implements WiringFactory {
 
     @Override
     public TypeResolver getTypeResolver(UnionWiringEnvironment environment) {
+        // 获取schema 中的queryType
         return env -> env.getSchema().getQueryType();
     }
 
