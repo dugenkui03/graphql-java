@@ -27,17 +27,19 @@ public class Async {
         CompletableFuture<List<U>> overallResult = new CompletableFuture<>();
 
         //当所有的CompletableFuture都执行完后执行计算
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        @SuppressWarnings("unchecked")
+        CompletableFuture<U>[] arrayOfFutures = futures.toArray(new CompletableFuture[0]);
+        CompletableFuture
+                .allOf(arrayOfFutures)
                 //noUsed是返回值、exception是计算遇到的异常
-                .whenComplete((noUsed, exception) -> {
+                .whenComplete((ignored, exception) -> {
                     //如果计算过程中遇到异常、记录异常
                     if (exception != null) {
                         overallResult.completeExceptionally(exception);
                         return;
                     }
-
-                    List<U> results = new ArrayList<>();
-                    for (CompletableFuture<U> future : futures) {
+                    List<U> results = new ArrayList<>(arrayOfFutures.length);
+                    for (CompletableFuture<U> future : arrayOfFutures) {
                         //获取结果
                         results.add(future.join());
                     }

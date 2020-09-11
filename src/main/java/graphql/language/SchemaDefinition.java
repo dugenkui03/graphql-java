@@ -127,7 +127,7 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
         return new Builder();
     }
 
-    public static final class Builder implements NodeBuilder {
+    public static final class Builder implements NodeDirectivesBuilder {
         private SourceLocation sourceLocation;
         private List<Comment> comments = new ArrayList<>();
         private List<Directive> directives = new ArrayList<>();
@@ -165,6 +165,7 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
             return this;
         }
 
+        @Override
         public Builder directives(List<Directive> directives) {
             this.directives = directives;
             return this;

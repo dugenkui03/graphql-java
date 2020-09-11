@@ -90,7 +90,7 @@ public class GraphQLDirective implements GraphQLNamedSchemaElement {
     }
 
     public EnumSet<DirectiveLocation> validLocations() {
-        return locations;
+        return EnumSet.copyOf(locations);
     }
 
     public String getDescription() {

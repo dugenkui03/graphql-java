@@ -45,9 +45,7 @@ public class ObjectValue extends AbstractNode<ObjectValue> implements Value<Obje
 
     @Override
     public List<Node> getChildren() {
-        List<Node> result = new ArrayList<>();
-        result.addAll(objectFields);
-        return result;
+        return new ArrayList<>(objectFields);
     }
 
     @Override
