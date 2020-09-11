@@ -16,7 +16,9 @@ import static graphql.schema.FieldCoordinates.coordinates;
 import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FIELD_VISIBILITY;
 
 
-/**fixme 类型对应的DataFetcher
+/**
+ * fixme schema定义中，某个坐标字段对应的DataFetcher(类型下某个字段对应的dataFetcher是一定的)
+ *
  * The GraphQLCodeRegistry holds
  *      1. that execution code that is associated with graphql types, namely(也就是) the DataFetchers associated with fields,
  *      2. the TypeResolvers associated with abstract types and the GraphqlFieldVisibility

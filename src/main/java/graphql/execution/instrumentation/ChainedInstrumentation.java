@@ -130,6 +130,7 @@ public class ChainedInstrumentation implements Instrumentation {
                 .collect(toList()));
     }
 
+    // todo 开销大
     @Override
     public InstrumentationContext<ExecutionResult> beginField(InstrumentationFieldParameters parameters) {
         return new ChainedInstrumentationContext<>(instrumentations.stream()
@@ -140,6 +141,7 @@ public class ChainedInstrumentation implements Instrumentation {
                 .collect(toList()));
     }
 
+    // todo 开销大
     @Override
     public InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters) {
         return new ChainedInstrumentationContext<>(instrumentations.stream()
@@ -150,6 +152,7 @@ public class ChainedInstrumentation implements Instrumentation {
                 .collect(toList()));
     }
 
+    // todo 开销大
     @Override
     public InstrumentationContext<ExecutionResult> beginFieldComplete(InstrumentationFieldCompleteParameters parameters) {
         return new ChainedInstrumentationContext<>(instrumentations.stream()
@@ -206,6 +209,7 @@ public class ChainedInstrumentation implements Instrumentation {
         return executionContext;
     }
 
+    // todo 开销
     @Override
     public DataFetcher<?> instrumentDataFetcher(DataFetcher<?> dataFetcher, InstrumentationFieldFetchParameters parameters) {
         for (Instrumentation instrumentation : instrumentations) {
@@ -248,6 +252,7 @@ public class ChainedInstrumentation implements Instrumentation {
             this.contexts = Collections.unmodifiableList(contexts);
         }
 
+        // todo 开销大
         @Override
         public void onDispatched(CompletableFuture<T> result) {
             contexts.forEach(context -> context.onDispatched(result));

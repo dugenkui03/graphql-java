@@ -410,9 +410,8 @@ public abstract class ExecutionStrategy {
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, fetchedValue);
-        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(
-                instrumentationParams
-        );
+
+        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(instrumentationParams);
 
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
 

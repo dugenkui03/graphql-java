@@ -39,8 +39,12 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
     public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
                                                       ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
 
+        // 获取全局Instrumentation工具
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
+
+        // MergedField
+        InstrumentationExecutionStrategyParameters instrumentationParameters =
+                new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
 
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 

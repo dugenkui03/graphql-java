@@ -6,7 +6,10 @@ import graphql.PublicSpi;
 import java.util.List;
 
 /**
- * This pluggable interface allows you to validate the fields and their argument inputs before query execution.
+ * This pluggable(可插拔的) interface allows you to validate the fields and their argument inputs before query execution.
+ *
+ * fixme
+ *      该接口允许在执行查询之前、验证Field和Argument
  *
  * You will be called with fields and their arguments expanded out ready for execution and you can check business logic
  * concerns like the lengths of input objects (eg an input string cant be longer than say 255 chars) or that the
