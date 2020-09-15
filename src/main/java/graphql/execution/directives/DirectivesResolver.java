@@ -88,8 +88,8 @@ public class DirectivesResolver {
                 GraphQLArgument newArgument = protoArg.transform(argBuilder -> argBuilder.value(argValue));
                 directiveBuilder.argument(newArgument);
             } else {
-                // this means they can ask for the argument default value
-                // because the argument on the directive object is present - but null
+                  // this means they can ask for the argument default value because the argument on the directive
+                 // object is present - but null
                 // 解析指令参数的默认值 todo 很难说这里没有问题、是否有即使值为null也不可忽略的情况
                 GraphQLArgument newArgument = protoArg.transform(argBuilder -> argBuilder.value(null));
                 directiveBuilder.argument(newArgument);

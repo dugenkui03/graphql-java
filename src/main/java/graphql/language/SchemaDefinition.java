@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.directivesByName;
+import static graphql.language.NodeUtil.directiveByName;
 
 /**
  * 唯二属性：指令列表、操作类型定义
@@ -51,7 +52,7 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
     }
 
     public Directive getDirective(String directiveName) {
-        return getDirectivesByName().get(directiveName);
+        return directiveByName(directives, directiveName).orElse(null);
     }
 
 

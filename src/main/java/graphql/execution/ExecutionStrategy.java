@@ -318,25 +318,22 @@ public abstract class ExecutionStrategy {
         fetchCtx.onDispatched(fetchedValue);
 
         return fetchedValue
-                .handle(
-                        (result, exception) -> {
-                            //instrument
-                            fetchCtx.onCompleted(result, exception);
-                            //如果结果有异常、则记录fetcher异常。fetcher异常就是在这里捕获、记录的
-                            if (exception != null) {
-                                handleFetchingException(executionContext, parameters, dataFetchingEnvironment, exception);
-                                return null;
-                            }
-                            //如果没有异常、则返回CompletableFuture<result>。
-                            // fixme：handle 和 下边的 thenApply只是处理流程的编排，即使这个函数结束执行后也可能没有执行到此逻辑
-                            else {
-                                return result;
-                            }
-                        }
-                )
-                .thenApply(result ->
-                        unboxPossibleDataFetcherResult(executionContext, parameters, result)
-                );
+                .handle((result, exception) -> {
+                    //instrument
+                    fetchCtx.onCompleted(result, exception);
+                    //如果结果有异常、则记录fetcher异常。fetcher异常就是在这里捕获、记录的
+                    if (exception != null) {
+                        // handleFetchingException(executionContext, parameters, dataFetchingEnvironment, exception);
+                        handleFetchingException(executionContext, dataFetchingEnvironment, exception);
+                        return null;
+                    }
+                    //如果没有异常、则返回CompletableFuture<result>。
+                    // fixme：handle 和 下边的 thenApply只是处理流程的编排，即使这个函数结束执行后也可能没有执行到此逻辑
+                    else {
+                        return result;
+                    }
+                })
+                .thenApply(result -> unboxPossibleDataFetcherResult(executionContext, parameters, result));
     }
 
     FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
@@ -374,8 +371,7 @@ public abstract class ExecutionStrategy {
         }
     }
 
-    private void handleFetchingException(ExecutionContext executionContext,
-                                         ExecutionStrategyParameters parameters,
+    protected void handleFetchingException(ExecutionContext executionContext,
                                          DataFetchingEnvironment environment,
                                          Throwable e) {
         DataFetcherExceptionHandlerParameters handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
@@ -383,7 +379,16 @@ public abstract class ExecutionStrategy {
                 .exception(e)
                 .build();
 
-        DataFetcherExceptionHandlerResult handlerResult = dataFetcherExceptionHandler.onException(handlerParameters);
+        DataFetcherExceptionHandlerResult handlerResult;
+        try {
+            handlerResult = dataFetcherExceptionHandler.onException(handlerParameters);
+        } catch (Exception handlerException) {
+            handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
+                    .dataFetchingEnvironment(environment)
+                    .exception(handlerException)
+                    .build();
+            handlerResult = new SimpleDataFetcherExceptionHandler().onException(handlerParameters);
+        }
         handlerResult.getErrors().forEach(executionContext::addError);
 
     }

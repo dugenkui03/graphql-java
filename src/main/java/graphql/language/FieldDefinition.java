@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
@@ -107,8 +108,8 @@ public class FieldDefinition extends AbstractDescribedNode<FieldDefinition> impl
         FieldDefinition that = (FieldDefinition) o;
 
         // todo 之比较名称而不比较是否同一类型，太奇怪了
-        //  return ... && Objects.equals(this.type,that.type)
-        return NodeUtil.isEqualTo(this.name, that.name);
+        //      return ... && Objects.equals(this.type,that.type)
+        return Objects.equals(this.name, that.name);
     }
 
     @Override

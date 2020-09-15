@@ -11,11 +11,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.argumentsByName;
+import static graphql.language.NodeUtil.getArgumentByName;
 
 /**
  * 由antlr解析语法得来，特质用在元素上的指令、参见FieldDefinition、VariableDefinition等
@@ -69,7 +71,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
     }
 
     public Argument getArgument(String argumentName) {
-        return getArgumentsByName().get(argumentName);
+        return getArgumentByName(arguments, argumentName).orElse(null);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class Directive extends AbstractNode<Directive> implements NamedNode<Dire
 
         Directive that = (Directive) o;
 
-        return NodeUtil.isEqualTo(this.name, that.name);
+        return Objects.equals(this.name, that.name);
 
     }
 

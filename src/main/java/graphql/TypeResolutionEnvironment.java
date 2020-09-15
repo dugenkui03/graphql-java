@@ -10,7 +10,7 @@ import java.util.Map;
  * This is passed to a {@link graphql.schema.TypeResolver} to help with object type resolution.
  * 传递给TypeResolver、辅助类型的解析。
  *
- * See {@link graphql.schema.TypeResolver#getType(TypeResolutionEnvironment)} for how this is used
+ * See {@link graphql.schema.TypeResolver#getType} for how this is used
  */
 @SuppressWarnings("TypeParameterUnusedInFormals")
 @PublicApi
