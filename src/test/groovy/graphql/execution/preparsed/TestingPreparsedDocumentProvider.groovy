@@ -11,6 +11,8 @@ class TestingPreparsedDocumentProvider implements PreparsedDocumentProvider {
     @Override
     PreparsedDocumentEntry getDocument(ExecutionInput executionInput, Function<ExecutionInput, PreparsedDocumentEntry> computeFunction) {
         Function<String, PreparsedDocumentEntry> mapCompute = { key -> computeFunction.apply(executionInput) }
+        // 如果key executionInput.query 在缓存中不存在
+        // 则使用mapCompute计算出key对应的value
         return cache.computeIfAbsent(executionInput.query, mapCompute)
     }
 

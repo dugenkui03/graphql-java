@@ -50,10 +50,17 @@ import static graphql.schema.GraphQLTypeUtil.simplePrint;
 
 @PublicApi
 public class Introspection {
+    // 内省类型字段坐标和内省DataFetcher的绑定关系
+    // 如果内省字段没有绑定dataFetcher、则使用默认的PropertyDataFetcher
     private static final Map<FieldCoordinates, IntrospectionDataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
 
-    private static void register(GraphQLFieldsContainer parentType, String fieldName, IntrospectionDataFetcher introspectionDataFetcher) {
-        introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), introspectionDataFetcher);
+    private static void register(GraphQLFieldsContainer parentType,
+                                 String fieldName,
+                                 IntrospectionDataFetcher introspectionDataFetcher) {
+        // 获取字段坐标
+        FieldCoordinates coordinates = coordinates(parentType.getName(), fieldName);
+        // 将字段坐标和指定的fetcher绑定
+        introspectionDataFetchers.put(coordinates, introspectionDataFetcher);
     }
 
     @Internal
@@ -154,6 +161,10 @@ public class Introspection {
             }
             return null;
         });
+
+        // fixme 将内省类型__InputValue中的字段name、绑定nameDataFetcher
+        //       跟将一个类型的字段绑定fetcher是一样的道理
+        //       如果不进行绑定，那么将会使用默认的PropertyDataFetcher，将使用getter方法解析"同名属性"
         register(__InputValue, "name", nameDataFetcher);
         register(__InputValue, "description", descriptionDataFetcher);
     }
@@ -190,6 +201,8 @@ public class Introspection {
             Object type = environment.getSource();
             return ((GraphQLFieldDefinition) type).getArguments();
         });
+
+        // isDeprecated()是根据对象是否存在deprecationReason判定的
         register(__Field, "isDeprecated", environment -> {
             Object type = environment.getSource();
             return ((GraphQLFieldDefinition) type).isDeprecated();
@@ -521,6 +534,7 @@ public class Introspection {
     }
 
     public static final IntrospectionDataFetcher SchemaMetaFieldDefDataFetcher = IntrospectionDataFetchingEnvironment::getGraphQLSchema;
+
     public static final GraphQLFieldDefinition SchemaMetaFieldDef = newFieldDefinition()
             .name("__schema")
             .type(nonNull(__Schema))
@@ -571,8 +585,9 @@ public class Introspection {
      *
      * @return a field definition otherwise throws an assertion exception if its null
      */
-    public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
-
+    public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema,
+                                                     GraphQLCompositeType parentType,
+                                                     String fieldName) {
         //如果是顶层类型，则可能是内省查询
         if (schema.getQueryType() == parentType) {
             //判断是不是查询的 __schema，是这返回其对应的字段定义类型

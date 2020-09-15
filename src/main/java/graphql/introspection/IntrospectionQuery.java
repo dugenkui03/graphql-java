@@ -5,6 +5,7 @@ import graphql.PublicApi;
 @PublicApi
 public interface IntrospectionQuery {
 
+    // 查询的内容参见：https://spec.graphql.org/draft/#sec-Schema-Introspection
     String INTROSPECTION_QUERY = "\n" +
             "  query IntrospectionQuery {\n" +
             "    __schema {\n" +

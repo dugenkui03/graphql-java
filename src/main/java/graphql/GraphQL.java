@@ -83,18 +83,32 @@ import static graphql.execution.ExecutionIdProvider.DEFAULT_EXECUTION_ID_PROVIDE
 @PublicApi
 public class GraphQL {
 
+    // 日志对象
     private static final Logger log = LoggerFactory.getLogger(GraphQL.class);
     private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(GraphQL.class);
 
+    // 默认的 Instrumentation，static类型的
     private final static Instrumentation DEFAULT_INSTRUMENTATION = new DataLoaderDispatcherInstrumentation();
 
+    // 自定义的 Instrumentation
+    private final Instrumentation instrumentation;
+
+    // 类型系统定义
     private final GraphQLSchema graphQLSchema;
+
+    // 执行策略
     private final ExecutionStrategy queryStrategy;
     private final ExecutionStrategy mutationStrategy;
     private final ExecutionStrategy subscriptionStrategy;
+
+    // id提供者，默认的有性能问题：UUID.randomUUID().toString()
+    // 最好使用业务相关的、唯一的string_key
     private final ExecutionIdProvider idProvider;
-    private final Instrumentation instrumentation;
+
+    // 查询dsl缓存
     private final PreparsedDocumentProvider preparsedDocumentProvider;
+
+    // 解析dataFetcher返回值
     private final ValueUnboxer valueUnboxer;
 
 
@@ -119,7 +133,8 @@ public class GraphQL {
      */
     @Internal
     @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema, ExecutionStrategy queryStrategy) {
+    public GraphQL(GraphQLSchema graphQLSchema,
+                   ExecutionStrategy queryStrategy) {
         this(graphQLSchema, queryStrategy, null);
     }
 
@@ -133,8 +148,18 @@ public class GraphQL {
      */
     @Internal
     @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema, ExecutionStrategy queryStrategy, ExecutionStrategy mutationStrategy) {
-        this(graphQLSchema, queryStrategy, mutationStrategy, null, DEFAULT_EXECUTION_ID_PROVIDER, DEFAULT_INSTRUMENTATION, NoOpPreparsedDocumentProvider.INSTANCE, ValueUnboxer.DEFAULT);
+    public GraphQL(GraphQLSchema graphQLSchema,
+                   ExecutionStrategy queryStrategy,
+                   ExecutionStrategy mutationStrategy) {
+
+        this(graphQLSchema,
+                queryStrategy,
+                mutationStrategy,
+                null,
+                DEFAULT_EXECUTION_ID_PROVIDER,
+                DEFAULT_INSTRUMENTATION,
+                NoOpPreparsedDocumentProvider.INSTANCE,
+                ValueUnboxer.DEFAULT);
     }
 
     /**
@@ -148,8 +173,19 @@ public class GraphQL {
      */
     @Internal
     @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema, ExecutionStrategy queryStrategy, ExecutionStrategy mutationStrategy, ExecutionStrategy subscriptionStrategy) {
-        this(graphQLSchema, queryStrategy, mutationStrategy, subscriptionStrategy, DEFAULT_EXECUTION_ID_PROVIDER, DEFAULT_INSTRUMENTATION, NoOpPreparsedDocumentProvider.INSTANCE, ValueUnboxer.DEFAULT);
+    public GraphQL(GraphQLSchema graphQLSchema,
+                   ExecutionStrategy queryStrategy,
+                   ExecutionStrategy mutationStrategy,
+                   ExecutionStrategy subscriptionStrategy) {
+
+        this(graphQLSchema,
+                queryStrategy,
+                mutationStrategy,
+                subscriptionStrategy,
+                DEFAULT_EXECUTION_ID_PROVIDER,
+                DEFAULT_INSTRUMENTATION,
+                NoOpPreparsedDocumentProvider.INSTANCE,
+                ValueUnboxer.DEFAULT);
     }
 
     private GraphQL(GraphQLSchema graphQLSchema,
@@ -160,11 +196,14 @@ public class GraphQL {
                     Instrumentation instrumentation,
                     PreparsedDocumentProvider preparsedDocumentProvider,
                     ValueUnboxer valueUnboxer) {
+        // schema 和 idProvider都不能为null
         this.graphQLSchema = assertNotNull(graphQLSchema, () -> "graphQLSchema must be non null");
+        this.idProvider = assertNotNull(idProvider, () -> "idProvider must be non null");
+
+        // 执行策略不存在则使用默认策略
         this.queryStrategy = queryStrategy != null ? queryStrategy : new AsyncExecutionStrategy();
         this.mutationStrategy = mutationStrategy != null ? mutationStrategy : new AsyncSerialExecutionStrategy();
         this.subscriptionStrategy = subscriptionStrategy != null ? subscriptionStrategy : new SubscriptionExecutionStrategy();
-        this.idProvider = assertNotNull(idProvider, () -> "idProvider must be non null");
         this.instrumentation = assertNotNull(instrumentation);
         this.preparsedDocumentProvider = assertNotNull(preparsedDocumentProvider, () -> "preparsedDocumentProvider must be non null");
         this.valueUnboxer = valueUnboxer;
@@ -189,8 +228,8 @@ public class GraphQL {
      */
     public GraphQL transform(Consumer<GraphQL.Builder> builderConsumer) {
         Builder builder = new Builder(this.graphQLSchema);
-        builder
-                .queryExecutionStrategy(nvl(this.queryStrategy, builder.queryExecutionStrategy))
+
+        builder.queryExecutionStrategy(nvl(this.queryStrategy, builder.queryExecutionStrategy))
                 .mutationExecutionStrategy(nvl(this.mutationStrategy, builder.mutationExecutionStrategy))
                 .subscriptionExecutionStrategy(nvl(this.subscriptionStrategy, builder.subscriptionExecutionStrategy))
                 .executionIdProvider(nvl(this.idProvider, builder.idProvider))

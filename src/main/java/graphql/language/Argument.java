@@ -25,6 +25,8 @@ import static java.util.Collections.emptyMap;
 @PublicApi
 public class Argument extends AbstractNode<Argument> implements NamedNode<Argument> {
     private final String name;
+
+    // https://spec.graphql.org/June2018/#sec-Input-Values
     private final Value value;
 
     public static final String CHILD_VALUE = "value";

@@ -5,6 +5,7 @@ import graphql.PublicSpi;
 @PublicSpi
 public interface ValueUnboxer {
 
+    // 接口中、默认是static的
     ValueUnboxer DEFAULT = new DefaultValueUnboxer();
 
     /**
