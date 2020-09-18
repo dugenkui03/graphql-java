@@ -89,6 +89,10 @@ public class GraphQL {
 
     // 默认的 Instrumentation，static类型的
     private final static Instrumentation DEFAULT_INSTRUMENTATION = new DataLoaderDispatcherInstrumentation();
+    private final static ExecutionStrategy DEFAULT_QUERY_STRATEGY = new AsyncExecutionStrategy();
+    private final static ExecutionStrategy DEFAULT_MUTATION_STRATEGY = new AsyncSerialExecutionStrategy();
+    private final static ExecutionStrategy DEFAULT_SUBSCRIPTION_STRATEGY = new SubscriptionExecutionStrategy();
+
 
     // 自定义的 Instrumentation
     private final Instrumentation instrumentation;
@@ -199,11 +203,10 @@ public class GraphQL {
         // schema 和 idProvider都不能为null
         this.graphQLSchema = assertNotNull(graphQLSchema, () -> "graphQLSchema must be non null");
         this.idProvider = assertNotNull(idProvider, () -> "idProvider must be non null");
-
         // 执行策略不存在则使用默认策略
-        this.queryStrategy = queryStrategy != null ? queryStrategy : new AsyncExecutionStrategy();
-        this.mutationStrategy = mutationStrategy != null ? mutationStrategy : new AsyncSerialExecutionStrategy();
-        this.subscriptionStrategy = subscriptionStrategy != null ? subscriptionStrategy : new SubscriptionExecutionStrategy();
+        this.queryStrategy = queryStrategy != null ? queryStrategy : DEFAULT_QUERY_STRATEGY;
+        this.mutationStrategy = mutationStrategy != null ? mutationStrategy : DEFAULT_MUTATION_STRATEGY;
+        this.subscriptionStrategy = subscriptionStrategy != null ? subscriptionStrategy : DEFAULT_SUBSCRIPTION_STRATEGY;
         this.instrumentation = assertNotNull(instrumentation);
         this.preparsedDocumentProvider = assertNotNull(preparsedDocumentProvider, () -> "preparsedDocumentProvider must be non null");
         this.valueUnboxer = valueUnboxer;
@@ -248,9 +251,9 @@ public class GraphQL {
     @PublicApi
     public static class Builder {
         private GraphQLSchema graphQLSchema;
-        private ExecutionStrategy queryExecutionStrategy = new AsyncExecutionStrategy();
-        private ExecutionStrategy mutationExecutionStrategy = new AsyncSerialExecutionStrategy();
-        private ExecutionStrategy subscriptionExecutionStrategy = new SubscriptionExecutionStrategy();
+        private ExecutionStrategy queryExecutionStrategy = DEFAULT_QUERY_STRATEGY;
+        private ExecutionStrategy mutationExecutionStrategy = DEFAULT_MUTATION_STRATEGY;
+        private ExecutionStrategy subscriptionExecutionStrategy = DEFAULT_SUBSCRIPTION_STRATEGY;
         private ExecutionIdProvider idProvider = DEFAULT_EXECUTION_ID_PROVIDER;
         private Instrumentation instrumentation = null; // deliberate default here
         private PreparsedDocumentProvider preparsedDocumentProvider = NoOpPreparsedDocumentProvider.INSTANCE;
