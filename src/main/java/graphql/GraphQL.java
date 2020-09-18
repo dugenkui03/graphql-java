@@ -333,14 +333,14 @@ public class GraphQL {
 
     /**
      * Executes the specified graphql query/mutation/subscription
+     * 执行指定的查询。
      *
      * @param query the query/mutation/subscription
+     *
      * @return an {@link ExecutionResult} which can include errors
      */
     public ExecutionResult execute(String query) {
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput()
-                .query(query)
-                .build();
+        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(query).build();
         return execute(executionInput);
     }
 
@@ -357,7 +357,9 @@ public class GraphQL {
         ExecutionInput executionInput = ExecutionInput.newExecutionInput()
                 .query(query)
                 .context(context)
-                .root(context) // This we are doing do be backwards compatible
+                // This we are doing do be backwards compatible
+                // 先后兼容？将上下文也作为root对象
+                .root(context)
                 .build();
         return execute(executionInput);
     }
@@ -377,7 +379,8 @@ public class GraphQL {
                 .query(query)
                 .operationName(operationName)
                 .context(context)
-                .root(context) // This we are doing do be backwards compatible
+                // This we are doing do be backwards compatible, 向后兼容
+                .root(context)
                 .build();
         return execute(executionInput);
     }
@@ -396,7 +399,8 @@ public class GraphQL {
         ExecutionInput executionInput = ExecutionInput.newExecutionInput()
                 .query(query)
                 .context(context)
-                .root(context) // This we are doing do be backwards compatible
+                // This we are doing do be backwards compatible，向后兼容
+                .root(context)
                 .variables(variables)
                 .build();
         return execute(executionInput);
@@ -418,7 +422,8 @@ public class GraphQL {
                 .query(query)
                 .operationName(operationName)
                 .context(context)
-                .root(context) // This we are doing do be backwards compatible
+                // This we are doing do be backwards compatible
+                .root(context)
                 .variables(variables)
                 .build();
         return execute(executionInput);
@@ -426,6 +431,7 @@ public class GraphQL {
 
     /**
      * Executes the graphql query using the provided input object builder
+     * 使用输入builder进行执行
      *
      * @param executionInputBuilder {@link ExecutionInput.Builder}
      * @return an {@link ExecutionResult} which can include errors
@@ -459,7 +465,9 @@ public class GraphQL {
      */
     public ExecutionResult execute(ExecutionInput executionInput) {
         try {
-            return executeAsync(executionInput).join();
+            CompletableFuture<ExecutionResult> executionResultCompletableFuture = executeAsync(executionInput);
+            // 运行结束的时候返回结果，或者出现异常的时候抛运行时异常
+            return executionResultCompletableFuture.join();
         } catch (CompletionException e) {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
@@ -503,10 +511,13 @@ public class GraphQL {
     }
 
     /**
-     * Executes the graphql query using the provided input object
+     * Executes the graphql query using the provided input object.
+     * fixme 真正的执行查询的方法。
+     *
      * <p>
-     * This will return a promise (aka {@link CompletableFuture}) to provide a {@link ExecutionResult}
-     * which is the result of executing the provided query.
+     * This will return a promise (aka {@link CompletableFuture})
+     * to provide a {@link ExecutionResult} which is the result of executing the provided query.
+     *
      *
      * @param executionInput {@link ExecutionInput}
      * @return a promise to an {@link ExecutionResult} which can include errors
@@ -516,12 +527,16 @@ public class GraphQL {
             if (logNotSafe.isDebugEnabled()) {
                 logNotSafe.debug("Executing request. operation name: '{}'. query: '{}'. variables '{}'", executionInput.getOperationName(), executionInput.getQuery(), executionInput.getVariables());
             }
+            // 确认是否有输入id，没有的话使用idProvider.provide()方法、生成执行ID
             executionInput = ensureInputHasId(executionInput);
 
             // fixme 使用schema和请求信息构造状态对象。
-            InstrumentationState instrumentationState = instrumentation.createState(new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput));
+            InstrumentationCreateStateParameters stateParameters = new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput);
+            InstrumentationState instrumentationState = instrumentation.createState(stateParameters);
 
             InstrumentationExecutionParameters inputInstrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
+            // 用schema和输入对象，修改输入对象的值
+            // 查询dsl、查询变量、DataLoaderRegistry和CacheControl
             executionInput = instrumentation.instrumentExecutionInput(executionInput, inputInstrumentationParameters);
 
             InstrumentationExecutionParameters instrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
@@ -546,6 +561,7 @@ public class GraphQL {
         if (executionInput.getExecutionId() != null) {
             return executionInput;
         }
+        // 没有输入id的话、执行idProvider.provide()方法生成执行id
         String queryString = executionInput.getQuery();
         String operationName = executionInput.getOperationName();
         Object context = executionInput.getContext();

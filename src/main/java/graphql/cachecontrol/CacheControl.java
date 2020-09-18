@@ -14,31 +14,43 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static graphql.Assert.assertNotNull;
 import static graphql.util.FpKit.map;
 
-/**
- * This class implements the graphql Cache Control specification as outlined in https://github.com/apollographql/apollo-cache-control
+/**todo：是对dataFetcher缓存的指定字段的信息的描述？？
+ * This class implements the graphql Cache Control specification
+ * as outlined in https://github.com/apollographql/apollo-cache-control
  * <p>
- * To best use this class you need to pass a CacheControl object to each {@link graphql.schema.DataFetcher} and have them decide on
- * the caching hint values.
+ * To best use this class you need to pass a CacheControl object to each {@link graphql.schema.DataFetcher}
+ * and have them decide on the caching hint values.
+ * fixme
+ *      对 apollo缓存控制规范 的实现。
+ *      该类最佳实践是将 CacheControl 对象传递给DataFetcher，让 CacheControl 缓存对象执行缓存策略、或不缓存
+ *      apollo对该功能的实现：https://www.apollographql.com/docs/apollo-server/performance/caching/
  * <p>
- * The easiest why to do this is create a CacheControl object at query start and pass it in as a "context" object via {@link graphql.ExecutionInput#getContext()} and then have
- * each {@link graphql.schema.DataFetcher} thats wants to make cache control hints use that.
+ * The easiest why to do this is create a CacheControl object at query start
+ * and pass it in as a "context" object via {@link graphql.ExecutionInput#getContext()}
+ * and then have each {@link graphql.schema.DataFetcher} thats wants to make cache control hints use that.
+ * todo：描述有误会： why -> way； CacheControl现在也变成了输入对象的一个字段
+ *
  * <p>
- * Then at the end of the query you would call {@link #addTo(graphql.ExecutionResult)} to record the cache control hints into the {@link graphql.ExecutionResult}
+ * Then at the end of the query you would call {@link #addTo(graphql.ExecutionResult)}
+ * to record the cache control hints into the {@link graphql.ExecutionResult}
  * extensions map as per the specification.
  */
 @PublicApi
 public class CacheControl {
 
-    public static final String CACHE_CONTROL_EXTENSION_KEY = "cacheControl";
-
     /**
      * If the scope is set to PRIVATE, this indicates anything under this path should only be cached per-user,
-     * unless the value is overridden on a sub path. PUBLIC is the default and means anything under this path
-     * can be stored in a shared cache.
+     * unless the value is overridden on a sub path.
+     * PUBLIC is the default and means anything under this path can be stored in a shared cache.
+     *
+     * fixme
+     *      private表示每个用户一份缓存；
+     *      public表示该路径下所有用户共享一份缓存；
      */
     public enum Scope {
         PUBLIC, PRIVATE
     }
+
 
     private class Hint {
         private final List<Object> path;
@@ -46,11 +58,13 @@ public class CacheControl {
         private final Scope scope;
 
         private Hint(List<Object> path, Integer maxAge, Scope scope) {
+            // todo 判断列表非空
             this.path = assertNotNull(path);
             this.maxAge = maxAge;
             this.scope = scope;
         }
 
+        //将当前Hint对象转为Map对象
         Map<String, Object> toMap() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("path", path);
@@ -66,6 +80,11 @@ public class CacheControl {
 
     private final List<Hint> hints;
 
+    public static final String CACHE_CONTROL_EXTENSION_KEY = "cacheControl";
+
+    // https://juejin.im/post/6844903576339218440
+    // 在计算机中就是当你想要对一块内存进行修改时，我们不在原有内存块中进行写操作，而是将内存拷贝一份，
+    // 在新的内存中进行写操作，写完之后呢，就将指向原来内存指针指向新的内存，原来的内存就可以被回收掉嘛！
     private CacheControl() {
         hints = new CopyOnWriteArrayList<>();
     }
@@ -73,6 +92,7 @@ public class CacheControl {
 
     /**
      * This creates a cache control hint for the specified path
+     * 为某个特定的路径创建 缓存控制对象CacheControl
      *
      * @param path   the path to the field that has the cache control hint
      * @param maxAge the caching time in seconds
@@ -129,6 +149,7 @@ public class CacheControl {
 
     /**
      * This creates a cache control hint for the specified field being fetched with a PUBLIC scope
+     * 为 DataFetchingEnvironment 创建 control hint，有效域为public
      *
      * @param dataFetchingEnvironment the path to the field that has the cache control hint
      * @param maxAge                  the caching time in seconds

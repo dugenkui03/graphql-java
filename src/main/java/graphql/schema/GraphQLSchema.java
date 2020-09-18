@@ -48,7 +48,7 @@ public class GraphQLSchema {
     private final Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
     private final SchemaDefinition definition;
 
-    //包含 字段-对应的fetcher 映射关系；字段可见性处理器；
+    //fixme 包含 字段-对应的fetcher 映射关系；字段可见性处理器；
     private final GraphQLCodeRegistry codeRegistry;
 
     private final Map<String, GraphQLNamedType> typeMap;
