@@ -183,6 +183,8 @@ public class AstValueHelper {
      */
     public static Value<?> valueFromAst(String astLiteral) {
         // we use the parser to give us the AST elements as if we defined an inputType
+
+        // 包装成输入对象字段的默认值，解析后返回
         String toParse = "input X { x : String = " + astLiteral + "}";
         try {
             Document doc = new Parser().parseDocument(toParse);

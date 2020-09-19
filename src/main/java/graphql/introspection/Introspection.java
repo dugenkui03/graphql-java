@@ -575,18 +575,21 @@ public class Introspection {
                 .build();
     }
 
-    /**
-     * This will look up a field definition by name, and understand that fields like __typename and __schema are special
-     * and take precedence in field resolution
+    /** fixme：在指定的schema中，查找指定类型和名称的字段。
+     *
+     * This will look up a field definition by name,
+     * and understand that fields like __typename and __schema are special
+     * and take precedence(优先) in field resolution
      *
      * @param schema     the schema to use
      * @param parentType the type of the parent object 父亲类型
      * @param fieldName  the field to look up fixme 字段的名称，不是别名
      *
      * @return a field definition otherwise throws an assertion exception if its null
+     *         fixme 返回schema中、指定名称和类型的字段
      */
     public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema,
-                                                     GraphQLCompositeType parentType,
+                                                     GraphQLCompositeType parentType, // getName()
                                                      String fieldName) {
         //如果是顶层类型，则可能是内省查询
         if (schema.getQueryType() == parentType) {
@@ -600,12 +603,14 @@ public class Introspection {
             }
         }
 
-        //如果是 __typename，则返回其定义。fixme，注意、这里是用的是字段名称、而非别名，所以如果实体没有定义 __ 开始的字段，理论上不会有印象的
+        //如果是 __typename，则返回其定义。
+        // fixme，注意、这里是用的是字段名称、而非别名，所以如果实体没有定义 __ 开始的字段，理论上不会有影响的
         if (fieldName.equals(TypeNameMetaFieldDef.getName())) {
             return TypeNameMetaFieldDef;
         }
 
-        assertTrue(parentType instanceof GraphQLFieldsContainer, () -> String.format("should not happen : parent type must be an object or interface %s", parentType));
+        assertTrue(parentType instanceof GraphQLFieldsContainer,
+                () -> String.format("should not happen : parent type must be an object or interface %s", parentType));
         GraphQLFieldsContainer fieldsContainer = (GraphQLFieldsContainer) parentType;
 
         GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();

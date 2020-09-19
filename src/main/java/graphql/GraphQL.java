@@ -537,15 +537,18 @@ public class GraphQL {
             executionInput = instrumentation.instrumentExecutionInput(executionInput, inputInstrumentationParameters);
 
             InstrumentationExecutionParameters instrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
+            // InstrumentationContext 回调
             InstrumentationContext<ExecutionResult> executionInstrumentation = instrumentation.beginExecution(instrumentationParameters);
 
+            // fixme 可以根据查询输入对schema进行修改，使用修改后的schema进行查询
             GraphQLSchema graphQLSchema = instrumentation.instrumentSchema(this.graphQLSchema, instrumentationParameters);
 
+            // 解析查询文档、在类型系统上下文验证查询文档、执行查询文档
             CompletableFuture<ExecutionResult> executionResult = parseValidateAndExecute(executionInput, graphQLSchema, instrumentationState);
-            //
+            // fixme：整体的查询、有结果或者异常的时候。跟ExecutionResult对象的错误列表和data无关
             // finish up instrumentation
             executionResult = executionResult.whenComplete(executionInstrumentation::onCompleted);
-            //
+            // 根据查询输入、schema对最终的结果进行修改
             // allow instrumentation to tweak the result
             executionResult = executionResult.thenCompose(result -> instrumentation.instrumentExecutionResult(result, instrumentationParameters));
             return executionResult;
@@ -554,6 +557,7 @@ public class GraphQL {
         }
     }
 
+    // fixme 如果没有执行id，返回一个新的ExecutionInput对象
     private ExecutionInput ensureInputHasId(ExecutionInput executionInput) {
         if (executionInput.getExecutionId() != null) {
             return executionInput;
@@ -562,17 +566,26 @@ public class GraphQL {
         String queryString = executionInput.getQuery();
         String operationName = executionInput.getOperationName();
         Object context = executionInput.getContext();
+        // fixme 返回一个新的ExecutionInput对象，但是引用指向的属性元素是一样的
         return executionInput.transform(builder -> builder.executionId(idProvider.provide(queryString, operationName, context)));
     }
 
 
-    private CompletableFuture<ExecutionResult> parseValidateAndExecute(ExecutionInput executionInput, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
+    private CompletableFuture<ExecutionResult> parseValidateAndExecute(ExecutionInput executionInput,
+                                                                       GraphQLSchema graphQLSchema,
+                                                                       InstrumentationState instrumentationState) {
+        // 输入的原子引用
         AtomicReference<ExecutionInput> executionInputRef = new AtomicReference<>(executionInput);
+
+        // fixme 解析和验证的函数；
+        //       自定义的PreparsedDocumentProvider必须使用解析和验证的逻辑
         Function<ExecutionInput, PreparsedDocumentEntry> computeFunction = transformedInput -> {
             // if they change the original query in the pre-parser, then we want to see it downstream from then on
             executionInputRef.set(transformedInput);
             return parseAndValidate(executionInputRef, graphQLSchema, instrumentationState);
         };
+
+        // 如果解析出错，返回结果
         PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);
         if (preparsedDoc.hasErrors()) {
             return CompletableFuture.completedFuture(new ExecutionResultImpl(preparsedDoc.getErrors()));
@@ -581,7 +594,14 @@ public class GraphQL {
         return execute(executionInputRef.get(), preparsedDoc.getDocument(), graphQLSchema, instrumentationState);
     }
 
-    private PreparsedDocumentEntry parseAndValidate(AtomicReference<ExecutionInput> executionInputRef, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
+    /**
+     * 解析和验证输入文档。fixme：为啥解析和验证要分开？因为每个操作都有instrument
+     *
+     * @return 解析结果
+     */
+    private PreparsedDocumentEntry parseAndValidate(AtomicReference<ExecutionInput> executionInputRef,
+                                                    GraphQLSchema graphQLSchema,
+                                                    InstrumentationState instrumentationState) {
 
         ExecutionInput executionInput = executionInputRef.get();
         String query = executionInput.getQuery();
@@ -612,8 +632,12 @@ public class GraphQL {
         }
     }
 
-    private ParseAndValidateResult parse(ExecutionInput executionInput, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
-        InstrumentationExecutionParameters parameters = new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
+    // 解析和验证文档
+    private ParseAndValidateResult parse(ExecutionInput executionInput,
+                                         GraphQLSchema graphQLSchema,
+                                         InstrumentationState instrumentationState) {
+        InstrumentationExecutionParameters parameters =
+                new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
         InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);
         CompletableFuture<Document> documentCF = new CompletableFuture<>();
         parseInstrumentation.onDispatched(documentCF);
@@ -646,15 +670,21 @@ public class GraphQL {
         return validationErrors;
     }
 
-    private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput, Document document, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
+    private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput,
+                                                       Document document,
+                                                       GraphQLSchema graphQLSchema,
+                                                       InstrumentationState instrumentationState) {
 
+        // fixme 构造执行器
         Execution execution = new Execution(queryStrategy, mutationStrategy, subscriptionStrategy, instrumentation, valueUnboxer);
         ExecutionId executionId = executionInput.getExecutionId();
 
         if (logNotSafe.isDebugEnabled()) {
             logNotSafe.debug("Executing '{}'. operation name: '{}'. query: '{}'. variables '{}'", executionId, executionInput.getOperationName(), executionInput.getQuery(), executionInput.getVariables());
         }
+        // fixme 执行并返回结果
         CompletableFuture<ExecutionResult> future = execution.execute(document, graphQLSchema, executionId, executionInput, instrumentationState);
+        // 一些日志和return
         future = future.whenComplete((result, throwable) -> {
             if (throwable != null) {
                 logNotSafe.error(String.format("Execution '%s' threw exception when executing : query : '%s'. variables '%s'", executionId, executionInput.getQuery(), executionInput.getVariables()), throwable);
