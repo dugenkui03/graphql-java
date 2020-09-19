@@ -303,6 +303,7 @@ public class ResultPath {
         }
     }
 
+    // 相等的时候hashCode肯定相同，但是hashCode相同的时候、两个对象不一定相等
     @Override
     public boolean equals(Object o) {
         if (this == o) {
