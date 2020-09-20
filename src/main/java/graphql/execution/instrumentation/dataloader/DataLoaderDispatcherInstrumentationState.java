@@ -11,19 +11,25 @@ import org.slf4j.Logger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A base class that keeps track of whether aggressive batching can be used
+ * A base class that keeps track of whether aggressive(adj: 有侵略性的，好斗的) batching can be used
+ *
+ * fixme 记录是否可以使用批量查询的状态类。
  */
 @PublicApi
 public class DataLoaderDispatcherInstrumentationState implements InstrumentationState {
 
+    // 空-dataLoader注册器
+    // final 关键字修饰的，跟只有get、没有set的属性一样
     @Internal
     public static final DataLoaderRegistry EMPTY_DATALOADER_REGISTRY = new DataLoaderRegistry() {
         @Override
         public DataLoaderRegistry register(String key, DataLoader<?, ?> dataLoader) {
+            // 必须设置自己的 DataLoaderRegistry、来使用DataLoader
             return Assert.assertShouldNeverHappen("You MUST set in your own DataLoaderRegistry to use data loader");
         }
     };
 
+    //
     private final FieldLevelTrackingApproach approach;
     private final AtomicReference<DataLoaderRegistry> dataLoaderRegistry;
     private final InstrumentationState state;

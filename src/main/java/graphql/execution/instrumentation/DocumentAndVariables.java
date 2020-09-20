@@ -9,6 +9,9 @@ import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
 
+/**
+ * 同时保存查询文档和输入变量，执行引擎解析操作后获取
+ */
 @PublicApi
 public class DocumentAndVariables {
     private final Document document;
@@ -16,6 +19,7 @@ public class DocumentAndVariables {
 
     private DocumentAndVariables(Document document, Map<String, Object> variables) {
         this.document = assertNotNull(document);
+        // todo 变量为什么不能为null
         this.variables = assertNotNull(variables);
     }
 

@@ -27,7 +27,8 @@ public class FieldValueInfo {
 
     //结果类型
     private final CompleteValueType completeValueType;
-    //某层调用策略类execute后执行的结果
+
+    //fixme 某层调用策略类execute后执行的结果
     private final CompletableFuture<ExecutionResult> fieldValue;
     /**
      * 在 {@link ExecutionStrategy#completeValueForList} 中被赋值

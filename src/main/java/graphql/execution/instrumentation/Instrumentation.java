@@ -184,7 +184,14 @@ public interface Instrumentation {
     }
 
     /**
-     * This is called to instrument a {@link graphql.language.Document} and variables before it is used allowing you to adjust the query AST if you so desire
+     * This is called to instrument a {@link graphql.language.Document} and variables
+     * before it is used allowing you to adjust the query AST if you so desire
+     *
+     * fixme
+     *      修改文档和变量：
+     *          1. 如果有的字段使用@include不能去掉，可以在这里搞；
+     *          2. 可以根据变量指令，修改输入变量，例如加上当前时间戳；
+     *          3. todo：没有修改arugment的方法，可以加；
      *
      * @param documentAndVariables the document and variables to be used
      * @param parameters           the parameters describing the execution

@@ -8,12 +8,19 @@ import java.util.function.Consumer;
 
 /**
  * A simple implementation of {@link InstrumentationContext}
+ *
+ * 实现了onDispatched和onCompleted，默认啥也不做，但是可以在构造参数重指定其行为
  */
 @PublicApi
 public class SimpleInstrumentationContext<T> implements InstrumentationContext<T> {
 
+
+    private final BiConsumer<T, Throwable> codeToRunOnComplete;
+    private final Consumer<CompletableFuture<T>> codeToRunOnDispatch;
+
     /**
      * A context that does nothing
+     * 静态工具类，生成啥也不做的SimpleInstrumentationContext
      *
      * @param <T> the type needed
      *
@@ -23,14 +30,17 @@ public class SimpleInstrumentationContext<T> implements InstrumentationContext<T
         return new SimpleInstrumentationContext<>();
     }
 
-    private final BiConsumer<T, Throwable> codeToRunOnComplete;
-    private final Consumer<CompletableFuture<T>> codeToRunOnDispatch;
-
     public SimpleInstrumentationContext() {
         this(null, null);
     }
 
-    private SimpleInstrumentationContext(Consumer<CompletableFuture<T>> codeToRunOnDispatch, BiConsumer<T, Throwable> codeToRunOnComplete) {
+    /**
+     * @param codeToRunOnDispatch 请求派发的时候
+     *
+     * @param codeToRunOnComplete 请求完成的时候
+     */
+    private SimpleInstrumentationContext(Consumer<CompletableFuture<T>> codeToRunOnDispatch,
+                                         BiConsumer<T, Throwable> codeToRunOnComplete) {
         this.codeToRunOnComplete = codeToRunOnComplete;
         this.codeToRunOnDispatch = codeToRunOnDispatch;
     }

@@ -9,8 +9,11 @@ import java.util.List;
 @PublicSpi
 public interface ExecutionStrategyInstrumentationContext extends InstrumentationContext<ExecutionResult> {
 
-    default void onFieldValuesInfo(List<FieldValueInfo> fieldValueInfoList) {
-
-    }
+    /**
+     * 在策略类的execute()中调用
+     *
+     * @param fieldValueInfoList 当前层级每个字段的解析结果
+     */
+    default void onFieldValuesInfo(List<FieldValueInfo> fieldValueInfoList) { }
 
 }

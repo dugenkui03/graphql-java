@@ -24,23 +24,32 @@ import java.util.function.Supplier;
 
 /**
  * This approach uses field level tracking to achieve its aims of making the data loader more efficient
+ *
+ * 跟踪字段的层级，使得dataLoader更加高效。
  */
 @Internal
 public class FieldLevelTrackingApproach {
+    // 调用get() 方法获取 DataLoaderRegistry对象
     private final Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier;
     private final Logger log;
 
+    // 调用栈，todo 又是一个InstrumentationState
     private static class CallStack implements InstrumentationState {
 
+        // 每一层期望获取个数
         private final Map<Integer, Integer> expectedFetchCountPerLevel = new LinkedHashMap<>();
+        // 每一层获取个数
         private final Map<Integer, Integer> fetchCountPerLevel = new LinkedHashMap<>();
+        // 每一层期望的策略调用
         private final Map<Integer, Integer> expectedStrategyCallsPerLevel = new LinkedHashMap<>();
+        // 每一层进行的策略调用
         private final Map<Integer, Integer> happenedStrategyCallsPerLevel = new LinkedHashMap<>();
+        // 每一层进行的 字段值/FieldValue 调用
         private final Map<Integer, Integer> happenedOnFieldValueCallsPerLevel = new LinkedHashMap<>();
-
-
+        // 派遣层级
         private final Set<Integer> dispatchedLevels = new LinkedHashSet<>();
 
+        // 初始化的时候， 每一层期望的策略调用 <1,1>
         CallStack() {
             expectedStrategyCallsPerLevel.put(1, 1);
         }

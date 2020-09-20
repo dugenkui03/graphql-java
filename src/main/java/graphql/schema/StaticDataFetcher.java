@@ -6,6 +6,8 @@ import graphql.TrivialDataFetcher;
 
 /**
  * A {@link graphql.schema.DataFetcher} that always returns the same value
+ *
+ * 总是返回构造参数中的值。
  */
 @PublicApi
 public class StaticDataFetcher implements DataFetcher, TrivialDataFetcher {

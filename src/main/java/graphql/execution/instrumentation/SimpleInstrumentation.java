@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * An implementation of {@link graphql.execution.instrumentation.Instrumentation} that does nothing.  It can be used
- * as a base for derived classes where you only implement the methods you want to
+ * An implementation of {@link graphql.execution.instrumentation.Instrumentation} that does nothing.
+ * It can be used as a base for derived classes where you only implement the methods you want to.
+ *
+ * 可以作为Instrumentation基准类、你只要实现你想实现的方法即可。
  */
 @PublicApi
 public class SimpleInstrumentation implements Instrumentation {
