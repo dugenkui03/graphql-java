@@ -18,8 +18,9 @@ public interface WiringFactory {
 
     /**
      * This is called to ask if this factory can provide a custom scalar
+     * 工厂是否能够提供自定义的 标量
      *
-     * @param environment the wiring environment
+     * @param environment the wiring environment 绑定环境
      *
      * @return true if the factory can give out a type resolver
      */

@@ -17,11 +17,14 @@ import static graphql.MutationSchema.schema;
 public class SubscriptionExamples {
 
     void basicSubscriptionExample() {
+
+        // 使用订阅策略创建graphql
         GraphQL graphQL = GraphQL
                 .newGraphQL(schema)
                 .subscriptionExecutionStrategy(new SubscriptionExecutionStrategy())
                 .build();
 
+        // fixme 订阅查询
         String query = "" +
                 "    subscription StockCodeSubscription {\n" +
                 "        stockQuotes(stockCode:\"IBM') {\n" +
@@ -31,10 +34,14 @@ public class SubscriptionExamples {
                 "            stockPriceChange\n" +
                 "        }\n" +
                 "    }\n";
+
+        // fixme 执行订阅
         ExecutionResult executionResult = graphQL.execute(query);
 
+        // fixme 结果是个 范型
         Publisher<ExecutionResult> stockPriceStream = executionResult.getData();
 
+        //
         AtomicReference<Subscription> subscriptionRef = new AtomicReference<>();
         stockPriceStream.subscribe(new Subscriber<ExecutionResult>() {
 

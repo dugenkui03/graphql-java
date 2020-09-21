@@ -1,11 +1,13 @@
 package graphql.schema.idl;
 
+import graphql.AssertException;
 import graphql.Directives;
 import graphql.GraphQLError;
 import graphql.PublicApi;
 import graphql.introspection.Introspection.DirectiveLocation;
 import graphql.language.Argument;
 import graphql.language.Directive;
+import graphql.language.DirectiveDefinition;
 import graphql.language.EnumTypeDefinition;
 import graphql.language.EnumTypeExtensionDefinition;
 import graphql.language.EnumValueDefinition;
@@ -76,7 +78,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static graphql.Assert.assertNotNull;
-import static graphql.Assert.assertTrue;
 import static graphql.introspection.Introspection.DirectiveLocation.ARGUMENT_DEFINITION;
 import static graphql.introspection.Introspection.DirectiveLocation.ENUM;
 import static graphql.introspection.Introspection.DirectiveLocation.ENUM_VALUE;
@@ -92,9 +93,19 @@ import static java.util.Collections.emptyList;
 
 /**
  * This can generate a working runtime schema from a type registry and runtime wiring
+ *
+ * 从 类型定义注册器TypeDefinitionRegistry 和 运行时绑定RuntimeWiring 创建 运行时schema。
  */
 @PublicApi
 public class SchemaGenerator {
+
+    /**
+     * fixme 只有三个变量：定义检查、生成器协助类和治理个协助类
+     */
+    private final SchemaTypeChecker typeChecker = new SchemaTypeChecker();
+    private final SchemaGeneratorHelper schemaGeneratorHelper = new SchemaGeneratorHelper();
+    private final SchemaGeneratorDirectiveHelper directiveBehaviour = new SchemaGeneratorDirectiveHelper();
+
 
     // These options control how the schema generation works
     // 控制schema generation如何工作
@@ -125,6 +136,7 @@ public class SchemaGenerator {
         BuildContext(TypeDefinitionRegistry typeRegistry, RuntimeWiring wiring, Map<String, OperationTypeDefinition> operationTypeDefinitions) {
             this.typeRegistry = typeRegistry;
             this.wiring = wiring;
+            // 拷贝一个新的对象，见effect - java
             this.codeRegistry = GraphQLCodeRegistry.newCodeRegistry(wiring.getCodeRegistry());
             this.operationTypeDefs = operationTypeDefinitions;
         }
@@ -136,9 +148,9 @@ public class SchemaGenerator {
         @SuppressWarnings({"OptionalGetWithoutIsPresent", "ConstantConditions"})
         TypeDefinition getTypeDefinition(Type type) {
             Optional<TypeDefinition> optionalTypeDefinition = typeRegistry.getType(type);
-            assertTrue(optionalTypeDefinition.isPresent(),
-                    () -> format(" type definition for type '%s' not found", type));
-            return optionalTypeDefinition.get();
+
+            return optionalTypeDefinition.orElseThrow(() ->
+                    new AssertException(format(" type definition for type '%s' not found", type)));
         }
 
         boolean stackContains(TypeInfo typeInfo) {
@@ -165,6 +177,8 @@ public class SchemaGenerator {
             return inputGTypes.get(typeDefinition.getName());
         }
 
+        // https://spec.graphql.org/draft/#IsInputType()
+        // If type is a Scalar, Object, Interface, Union, or Enum type, return true.
         void putOutputType(GraphQLNamedOutputType outputType) {
             outputGTypes.put(outputType.getName(), outputType);
             // certain types can be both input and output types, for example enums
@@ -173,6 +187,8 @@ public class SchemaGenerator {
             }
         }
 
+        // https://spec.graphql.org/draft/#IsInputType()
+        // If type is a Scalar, Object, Interface, Union, or Enum type, return true.
         void putInputType(GraphQLNamedInputType inputType) {
             inputGTypes.put(inputType.getName(), inputType);
             // certain types can be both input and output types, for example enums
@@ -202,12 +218,7 @@ public class SchemaGenerator {
         }
     }
 
-    private final SchemaTypeChecker typeChecker = new SchemaTypeChecker();
-    private final SchemaGeneratorHelper schemaGeneratorHelper = new SchemaGeneratorHelper();
-    private final SchemaGeneratorDirectiveHelper directiveBehaviour = new SchemaGeneratorDirectiveHelper();
-
-    public SchemaGenerator() {
-    }
+    public SchemaGenerator() { }
 
     /**
      * @param typeRegistry 解析的dsl对象
@@ -231,40 +242,68 @@ public class SchemaGenerator {
      * @throws SchemaProblem if there are problems in assembling a schema such as missing type resolvers or no operations defined
      */
     public GraphQLSchema makeExecutableSchema(Options options, TypeDefinitionRegistry typeRegistry, RuntimeWiring wiring) throws SchemaProblem {
-
+        // 创建一个空的类型定义注册器
         TypeDefinitionRegistry typeRegistryCopy = new TypeDefinitionRegistry();
+
+        // 合并定义的类型定义
         typeRegistryCopy.merge(typeRegistry);
 
+        // 添加默认的指令：specifiedBy、deprecated
         schemaGeneratorHelper.addDirectivesIncludedByDefault(typeRegistryCopy);
 
+        // 检查类型定义和 RuntimeWiring定义 是否合理
         List<GraphQLError> errors = typeChecker.checkTypeRegistry(typeRegistryCopy, wiring);
         if (!errors.isEmpty()) {
             throw new SchemaProblem(errors);
         }
 
+        // ？？获取操作定义？？
         Map<String, OperationTypeDefinition> operationTypeDefinitions = SchemaExtensionsChecker.gatherOperationDefs(typeRegistry);
+
+        // 使用 类型注册器、运行时绑定、操作类型定义创建一个 "空"GraphQLSchema创建上下文
         BuildContext buildCtx = new BuildContext(typeRegistryCopy, wiring, operationTypeDefinitions);
 
         return makeExecutableSchemaImpl(buildCtx);
     }
 
+    /**
+     * @param buildCtx 调用时只有 类型注册器：Query类型定义、Scalar定义和指令定义。
+     *                 、运行时绑定
+     *                 、操作类型定义
+     *                 等基本信息
+     *
+     * @return 创建并校验的 GraphQLSchema 对象。
+     */
     private GraphQLSchema makeExecutableSchemaImpl(BuildContext buildCtx) {
 
+        // 结果类builder
         GraphQLSchema.Builder schemaBuilder = GraphQLSchema.newSchema();
 
+        // fixme
+        //      第一行从 buildCtx 获取指令定义；
+        //      但是第三行才set指令定义。
+
+        // 创建自定义指令
+        // todo buildCtx已经作为了参数，直接把结果放到参数里边是否也可以？
         Set<GraphQLDirective> additionalDirectives = buildAdditionalDirectives(buildCtx);
         schemaBuilder.additionalDirectives(additionalDirectives);
+        // fixme 刚开始就在里边，但是没有初始化完成？?
         buildCtx.setDirectiveDefinitions(additionalDirectives);
 
+        // 指令
         buildSchemaDirectivesAndExtensions(buildCtx, schemaBuilder);
 
+        // 操作定义
         buildOperations(buildCtx, schemaBuilder);
 
+        // 类型定义：自定义的标量也在这里
         Set<GraphQLType> additionalTypes = buildAdditionalTypes(buildCtx);
         schemaBuilder.additionalTypes(additionalTypes);
 
+        // 字段可见性工具
         buildCtx.getCodeRegistry().fieldVisibility(buildCtx.getWiring().getFieldVisibility());
 
+        // GraphQLCodeRegistry：某个坐标字段对应的DataFetcher
         GraphQLCodeRegistry codeRegistry = buildCtx.getCodeRegistry().build();
         schemaBuilder.codeRegistry(codeRegistry);
 
@@ -273,6 +312,7 @@ public class SchemaGenerator {
         });
         GraphQLSchema graphQLSchema = schemaBuilder.build();
 
+        // 创建完schema的后置动作
         Collection<SchemaGeneratorPostProcessing> schemaTransformers = buildCtx.getWiring().getSchemaGeneratorPostProcessings();
         for (SchemaGeneratorPostProcessing postProcessing : schemaTransformers) {
             graphQLSchema = postProcessing.process(graphQLSchema);
@@ -280,12 +320,25 @@ public class SchemaGenerator {
         return graphQLSchema;
     }
 
+    /**
+     * @param buildCtx 持有定义的数据
+     * @param schemaBuilder 保存结果
+     */
     private void buildSchemaDirectivesAndExtensions(BuildContext buildCtx, GraphQLSchema.Builder schemaBuilder) {
+        // 由antlr解析语法得来
         TypeDefinitionRegistry typeRegistry = buildCtx.getTypeRegistry();
         List<Directive> schemaDirectiveList = SchemaExtensionsChecker.gatherSchemaDirectives(typeRegistry);
-        schemaBuilder.withSchemaDirectives(
-                buildDirectives(schemaDirectiveList, emptyList(), DirectiveLocation.SCHEMA, buildCtx.getDirectiveDefinitions(), buildCtx.getComparatorRegistry())
-        );
+
+        // 根据定义指令，创建运行时值ing
+        GraphQLDirective[] graphQLDirectives =
+                buildDirectives(schemaDirectiveList, // 定义指令
+                                emptyList(),         // 拓展指令
+                                DirectiveLocation.SCHEMA,   // 集合中指令的位置
+                                buildCtx.getDirectiveDefinitions(), // 指令定义集合
+                                buildCtx.getComparatorRegistry()  //
+                );
+
+        schemaBuilder.withSchemaDirectives(graphQLDirectives);
 
         schemaBuilder.definition(typeRegistry.schemaDefinition().orElse(null));
         schemaBuilder.extensionDefinitions(typeRegistry.getSchemaExtensionDefinitions());
@@ -372,25 +425,40 @@ public class SchemaGenerator {
                 }
             }
         });
-        typeRegistry.scalars().values().forEach(scalarTypeDefinition -> {
+
+        // 遍历类型注册器里边所有的标量
+        for (ScalarTypeDefinition scalarTypeDefinition : typeRegistry.scalars().values()) {
+            // 如果是内置标量、则跳过
             if (ScalarInfo.isGraphqlSpecifiedScalar(scalarTypeDefinition.getName())) {
-                return;
+                continue;
             }
+            // 创建额外的类型
             if (buildCtx.hasInputType(scalarTypeDefinition) == null && buildCtx.hasOutputType(scalarTypeDefinition) == null) {
                 additionalTypes.add(buildScalar(buildCtx, scalarTypeDefinition));
             }
-        });
+        }
+
         return additionalTypes;
     }
 
+
     private Set<GraphQLDirective> buildAdditionalDirectives(BuildContext buildCtx) {
         Set<GraphQLDirective> additionalDirectives = new LinkedHashSet<>();
+        // 类型注册器，包含Query类型定义、Scalar定义和自定义指令信息。
         TypeDefinitionRegistry typeRegistry = buildCtx.getTypeRegistry();
-        typeRegistry.getDirectiveDefinitions().values().forEach(directiveDefinition -> {
+
+
+
+        for (DirectiveDefinition directiveDefinition : typeRegistry.getDirectiveDefinitions().values()) {
+            // 构建指令参数
+            // directive @testDirective(aDate: Date) on OBJECT
             Function<Type, GraphQLInputType> inputTypeFactory = inputType -> buildInputType(buildCtx, inputType);
+
+            // 指令定义 -> 参数定义 -> 参数指令
             GraphQLDirective directive = schemaGeneratorHelper.buildDirectiveFromDefinition(directiveDefinition, inputTypeFactory);
             additionalDirectives.add(directive);
-        });
+        }
+
         return additionalDirectives;
     }
 
@@ -430,6 +498,7 @@ public class SchemaGenerator {
         } else if (typeDefinition instanceof EnumTypeDefinition) {
             outputType = buildEnumType(buildCtx, (EnumTypeDefinition) typeDefinition);
         } else if (typeDefinition instanceof ScalarTypeDefinition) {
+            // 作为输出类型创建
             outputType = buildScalar(buildCtx, (ScalarTypeDefinition) typeDefinition);
         } else {
             // typeDefinition is not a valid output type
@@ -441,11 +510,24 @@ public class SchemaGenerator {
         return (T) typeInfo.decorate(outputType);
     }
 
+    /**
+     * 使用上下文信息，构建 rawType 对应的输入类型
+     *
+     * @param buildCtx Query定义、Scalar定义和指令定义等上下文信息
+     *
+     * @param rawType  类型名称和 list包装/null包装
+     *
+     * @return  输入类型定义
+     */
     private GraphQLInputType buildInputType(BuildContext buildCtx, Type rawType) {
-
+        // 获取类型定义
         TypeDefinition typeDefinition = buildCtx.getTypeDefinition(rawType);
+
+        // 包含该类型最外层类型、最内层类型(typeName)和修饰符栈
         TypeInfo typeInfo = TypeInfo.typeInfo(rawType);
 
+        // 查看是否自定义了输入类型
+        // 如果有的话，将原生类型上定义的修饰符加到该类型上，返回即可
         GraphQLInputType inputType = buildCtx.hasInputType(typeDefinition);
         if (inputType != null) {
             return typeInfo.decorate(inputType);
@@ -463,6 +545,7 @@ public class SchemaGenerator {
         } else if (typeDefinition instanceof EnumTypeDefinition) {
             inputType = buildEnumType(buildCtx, (EnumTypeDefinition) typeDefinition);
         } else if (typeDefinition instanceof ScalarTypeDefinition) {
+            // 作为输出类型
             inputType = buildScalar(buildCtx, (ScalarTypeDefinition) typeDefinition);
         } else {
             // typeDefinition is not a valid InputType
@@ -707,8 +790,17 @@ public class SchemaGenerator {
                 .build();
     }
 
+    /**
+     * 在 schema构建上下文buildCtx 中添加 scalar定义
+     *
+     * @param buildCtx
+     * @param typeDefinition
+     * @return
+     */
     private GraphQLScalarType buildScalar(BuildContext buildCtx, ScalarTypeDefinition typeDefinition) {
+        // 获取类型注册器
         TypeDefinitionRegistry typeRegistry = buildCtx.getTypeRegistry();
+
         RuntimeWiring runtimeWiring = buildCtx.getWiring();
         WiringFactory wiringFactory = runtimeWiring.getWiringFactory();
         List<ScalarTypeExtensionDefinition> extensions = scalarTypeExtensions(typeDefinition, buildCtx);
@@ -721,7 +813,7 @@ public class SchemaGenerator {
         } else {
             scalar = buildCtx.getWiring().getScalars().get(typeDefinition.getName());
         }
-
+        // 如果不是内置标量
         if (!ScalarInfo.isGraphqlSpecifiedScalar(scalar)) {
             scalar = scalar.transform(builder -> builder
                     .definition(typeDefinition)
@@ -957,33 +1049,56 @@ public class SchemaGenerator {
     }
 
 
-    private GraphQLDirective[] buildDirectives(
-            List<Directive> directives,
-            List<Directive> extensionDirectives,
-            DirectiveLocation directiveLocation,
-            Set<GraphQLDirective> directiveDefinitions,
-            GraphqlTypeComparatorRegistry comparatorRegistry) {
-        directives = directives == null ? emptyList() : directives;
-        extensionDirectives = extensionDirectives == null ? emptyList() : extensionDirectives;
-        Set<String> names = new LinkedHashSet<>();
+    private GraphQLDirective[] buildDirectives(List<Directive> directives,
+                                               List<Directive> extensionDirectives,
+                                               DirectiveLocation directiveLocation,
+                                               // 已经解析好的
+                                               Set<GraphQLDirective> directiveDefinitions,
+                                               GraphqlTypeComparatorRegistry comparatorRegistry) {
+        directives = Optional.ofNullable(directives).orElse(emptyList());
+        extensionDirectives = Optional.ofNullable(extensionDirectives).orElse(emptyList());
 
+        // 已经遍历过的指令
+        Set<String> directiveName = new LinkedHashSet<>();
         List<GraphQLDirective> output = new ArrayList<>();
+
+        // 遍历并构造指令
         for (Directive directive : directives) {
-            if (!names.contains(directive.getName())) {
-                names.add(directive.getName());
-                output.add(schemaGeneratorHelper.buildDirective(directive, directiveDefinitions, directiveLocation, comparatorRegistry));
+            // 如果该指令已经遍历且构造过、则不再处理
+            if (!directiveName.contains(directive.getName())) {
+                directiveName.add(directive.getName());
+
+                GraphQLDirective graphQLDirective =
+                        schemaGeneratorHelper.buildDirective(directive, directiveDefinitions, directiveLocation, comparatorRegistry);
+
+                output.add(graphQLDirective);
             }
         }
+
+        // 同上，遍历指令拓展
         for (Directive directive : extensionDirectives) {
-            if (!names.contains(directive.getName())) {
-                names.add(directive.getName());
+            if (!directiveName.contains(directive.getName())) {
+                directiveName.add(directive.getName());
                 output.add(schemaGeneratorHelper.buildDirective(directive, directiveDefinitions, directiveLocation, comparatorRegistry));
             }
         }
         return output.toArray(new GraphQLDirective[0]);
     }
 
+    // 获取定义列表上的指令集合
+    private List<Directive> directivesOf(List<? extends TypeDefinition> typeDefinitions) {
+        Stream<Directive> directiveStream = typeDefinitions.stream()
+                // 过滤掉为null的数据
+                .map(TypeDefinition::getDirectives).filter(Objects::nonNull)
+                // 拍平 List<List<T>> -> List<T>
+                .flatMap(List::stream);
+        return directiveStream.collect(Collectors.toList());
+    }
 
+
+    /**
+     *  ==================================================== 获取定义的扩展信息 =====================================================
+     */
     private List<ObjectTypeExtensionDefinition> objectTypeExtensions(ObjectTypeDefinition
                                                                              typeDefinition, BuildContext buildCtx) {
         return nvl(buildCtx.typeRegistry.objectTypeExtensions().get(typeDefinition.getName()));
@@ -999,30 +1114,24 @@ public class SchemaGenerator {
         return nvl(buildCtx.typeRegistry.unionTypeExtensions().get(typeDefinition.getName()));
     }
 
-    private List<EnumTypeExtensionDefinition> enumTypeExtensions(EnumTypeDefinition typeDefinition, BuildContext
-            buildCtx) {
+    private List<EnumTypeExtensionDefinition> enumTypeExtensions(EnumTypeDefinition typeDefinition, BuildContext buildCtx) {
         return nvl(buildCtx.typeRegistry.enumTypeExtensions().get(typeDefinition.getName()));
     }
 
-    private List<ScalarTypeExtensionDefinition> scalarTypeExtensions(ScalarTypeDefinition
-                                                                             typeDefinition, BuildContext buildCtx) {
+    private List<ScalarTypeExtensionDefinition> scalarTypeExtensions(ScalarTypeDefinition typeDefinition, BuildContext buildCtx) {
         return nvl(buildCtx.typeRegistry.scalarTypeExtensions().get(typeDefinition.getName()));
     }
 
-    private List<InputObjectTypeExtensionDefinition> inputObjectTypeExtensions(InputObjectTypeDefinition
-                                                                                       typeDefinition, BuildContext buildCtx) {
+    private List<InputObjectTypeExtensionDefinition> inputObjectTypeExtensions(InputObjectTypeDefinition typeDefinition, BuildContext buildCtx) {
         return nvl(buildCtx.typeRegistry.inputObjectTypeExtensions().get(typeDefinition.getName()));
     }
 
+    // 为null、则返回空map
     private <T> List<T> nvl(List<T> list) {
         return list == null ? emptyList() : list;
     }
 
-    private List<Directive> directivesOf(List<? extends TypeDefinition> typeDefinition) {
-        Stream<Directive> directiveStream = typeDefinition.stream()
-                .map(TypeDefinition::getDirectives).filter(Objects::nonNull)
-                .flatMap(List::stream);
-        return directiveStream.collect(Collectors.toList());
-    }
-
+    /**
+     *  ====================================================获取定义的扩展信息=========================================================
+     */
 }

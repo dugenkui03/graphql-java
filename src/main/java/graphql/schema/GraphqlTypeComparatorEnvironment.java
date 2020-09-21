@@ -7,6 +7,10 @@ import java.util.function.Consumer;
 
 /**
  * Defines the scope to control where the registered {@code Comparator} can be applied.
+ *
+ * fixme
+ *     定义注册的比较器可以使用的范围。
+ *
  * <p>
  * {@code elementType}s can be ordered within its {@code parentType} to restrict the {@code Comparator}s scope of operation.
  * Otherwise supplying only the {@code elementType} results in the {@code Comparator} being reused across all matching {@code GraphQLType}s regardless of parent.
@@ -14,8 +18,10 @@ import java.util.function.Consumer;
 @PublicApi
 public class GraphqlTypeComparatorEnvironment {
 
+    // 父节点类型
     private Class<? extends GraphQLSchemaElement> parentType;
 
+    // 元素类型
     private Class<? extends GraphQLSchemaElement> elementType;
 
     private GraphqlTypeComparatorEnvironment(Class<? extends GraphQLSchemaElement> parentType, Class<? extends GraphQLSchemaElement> elementType) {
@@ -63,9 +69,12 @@ public class GraphqlTypeComparatorEnvironment {
 
         GraphqlTypeComparatorEnvironment that = (GraphqlTypeComparatorEnvironment) o;
 
+        // 比较parent是否相等
         if (parentType != null ? !parentType.equals(that.parentType) : that.parentType != null) {
             return false;
         }
+
+        // 比较元素是否相等
         return elementType.equals(that.elementType);
     }
 

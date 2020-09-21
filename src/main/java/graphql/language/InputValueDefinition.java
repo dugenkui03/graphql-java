@@ -22,9 +22,13 @@ import static java.util.Collections.emptyMap;
  */
 @PublicApi
 public class InputValueDefinition extends AbstractDescribedNode<InputValueDefinition> implements DirectivesContainer<InputValueDefinition>, NamedNode<InputValueDefinition>{
+    // 输入名称
     private final String name;
+    // 输入类型：scalar、枚举或者自定义的输入类型
     private final Type type;
+    // 默认值
     private final Value defaultValue;
+    // 输入上定义的变量
     private final List<Directive> directives;
 
     public static final String CHILD_TYPE = "type";

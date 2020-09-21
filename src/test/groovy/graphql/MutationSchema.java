@@ -14,6 +14,7 @@ import static graphql.schema.GraphQLSchema.newSchema;
 
 public class MutationSchema {
 
+    // 属性是个 number 数字
     public static class NumberHolder {
         int theNumber;
 

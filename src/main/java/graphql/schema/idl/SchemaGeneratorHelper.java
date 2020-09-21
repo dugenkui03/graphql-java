@@ -55,15 +55,22 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * Simple helper methods with no BuildContext argument
+ * Simple helper methods with no BuildContext argument.
+ *
+ * 协助创建 GraphQLSchema 的工具类。fixme：无状态的、或者说只有静态状态。
  */
 @Internal
 public class SchemaGeneratorHelper {
-
+    // "可能快不支持了"
     static final String NO_LONGER_SUPPORTED = "No longer supported";
+
+    // @deprecated 指令定义
     static final DirectiveDefinition DEPRECATED_DIRECTIVE_DEFINITION;
+
+    // @specified
     static final DirectiveDefinition SPECIFIED_BY_DIRECTIVE_DEFINITION;
 
+    // @specified 和 @deprecated的定义
     static {
         DEPRECATED_DIRECTIVE_DEFINITION = DirectiveDefinition.newDirectiveDefinition()
                 .name(Directives.DeprecatedDirective.getName())
@@ -96,31 +103,51 @@ public class SchemaGeneratorHelper {
         return new Description(s, null, false);
     }
 
+
     public Object buildValue(Value value, GraphQLType requiredType) {
         Object result = null;
+
+        // 如果是非空、则去掉 non-null 修饰符
         if (GraphQLTypeUtil.isNonNull(requiredType)) {
             requiredType = unwrapOne(requiredType);
         }
+
+        // 如果值是null、则返回null
         if (value == null || value instanceof NullValue) {
             return null;
         }
+
+        // 如果类型是scalar，则使用scalar规则解析
         if (requiredType instanceof GraphQLScalarType) {
             result = parseLiteral(value, (GraphQLScalarType) requiredType);
-        } else if (requiredType instanceof GraphQLEnumType && value instanceof EnumValue) {
+        }
+        // 如果是枚举类型切是枚举值，则使用枚举值规则解析
+        else if (requiredType instanceof GraphQLEnumType && value instanceof EnumValue) {
             result = ((EnumValue) value).getName();
-        } else if (requiredType instanceof GraphQLEnumType && value instanceof StringValue) {
+        }
+        // 如果是枚举类型切是StringValue，则使用字符串规则解析
+        else if (requiredType instanceof GraphQLEnumType && value instanceof StringValue) {
             result = ((StringValue) value).getValue();
-        } else if (isList(requiredType)) {
+        }
+        // 如果是list类型
+        else if (isList(requiredType)) {
+            // 如果是数组值
             if (value instanceof ArrayValue) {
                 result = buildArrayValue(requiredType, (ArrayValue) value);
-            } else {
+            }
+            // fixme 单个值，则将其包装为 single_list 类型
+            else {
                 result = buildArrayValue(requiredType, ArrayValue.newArrayValue().value(value).build());
             }
-        } else if (value instanceof ObjectValue && requiredType instanceof GraphQLInputObjectType) {
+        }
+        // 如果是输入类型 且 只是对象值
+        else if (requiredType instanceof GraphQLInputObjectType && value instanceof ObjectValue) {
             result = buildObjectValue((ObjectValue) value, (GraphQLInputObjectType) requiredType);
         } else {
             assertShouldNeverHappen(
-                    "cannot build value of type %s from object class %s with instance %s", simplePrint(requiredType), value.getClass().getSimpleName(), String.valueOf(value));
+                    "cannot build value of type %s from object class %s with instance %s"
+                    , simplePrint(requiredType), value.getClass().getSimpleName(), String.valueOf(value)
+            );
         }
         return result;
     }
@@ -133,13 +160,11 @@ public class SchemaGeneratorHelper {
     }
 
     public Object buildArrayValue(GraphQLType requiredType, ArrayValue arrayValue) {
-        Object result;
         GraphQLType wrappedType = unwrapOne(requiredType);
-        result = arrayValue.getValues().stream()
+        Object result = arrayValue.getValues().stream()
                 .map(item -> this.buildValue(item, wrappedType)).collect(toList());
         return result;
     }
-
 
     public Object buildObjectValue(ObjectValue defaultValue, GraphQLInputObjectType objectType) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -192,15 +217,28 @@ public class SchemaGeneratorHelper {
     }
 
 
+    // fixme 这些指令的解析不是在这里进行的，而是这里用到了
+    // (DirectiveDefinition directiveDefinition, Function<Type, GraphQLInputType> inputTypeFactory)
     // builds directives from a type and its extensions
-    public GraphQLDirective buildDirective(Directive directive, Set<GraphQLDirective> directiveDefinitions, DirectiveLocation directiveLocation, GraphqlTypeComparatorRegistry comparatorRegistry) {
-        GraphQLDirective directiveDefinition = FpKit.findOne(directiveDefinitions, dd -> dd.getName().equals(directive.getName())).get();
+    public GraphQLDirective buildDirective(Directive directive,
+                                           // 已经解析好的指令
+                                           // fixme 这些指令的解析不是在这里进行的，而是这里用到了
+                                           Set<GraphQLDirective> directiveDefinitions,
+                                           DirectiveLocation directiveLocation,
+                                           GraphqlTypeComparatorRegistry comparatorRegistry) {
+
+        // directiveDefinitions 可能为空： directive -> directive参数是对象 -> 对象上定义了指令：此时指令集合为空
+        // 已经解析好的指令 fixme 这些指令的解析不是在这里进行的，而是这里用到了
+        GraphQLDirective directiveDefinition = FpKit.findOne(directiveDefinitions, dd -> dd.getName().equals(directive.getName())).orElse(null);
+
+        // fixme scalar上定义的指令、具体使用的参数(定义的位置是scalar)
         GraphQLDirective.Builder builder = GraphQLDirective.newDirective()
                 .name(directive.getName())
                 .description(buildDescription(directive, null))
                 .comparatorRegistry(comparatorRegistry)
                 .validLocations(directiveLocation);
 
+        // fixme 解析起具体注解的参数
         List<GraphQLArgument> arguments = directive.getArguments().stream()
                 .map(arg -> buildDirectiveArgument(arg, directiveDefinition))
                 .collect(toList());
@@ -211,21 +249,34 @@ public class SchemaGeneratorHelper {
         return builder.build();
     }
 
+    /**
+     * 构建指令参数
+     *
+     * @param arg 字段或者指令上具体使用的参数
+     * @param directiveDefinition
+     * @return
+     */
     private GraphQLArgument buildDirectiveArgument(Argument arg, GraphQLDirective directiveDefinition) {
+        // 获取 字段/指令 具体用到的参数
         GraphQLArgument directiveDefArgument = directiveDefinition.getArgument(arg.getName());
-        GraphQLArgument.Builder builder = GraphQLArgument.newArgument();
-        builder.name(arg.getName());
-        GraphQLInputType inputType;
-        Object defaultValue = null;
-        inputType = directiveDefArgument.getType();
-        defaultValue = directiveDefArgument.getDefaultValue();
-        builder.type(inputType);
-        builder.defaultValue(defaultValue);
 
-        Object value = buildValue(arg.getValue(), inputType);
-        //
+        // 构造新的参数对象
+        GraphQLArgument.Builder builder = GraphQLArgument.newArgument();
+
+        // 名称
+        builder.name(arg.getName());
+
+        // 指令参数的类型
+        builder.type(directiveDefArgument.getType());
+
+        //默认值
+        builder.defaultValue(directiveDefArgument.getDefaultValue());
+
+        // fixme value
+        // 如果指定的值为null、则使用默认值作为 GraphQLArgument 的value
         // we put the default value in if the specified is null
-        builder.value(value == null ? defaultValue : value);
+        Object value = buildValue(arg.getValue(), directiveDefArgument.getType());
+        builder.value(value == null ? directiveDefArgument.getDefaultValue() : value);
 
         return builder.build();
     }
@@ -253,31 +304,45 @@ public class SchemaGeneratorHelper {
     public GraphQLDirective buildDirectiveFromDefinition(DirectiveDefinition directiveDefinition, Function<Type, GraphQLInputType> inputTypeFactory) {
 
         GraphQLDirective.Builder builder = GraphQLDirective.newDirective()
+                // 指令名称
                 .name(directiveDefinition.getName())
+                // 指令位置
                 .definition(directiveDefinition)
-                .description(buildDescription(directiveDefinition, directiveDefinition.getDescription()));
+                .description(buildDescription(directiveDefinition, directiveDefinition.getDescription())); // 指令描述
 
 
         List<DirectiveLocation> locations = buildLocations(directiveDefinition);
         locations.forEach(builder::validLocations);
 
-        List<GraphQLArgument> arguments = directiveDefinition.getInputValueDefinitions().stream()
-                .map(arg -> buildDirectiveArgumentFromDefinition(arg, inputTypeFactory))
-                .collect(toList());
-        arguments.forEach(builder::argument);
+        // 创建指令参数：遍历指令入参，解析为
+        for (InputValueDefinition dirArgument : directiveDefinition.getInputValueDefinitions()) {
+            GraphQLArgument runtimeArg = buildDirectiveArgumentFromDefinition(dirArgument, inputTypeFactory);
+            builder.argument(runtimeArg);
+        }
+
         return builder.build();
     }
 
-    private GraphQLArgument buildDirectiveArgumentFromDefinition(InputValueDefinition arg, Function<Type, GraphQLInputType> inputTypeFactory) {
+    /**
+     * 从 InputValueDefinition 获取 参数定义
+     *
+     * @param inputValueDef 输入定义
+     *
+     * @param inputTypeFactory
+     */
+    private GraphQLArgument buildDirectiveArgumentFromDefinition(InputValueDefinition inputValueDef,Function<Type, GraphQLInputType> inputTypeFactory) {
+        // 参数名称 和 参数定义
         GraphQLArgument.Builder builder = GraphQLArgument.newArgument()
-                .name(arg.getName())
-                .definition(arg);
+                .name(inputValueDef.getName())
+                .definition(inputValueDef);
 
-        GraphQLInputType inputType = inputTypeFactory.apply(arg.getType());
+        // todo
+        GraphQLInputType inputType = inputTypeFactory.apply(inputValueDef.getType());
+
         builder.type(inputType);
-        builder.value(buildValue(arg.getDefaultValue(), inputType));
-        builder.defaultValue(buildValue(arg.getDefaultValue(), inputType));
-        builder.description(buildDescription(arg, arg.getDescription()));
+        builder.value(buildValue(inputValueDef.getDefaultValue(), inputType));
+        builder.defaultValue(buildValue(inputValueDef.getDefaultValue(), inputType));
+        builder.description(buildDescription(inputValueDef, inputValueDef.getDescription()));
         return builder.build();
     }
 

@@ -9,6 +9,8 @@ public interface GraphqlTypeComparatorRegistry {
 
     /**
      * A registry that leaves the elements as there currently are
+     *
+     * 注册表，保留了当前元素
      */
     GraphqlTypeComparatorRegistry AS_IS_REGISTRY = new GraphqlTypeComparatorRegistry() {
         @Override
@@ -20,6 +22,8 @@ public interface GraphqlTypeComparatorRegistry {
 
     /**
      * A registry that sorts the elements by their name ascending
+     *
+     * 注册表，按照 元素名称 排序。
      */
     GraphqlTypeComparatorRegistry BY_NAME_REGISTRY = new GraphqlTypeComparatorRegistry() {
         @Override
@@ -34,6 +38,7 @@ public interface GraphqlTypeComparatorRegistry {
      * @param <T>         the type of the comparator
      *
      * @return The registered {@code Comparator} or {@code null} if not found.
+     *         返回注册的比较器，如果没有则返回null。
      */
     <T extends GraphQLSchemaElement> Comparator<? super T> getComparator(GraphqlTypeComparatorEnvironment environment);
 }

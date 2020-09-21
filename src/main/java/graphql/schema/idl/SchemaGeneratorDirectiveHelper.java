@@ -29,8 +29,11 @@ import static graphql.Assert.assertNotNull;
 import static java.util.stream.Collectors.toList;
 
 /**
- * This contains the helper code that allows {@link graphql.schema.idl.SchemaDirectiveWiring} implementations
- * to be invoked during schema generation.
+ * This contains the helper code that allows
+ * {@link SchemaDirectiveWiring} implementations to be invoked during schema generation.
+ *
+ * fixme
+ *      使得 SchemaDirectiveWiring 实现类可以在 schema生成期间被调用
  */
 @Internal
 public class SchemaGeneratorDirectiveHelper {
@@ -121,7 +124,11 @@ public class SchemaGeneratorDirectiveHelper {
         return new GraphqlElementParentTree(nodeStack);
     }
 
-    private List<GraphQLArgument> wireArguments(GraphQLFieldDefinition fieldDefinition, GraphQLFieldsContainer fieldsContainer, NamedNode fieldsContainerNode, Parameters params, GraphQLFieldDefinition field) {
+    private List<GraphQLArgument> wireArguments(GraphQLFieldDefinition fieldDefinition,
+                                                GraphQLFieldsContainer fieldsContainer,
+                                                NamedNode fieldsContainerNode,
+                                                Parameters params,
+                                                GraphQLFieldDefinition field) {
         return field.getArguments().stream().map(argument -> {
 
             NodeParentTree<NamedNode> nodeParentTree = buildAstTree(fieldsContainerNode, field.getDefinition(), argument.getDefinition());
@@ -133,7 +140,9 @@ public class SchemaGeneratorDirectiveHelper {
         }).collect(toList());
     }
 
-    private List<GraphQLFieldDefinition> wireFields(GraphQLFieldsContainer fieldsContainer, NamedNode fieldsContainerNode, Parameters params) {
+    private List<GraphQLFieldDefinition> wireFields(GraphQLFieldsContainer fieldsContainer,
+                                                    NamedNode fieldsContainerNode,
+                                                    Parameters params) {
         return fieldsContainer.getFieldDefinitions().stream().map(fieldDefinition -> {
 
             // and for each argument in the fieldDefinition run the wiring for them - and note that they can change
@@ -263,6 +272,7 @@ public class SchemaGeneratorDirectiveHelper {
 
     //
     // builds a type safe SchemaDirectiveWiringEnvironment
+    // 构建一个类型安全的 schema指令绑定环境 SchemaDirectiveWiringEnvironment
     //
     interface EnvBuilder<T extends GraphQLDirectiveContainer> {
         SchemaDirectiveWiringEnvironment<T> apply(T outputElement, List<GraphQLDirective> allDirectives, GraphQLDirective registeredDirective);
@@ -314,7 +324,10 @@ public class SchemaGeneratorDirectiveHelper {
         return outputObject;
     }
 
-    private <T extends GraphQLDirectiveContainer> T invokeWiring(T element, EnvInvoker<T> invoker, SchemaDirectiveWiring schemaDirectiveWiring, SchemaDirectiveWiringEnvironment<T> env) {
+    private <T extends GraphQLDirectiveContainer> T invokeWiring(T element,
+                                                                 EnvInvoker<T> invoker,
+                                                                 SchemaDirectiveWiring schemaDirectiveWiring,
+                                                                 SchemaDirectiveWiringEnvironment<T> env) {
         T newElement = invoker.apply(schemaDirectiveWiring, env);
         assertNotNull(newElement, () -> "The SchemaDirectiveWiring MUST return a non null return value for element '" + element.getName() + "'");
         return newElement;

@@ -25,22 +25,33 @@ public class TypeInfo {
         return new TypeInfo(type);
     }
 
+    // 最外层的类型。注：不是最内层、最内层肯定是 typeName
     private final Type rawType;
+
+    // 最内层的类型名称
     private final TypeName typeName;
+
+    // 使用栈保存此类型的修饰
     private final Stack<Class<?>> decoration = new Stack<>();
 
     private TypeInfo(Type type) {
-        this.rawType = assertNotNull(type, () -> "type must not be null");
+        this.rawType = assertNotNull(type, () -> "type must not be null.");
+
         while (!(type instanceof TypeName)) {
             if (type instanceof NonNullType) {
+                // 入栈修饰
                 decoration.push(NonNullType.class);
+                // 获取内层类型
                 type = ((NonNullType) type).getType();
             }
             if (type instanceof ListType) {
+                // 入栈修饰符
                 decoration.push(ListType.class);
+                // 获取内层类型
                 type = ((ListType) type).getType();
             }
         }
+        // 为 typeName赋值
         this.typeName = (TypeName) type;
     }
 
@@ -94,8 +105,10 @@ public class TypeInfo {
     }
 
     /**
-     * This will decorate a graphql type with the original hierarchy of non null and list'ness
-     * it originally contained in its definition type
+     * This will decorate a graphql type with the original hierarchy
+     * of non null and list'ness it originally contained in its definition type
+     * fixme
+     *      使用decoration中的类型修饰(list，non-null)对参数指定的类型进行包装。
      *
      * @param objectType this should be a graphql type that was originally built from this raw type
      * @param <T>        the type
@@ -104,7 +117,6 @@ public class TypeInfo {
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public <T extends GraphQLType> T decorate(GraphQLType objectType) {
-
         GraphQLType out = objectType;
         Stack<Class<?>> wrappingStack = new Stack<>();
         wrappingStack.addAll(this.decoration);

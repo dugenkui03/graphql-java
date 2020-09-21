@@ -22,8 +22,9 @@ import static java.util.Collections.emptyMap;
  */
 @PublicApi
 public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinition> implements NamedNode<OperationTypeDefinition> {
-
+    // "？操作名称？"
     private final String name;
+    // 类型名称
     private final TypeName typeName;
 
     public static final String CHILD_TYPE_NAME = "typeName";
