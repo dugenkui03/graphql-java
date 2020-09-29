@@ -702,13 +702,25 @@ public class GraphQL {
         return future;
     }
 
+    /**
+     * @param instrumentation
+     * @param doNotAddDefaultInstrumentations 不添加默认的 Instrumentation，默认false
+     * @return 修改后的Instrumentation
+     *         fixme
+     *              不管怎么样，都要加上 DataLoaderDispatcherInstrumentation
+     */
     private static Instrumentation checkInstrumentationDefaultState(Instrumentation instrumentation, boolean doNotAddDefaultInstrumentations) {
+        // 如果设定添加默认的instrumentation、则在instrumentation为null时将其更新为 SimpleInstrumentation.INSTANCE
         if (doNotAddDefaultInstrumentations) {
             return instrumentation == null ? SimpleInstrumentation.INSTANCE : instrumentation;
         }
+
+        // 如果instrumentation为 DataLoaderDispatcherInstrumentation，则直接返回
         if (instrumentation instanceof DataLoaderDispatcherInstrumentation) {
             return instrumentation;
         }
+
+        // 如果如果instrumentation为null、则返回DataLoaderDispatcherInstrumentation
         if (instrumentation == null) {
             return new DataLoaderDispatcherInstrumentation();
         }

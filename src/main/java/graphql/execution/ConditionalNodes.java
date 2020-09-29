@@ -15,10 +15,15 @@ import static graphql.language.NodeUtil.directiveByName;
 @Internal
 public class ConditionalNodes {
 
-
     @VisibleForTesting
     ValuesResolver valuesResolver = new ValuesResolver();
 
+    /**
+     *
+     * @param variables 查询变量
+     * @param directives fixme 查询field/片段 上定义的指令
+     * @return
+     */
     public boolean shouldInclude(Map<String, Object> variables, List<Directive> directives) {
         boolean skip = getDirectiveResult(variables, directives, SkipDirective.getName(), false);
         boolean include = getDirectiveResult(variables, directives, IncludeDirective.getName(), true);

@@ -145,7 +145,11 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
+     * This is the entry point to an execution strategy.
+     * It will be passed the fields to execute and get values for.
+     *
+     * fixme
+     *      执行策略入口，将会解析字段并返回值
      *
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
@@ -153,7 +157,8 @@ public abstract class ExecutionStrategy {
      * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value
      */
     public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
-                                                               ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
+                                                               ExecutionStrategyParameters parameters)
+            throws NonNullableFieldWasNullException;
 
     /**
      * Called to fetch a value for a field and resolve it further in terms of the graphql query.  This will call
@@ -895,6 +900,8 @@ public abstract class ExecutionStrategy {
     }
 
 
+    // 获取第一个字段的别名或名称
+    // ResultPath中的路径名称是别名
     @Internal
     public static String mkNameForPath(List<Field> currentField) {
         Field field = currentField.get(0);

@@ -46,8 +46,9 @@ import static graphql.schema.idl.errors.DirectiveIllegalArgumentTypeError.NOT_A_
 import static graphql.schema.idl.errors.DirectiveIllegalArgumentTypeError.UNKNOWN_FIELDS_MESSAGE;
 
 /**
- * Class to check whether a given directive argument value
- * matches a given directive definition.
+ * Class to check whether a given directive argument value matches a given directive definition.
+ *
+ * 检查给定的指令参数是否符合指令定义上参数的类型
  *
  */
 @Internal

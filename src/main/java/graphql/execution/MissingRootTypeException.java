@@ -11,6 +11,8 @@ import graphql.language.SourceLocation;
 
 /**
  * This is thrown if a query is attempting to perform an operation not defined in the GraphQL schema
+ *
+ * 查询dsl要执行的 查询、更新、订阅 操作没有在schema中定义
  */
 @PublicApi
 public class MissingRootTypeException extends GraphQLException implements GraphQLError {

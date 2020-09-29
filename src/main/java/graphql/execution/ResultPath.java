@@ -27,6 +27,7 @@ import static java.lang.String.format;
 public class ResultPath {
 
     /**
+     * fixme ？？根节点？？
      * All paths start from here
      */
     private static final ResultPath ROOT_PATH = new ResultPath();
@@ -35,11 +36,15 @@ public class ResultPath {
     }
 
     /**
+     * fixme 节点值
+     *
      * 是数字、则表示是list，例如 /pets[0]；
      *
      * 是String，则表示是一个命名的变量。
      */
     private final Object segment;
+
+    // fixme 父节点
     private final ResultPath parent;
 
     // hash is effective(有效的) immutable(不可变的) but lazily initialized(懒加载),
@@ -62,10 +67,15 @@ public class ResultPath {
         this.segment = segment;
     }
 
+    /**
+     * 当前节点的层级
+     */
     public int getLevel() {
         int counter = 0;
         ResultPath currentPath = this;
         while (currentPath != null) {
+            // "是数字、则表示是list，例如 /pets[0]；" 所以不用递增
+            // 例如某个字段是 List<Integer>，那么这就是叶子节点
             if (currentPath.segment instanceof String) {
                 counter++;
             }
@@ -74,6 +84,7 @@ public class ResultPath {
         return counter;
     }
 
+    // todo
     public ResultPath getPathWithoutListEnd() {
         if (ROOT_PATH.equals(this)) {
             return ROOT_PATH;
@@ -292,6 +303,8 @@ public class ResultPath {
             return segmentToString();
         }
 
+        // 从父节点开始打印
+        // person/name
         return parent.toString() + segmentToString();
     }
 

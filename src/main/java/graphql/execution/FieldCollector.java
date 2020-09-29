@@ -114,8 +114,10 @@ public class FieldCollector {
      * @param fields fixme 数据存放集合
      * @param fragmentSpread 片段定义
      */
-    private void collectFragmentSpread(FieldCollectorParameters collectorParameters, Set<String> visitedFragments,
-                                       Map<String, MergedField> fields, FragmentSpread fragmentSpread) {
+    private void collectFragmentSpread(FieldCollectorParameters collectorParameters,
+                                       Set<String> visitedFragments,
+                                       Map<String, MergedField> fields,
+                                       FragmentSpread fragmentSpread) {
         //如果片段字段已经被收集过、则返回
         if (visitedFragments.contains(fragmentSpread.getName())) {
             return;

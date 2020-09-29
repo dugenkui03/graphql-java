@@ -18,6 +18,8 @@ public class ScalarInfo {
 
     /**
      * A list of the built-in scalar types as defined by the graphql specification
+     *
+     * todo 这是个公共类、公共接口，所以可能变成高频操作，所以最好还是使用 O(1)的算法；no no no: 因为元素及其有限，所以也不用非得用个map包装；
      */
     public static final List<GraphQLScalarType> GRAPHQL_SPECIFICATION_SCALARS = new ArrayList<>();
 

@@ -43,8 +43,7 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         Instrumentation instrumentation = executionContext.getInstrumentation();
 
         // MergedField
-        InstrumentationExecutionStrategyParameters instrumentationParameters =
-                new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
+        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
 
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 

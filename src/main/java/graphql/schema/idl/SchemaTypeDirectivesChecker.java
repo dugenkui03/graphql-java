@@ -50,6 +50,7 @@ import static graphql.util.FpKit.mergeFirst;
 @Internal
 class SchemaTypeDirectivesChecker {
 
+    // 保存了指令定义信息
     private final TypeDefinitionRegistry typeRegistry;
     private final RuntimeWiring runtimeWiring;
 
@@ -59,34 +60,73 @@ class SchemaTypeDirectivesChecker {
         this.runtimeWiring = runtimeWiring;
     }
 
+    /**
+     * 检查指令定义，并将错误放到 参数errors 中
+     *
+     *         SCHEMA,
+     *         SCALAR,
+     *         OBJECT,
+     *         FIELD_DEFINITION,
+     *         ARGUMENT_DEFINITION,
+     *         INTERFACE,
+     *         UNION,
+     *         ENUM,
+     *         ENUM_VALUE,
+     *         INPUT_OBJECT,
+     *         INPUT_FIELD_DEFINITION
+     *
+     * @param errors
+     */
     void checkTypeDirectives(List<GraphQLError> errors) {
+        // ObjectType
         typeRegistry.objectTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(OBJECT, errors, ext)));
+
+        // interface
         typeRegistry.interfaceTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(INTERFACE, errors, ext)));
+
+        // union
         typeRegistry.unionTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(UNION, errors, ext)));
+
+        // enum
         typeRegistry.enumTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(ENUM, errors, ext)));
+
+        // scalar
         typeRegistry.scalarTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(SCALAR, errors, ext)));
+
+        // inputType
         typeRegistry.inputObjectTypeExtensions().values()
                 .forEach(extDefinitions -> extDefinitions.forEach(ext -> checkDirectives(INPUT_OBJECT, errors, ext)));
 
+        // ObjectTypeDefinition
         typeRegistry.getTypes(ObjectTypeDefinition.class)
                 .forEach(typeDef -> checkDirectives(OBJECT, errors, typeDef));
+
+        // InterfaceTypeDefinition
         typeRegistry.getTypes(InterfaceTypeDefinition.class)
                 .forEach(typeDef -> checkDirectives(INTERFACE, errors, typeDef));
+
+        // UnionTypeDefinition
         typeRegistry.getTypes(UnionTypeDefinition.class)
                 .forEach(typeDef -> checkDirectives(UNION, errors, typeDef));
+
+        // EnumTypeDefinition
         typeRegistry.getTypes(EnumTypeDefinition.class)
                 .forEach(typeDef -> checkDirectives(ENUM, errors, typeDef));
+
+        // InputObjectTypeDefinition
         typeRegistry.getTypes(InputObjectTypeDefinition.class)
                 .forEach(typeDef -> checkDirectives(INPUT_OBJECT, errors, typeDef));
 
+        // SCALAR
         typeRegistry.scalars().values()
                 .forEach(typeDef -> checkDirectives(SCALAR, errors, typeDef));
 
+        // todo 检查schema上的指令？
         List<Directive> schemaDirectives = SchemaExtensionsChecker.gatherSchemaDirectives(typeRegistry, errors);
         // we need to have a Node for error reporting so we make one in case there is not one
         SchemaDefinition schemaDefinition = typeRegistry.schemaDefinition().orElse(SchemaDefinition.newSchemaDefinition().build());
@@ -94,9 +134,16 @@ class SchemaTypeDirectivesChecker {
     }
 
 
+    /**
+     * @param expectedLocation 指令使用的位置——注意、是在schema中使用的位置，而非定义的位置
+     * @param errors 保存错误信息
+     * @param typeDef 类型引用
+     */
     private void checkDirectives(DirectiveLocation expectedLocation, List<GraphQLError> errors, TypeDefinition<?> typeDef) {
+        // fixme 现在这里检查总的，例如枚举、类型
         checkDirectives(expectedLocation, errors, typeRegistry, typeDef, typeDef.getName(), typeDef.getDirectives());
 
+        // fixme 然后在这里检查枚举值、类型字段等
         if (typeDef instanceof ObjectTypeDefinition) {
             List<FieldDefinition> fieldDefinitions = ((ObjectTypeDefinition) typeDef).getFieldDefinitions();
             checkFieldsDirectives(errors, typeRegistry, fieldDefinitions);
@@ -107,6 +154,7 @@ class SchemaTypeDirectivesChecker {
         }
         if (typeDef instanceof EnumTypeDefinition) {
             List<EnumValueDefinition> enumValueDefinitions = ((EnumTypeDefinition) typeDef).getEnumValueDefinitions();
+            // 检查每一个枚举值
             enumValueDefinitions.forEach(definition -> checkDirectives(ENUM_VALUE, errors, typeRegistry, definition, definition.getName(), definition.getDirectives()));
         }
         if (typeDef instanceof InputObjectTypeDefinition) {
@@ -124,7 +172,19 @@ class SchemaTypeDirectivesChecker {
         });
     }
 
-    private void checkDirectives(DirectiveLocation expectedLocation, List<GraphQLError> errors, TypeDefinitionRegistry typeRegistry, Node<?> element, String elementName, List<Directive> directives) {
+    /**
+     * @param expectedLocation 指令使用的位置——注意、是在schema中使用的位置，而非定义的位置
+     * @param errors 保存错误信息
+     * @param typeRegistry 全局变量
+     * @param element 类型引用
+     * @param elementName 类型名称
+     * @param directives 类型上使用的指令
+     */
+    private void checkDirectives(DirectiveLocation expectedLocation,
+                                 List<GraphQLError> errors,
+                                 TypeDefinitionRegistry typeRegistry,
+                                 Node<?> element, String elementName,
+                                 List<Directive> directives) {
         directives.forEach(directive -> {
             // we have special code for the deprecation directive in SchemaTypeChecker.checkDeprecatedDirective
             if (Directives.DeprecatedDirective.getName().equals(directive.getName())) {
@@ -142,6 +202,7 @@ class SchemaTypeDirectivesChecker {
         });
     }
 
+    // 规则一：是否在正确的位置
     private boolean inRightLocation(DirectiveLocation expectedLocation, DirectiveDefinition directiveDefinition) {
         List<String> names = directiveDefinition.getDirectiveLocations()
                 .stream().map(graphql.language.DirectiveLocation::getName)
@@ -151,7 +212,12 @@ class SchemaTypeDirectivesChecker {
         return names.contains(expectedLocation.name().toUpperCase());
     }
 
-    private void checkDirectiveArguments(List<GraphQLError> errors, TypeDefinitionRegistry typeRegistry, Node element, String elementName, Directive directive, DirectiveDefinition directiveDefinition) {
+    // 规则二：参数定义 fixme 看errors.add()
+    private void checkDirectiveArguments(List<GraphQLError> errors,
+                                         TypeDefinitionRegistry typeRegistry,
+                                         Node element, String elementName,
+                                         Directive directive,
+                                         DirectiveDefinition directiveDefinition) {
         Map<String, InputValueDefinition> allowedArgs = getByName(directiveDefinition.getInputValueDefinitions(), (InputValueDefinition::getName), mergeFirst());
         Map<String, Argument> providedArgs = getByName(directive.getArguments(), (Argument::getName), mergeFirst());
         directive.getArguments().forEach(argument -> {
@@ -172,6 +238,7 @@ class SchemaTypeDirectivesChecker {
         });
     }
 
+    // 规则三: 如果指令上定义了非空参数、而且该参数没有默认值，那么必须使用这个参数
     private boolean isNoNullArgWithoutDefaultValue(InputValueDefinition definitionArgument) {
         return definitionArgument.getType() instanceof NonNullType && definitionArgument.getDefaultValue() == null;
     }

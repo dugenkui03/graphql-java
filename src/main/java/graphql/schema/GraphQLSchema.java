@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
 @PublicApi
 public class GraphQLSchema {
 
-    //操作类型
+    //操作类型 fixme 一个schema只能有一个查询、更新或者订阅类型
     private final GraphQLObjectType queryType;
     private final GraphQLObjectType mutationType;
     private final GraphQLObjectType subscriptionType;

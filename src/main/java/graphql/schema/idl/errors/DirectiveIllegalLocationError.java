@@ -6,6 +6,9 @@ import graphql.language.Node;
 
 import static java.lang.String.format;
 
+/**
+ * 指令位置错误
+ */
 @Internal
 public class DirectiveIllegalLocationError extends BaseError {
 

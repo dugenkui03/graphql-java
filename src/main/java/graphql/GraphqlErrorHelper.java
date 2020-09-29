@@ -72,7 +72,9 @@ public class GraphqlErrorHelper {
         if (dis == o) {
             return true;
         }
-        if (o == null || dis.getClass() != o.getClass()) return false;
+        if (o == null || dis.getClass() != o.getClass()){
+            return false;
+        }
 
         GraphQLError dat = (GraphQLError) o;
 
