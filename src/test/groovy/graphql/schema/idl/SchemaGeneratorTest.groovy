@@ -871,16 +871,23 @@ class SchemaGeneratorTest extends Specification {
             query: Query
         }
         """
+        // fixme 枚举类型 provider：输入一个值、返回名称相同的枚举值
         def enumValuesProvider = new NaturalEnumValuesProvider<ExampleEnum>(ExampleEnum.class)
-        when:
 
+        when:
         def wiring = newRuntimeWiring()
+                // fixme 将 Graphql的枚举 Enum 和 java枚举provider绑定
                 .type("Enum", { TypeRuntimeWiring.Builder it -> it.enumValues(enumValuesProvider) } as UnaryOperator)
                 .build()
+
+        // 使用 规范定义和 运行时绑定，生成schema
+        // todo 运行时绑定主要是提供 类型解析规则、字段与dataFetcher的绑定关系等
         def schema = schema(spec, wiring)
+        //
         GraphQLEnumType enumType = schema.getType("Enum") as GraphQLEnumType
 
         then:
+        // fixme graphql枚举 和 java 枚举绑定上了
         enumType.getValue("A").value == ExampleEnum.A
         enumType.getValue("B").value == ExampleEnum.B
         enumType.getValue("C").value == ExampleEnum.C
