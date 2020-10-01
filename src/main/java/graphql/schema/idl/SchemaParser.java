@@ -65,6 +65,8 @@ public class SchemaParser {
 
     /**
      * Parse a reader of schema definitions and create a {@link TypeDefinitionRegistry}
+     * fixme
+     *      将字符串定义的类型信息，转换成 TypeDefinitionRegistry对象
      *
      * @param reader the reader to parse
      *
@@ -109,9 +111,11 @@ public class SchemaParser {
         return new SchemaProblem(Collections.singletonList(invalidSyntaxError));
     }
 
-    /**fixme 从文档直接构建TypeDefinitionRegistry的方法。
+    /**
      * special method to build directly a TypeDefinitionRegistry from a Document
      * useful for Introspection => IDL (Document) => TypeDefinitionRegistry.
+     * fixme
+     *      将字符串解析的Document 转换成 TypeDefinitionRegistry
      *
      * IDL：接口定义语言 (interface definition language)
      *

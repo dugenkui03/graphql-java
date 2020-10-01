@@ -214,9 +214,13 @@ public class RuntimeWiring {
          * This form allows a lambda to be used as the builder of a type wiring
          *
          * @param typeName        the name of the type to wire
+         *                        需要绑定的类型名称
+         *
          * @param builderFunction a function that will be given the builder to use
+         *                        "给构造器使用的函数"
          *
          * @return the runtime wiring builder
+         *         运行时绑定 的builder
          */
         public Builder type(String typeName, UnaryOperator<TypeRuntimeWiring.Builder> builderFunction) {
             TypeRuntimeWiring.Builder builder = builderFunction.apply(TypeRuntimeWiring.newTypeWiring(typeName));

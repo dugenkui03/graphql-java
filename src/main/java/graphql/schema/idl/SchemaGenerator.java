@@ -413,18 +413,24 @@ public class SchemaGenerator {
     private Set<GraphQLType> buildAdditionalTypes(BuildContext buildCtx) {
         Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
         TypeDefinitionRegistry typeRegistry = buildCtx.getTypeRegistry();
-        typeRegistry.types().values().forEach(typeDefinition -> {
+
+        // 遍历类型注册器中的所有类型定义(某个类型与dataFetcher、TypeResolver或者EnumValueProvider的绑定关系)
+        for (TypeDefinition typeDefinition : typeRegistry.types().values()) {
             TypeName typeName = TypeName.newTypeName().name(typeDefinition.getName()).build();
+
+            // 如果是输入对象类型
             if (typeDefinition instanceof InputObjectTypeDefinition) {
                 if (buildCtx.hasInputType(typeDefinition) == null) {
                     additionalTypes.add(buildInputType(buildCtx, typeName));
                 }
-            } else {
+            }
+            // 非输入对象类型
+            else {
                 if (buildCtx.hasOutputType(typeDefinition) == null) {
                     additionalTypes.add(buildOutputType(buildCtx, typeName));
                 }
             }
-        });
+        }
 
         // 遍历类型注册器里边所有的标量
         for (ScalarTypeDefinition scalarTypeDefinition : typeRegistry.scalars().values()) {

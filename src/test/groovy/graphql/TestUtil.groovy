@@ -97,6 +97,12 @@ class TestUtil {
         schema(specReader, mockRuntimeWiring)
     }
 
+    /**
+     * 使用 规范定义 和 运行时绑定 类，创建 GraphQLSchema
+     * @param spec 规范定义
+     * @param runtimeWiring 运行时绑定
+     * @return
+     */
     static GraphQLSchema schema(String spec, RuntimeWiring runtimeWiring) {
         schema(new StringReader(spec), runtimeWiring)
     }
@@ -105,10 +111,18 @@ class TestUtil {
         schema(new InputStreamReader(specStream), runtimeWiring)
     }
 
+    /**
+     * @param specReader 规范定义
+     * @param runtimeWiring 运行时绑定
+     *
+     * @return 最终的GraphQLSchema
+     */
     static GraphQLSchema schema(Reader specReader, RuntimeWiring runtimeWiring) {
         try {
+            // 解析规范
             def registry = new SchemaParser().parse(specReader)
             def options = SchemaGenerator.Options.defaultOptions()
+
             return new SchemaGenerator().makeExecutableSchema(options, registry, runtimeWiring)
         } catch (SchemaProblem e) {
             assert false: "The schema could not be compiled : ${e}"

@@ -17,7 +17,9 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 
 
 /**
- * fixme schema定义中，某个坐标字段对应的DataFetcher(类型下某个字段对应的dataFetcher是一定的)
+ * fixme
+ *      字段及其对应的dataFetcher和类型解析器；
+ *      "schema定义中，某个坐标字段对应的DataFetcher(类型下某个字段对应的dataFetcher是一定的)"
  *
  * The GraphQLCodeRegistry holds
  *      1. that execution code that is associated with graphql types, namely(也就是) the DataFetchers associated with fields,
