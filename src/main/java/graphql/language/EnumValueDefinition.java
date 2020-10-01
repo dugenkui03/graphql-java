@@ -19,7 +19,9 @@ import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefinition> implements DirectivesContainer<EnumValueDefinition>, NamedNode<EnumValueDefinition> {
+    // 枚举值名称
     private final String name;
+    // 枚举值上定义的指令
     private final List<Directive> directives;
 
     public static final String CHILD_DIRECTIVES = "directives";

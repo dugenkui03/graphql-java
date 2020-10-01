@@ -769,30 +769,54 @@ public class SchemaGenerator {
         return enumType;
     }
 
-    private GraphQLEnumValueDefinition buildEnumValue(BuildContext buildCtx, EnumTypeDefinition
-            typeDefinition, EnumValuesProvider enumValuesProvider, EnumValueDefinition evd) {
-        String description = schemaGeneratorHelper.buildDescription(evd, evd.getDescription());
-        String deprecation = schemaGeneratorHelper.buildDeprecationReason(evd.getDirectives());
+    /**
+     * 构建枚举值定义
+     *
+     * @param buildCtx  类型定义注册器、运行时绑定
+     * @param typeDefinition  枚举类型定义
+     * @param enumValuesProvider
+     * @param enumValueDefinition
+     * @return 枚举运行时定义
+     */
+    private GraphQLEnumValueDefinition buildEnumValue(BuildContext buildCtx,
+                                                      EnumTypeDefinition typeDefinition,
+                                                      EnumValuesProvider enumValuesProvider,
+                                                      EnumValueDefinition enumValueDefinition) {
+        // 枚举值描述
+        String description = schemaGeneratorHelper.buildDescription(enumValueDefinition, enumValueDefinition.getDescription());
+        // deprecate 原因
+        String deprecation = schemaGeneratorHelper.buildDeprecationReason(enumValueDefinition.getDirectives());
 
+        // fixme 如果有 enumValuesProvider，则使用enumValuesProvider解析该 枚举值定义 对应的java运行时值
         Object value;
         if (enumValuesProvider != null) {
-            value = enumValuesProvider.getValue(evd.getName());
+            value = enumValuesProvider.getValue(enumValueDefinition.getName());
             assertNotNull(value,
-                    () -> format("EnumValuesProvider for %s returned null for %s", typeDefinition.getName(), evd.getName()));
-        } else {
-            value = evd.getName();
+                    () -> format("EnumValuesProvider for %s returned null for %s", typeDefinition.getName(), enumValueDefinition.getName()));
         }
+        // 没有定义 enumValuesProvider，则使用枚举值定义 的名称
+        else {
+            value = enumValueDefinition.getName();
+        }
+
         return newEnumValueDefinition()
-                .name(evd.getName())
+                // 枚举值名称
+                .name(enumValueDefinition.getName())
+                // 枚举值对应的java运行时值
                 .value(value)
+                // 枚举值描述
                 .description(description)
+                // fixme 如果 deprecated 不存在，则该字段为null
+                //  判断某个 元素 是否 deprecated也是通过判断该字段是否为null
                 .deprecationReason(deprecation)
-                .definition(evd)
+                .definition(enumValueDefinition)
                 .comparatorRegistry(buildCtx.getComparatorRegistry())
                 .withDirectives(
-                        buildDirectives(evd.getDirectives(),
-                                emptyList(), ENUM_VALUE, buildCtx.getDirectiveDefinitions(), buildCtx.getComparatorRegistry())
-                )
+                        buildDirectives(enumValueDefinition.getDirectives(),
+                                emptyList(),
+                                ENUM_VALUE, // 指令位置
+                                buildCtx.getDirectiveDefinitions(),
+                                buildCtx.getComparatorRegistry()))
                 .build();
     }
 

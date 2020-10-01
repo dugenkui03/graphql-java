@@ -35,6 +35,8 @@ public class RuntimeWiring {
     private final Map<String, SchemaDirectiveWiring> registeredDirectiveWiring;
     private final List<SchemaDirectiveWiring> directiveWiring;
     private final WiringFactory wiringFactory;
+    // <枚举类型名称,解析具体枚举值的工具>
+    // Object getValue(String name);
     private final Map<String, EnumValuesProvider> enumValuesProviders;
     private final Collection<SchemaGeneratorPostProcessing> schemaGeneratorPostProcessings;
     private final GraphqlFieldVisibility fieldVisibility;

@@ -26,6 +26,7 @@ import static graphql.language.NodeUtil.getArgumentByName;
  */
 @PublicApi
 public class Directive extends AbstractNode<Directive> implements NamedNode<Directive> {
+    // 指令名称
     private final String name;
     // Argument：参数名称name、参数值 Value-value
     private final List<Argument> arguments = new ArrayList<>();
