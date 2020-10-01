@@ -5,6 +5,9 @@ import graphql.PublicApi;
 
 import java.util.Map;
 
+/**
+ * 将graphql枚举类型的字段和具体的值绑定，"具体的值"指 {@link graphql.schema.GraphQLEnumValueDefinition} 中的 value 字段
+ */
 @PublicApi
 public class MapEnumValuesProvider implements EnumValuesProvider {
 

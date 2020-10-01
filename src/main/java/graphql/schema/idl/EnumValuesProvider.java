@@ -11,7 +11,7 @@ import graphql.PublicSpi;
 public interface EnumValuesProvider {
 
     /**
-     * @param name an Enum value
+     * @param name an Enum value 枚举名称
      *
      * @return not null
      */
