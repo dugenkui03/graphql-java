@@ -47,14 +47,10 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
-        //Map<aliasOrName,List<Field>>
         MergedSelectionSet mergedSelectionSet = strategyParameters.getFields();
         List<String> fieldNames = new ArrayList<>(mergedSelectionSet.keySet());
-        List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>();
-        List<String> resolvedFields = new ArrayList<>();
-
-        // Let fieldName be the name of the first entry in fields.
-        // Note: This value is unaffected if an alias is used.
+        List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>(fieldNames.size());
+        List<String> resolvedFields = new ArrayList<>(fieldNames.size());
         for (String fieldName : fieldNames) {
             //本质是个list
             MergedField currentField = mergedSelectionSet.getSubField(fieldName);

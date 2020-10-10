@@ -10,7 +10,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -19,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
@@ -31,10 +34,10 @@ public class FpKit {
     // From a list of named things, get a map of them by name, merging them according to the merge function
     public static <T> Map<String, T> getByName(List<T> namedObjects, Function<T, String> nameFn, BinaryOperator<T> mergeFunc) {
         return namedObjects.stream().collect(Collectors.toMap(
-                nameFn,
-                identity(),
-                mergeFunc,
-                LinkedHashMap::new)
+            nameFn,
+            identity(),
+            mergeFunc,
+            LinkedHashMap::new)
         );
     }
 
@@ -46,9 +49,9 @@ public class FpKit {
     public static <T, NewKey> Map<NewKey, T> groupingByUniqueKey(Collection<T> list, Function<T, NewKey> keyFunction) {
         // fixme 使用的是toMap，而非groupingBy
         return list.stream().collect(Collectors.toMap(
-                keyFunction, // 例如 VO::getFieldName()
-                identity(), // 唯一
-                throwingMerger(), //如果有重复key后的异常处理方式
+                keyFunction,// 例如 VO::getFieldName()
+                identity(),// 唯一
+                throwingMerger(),//如果有重复key后的异常处理方式
                 LinkedHashMap::new) // 最后存放数据的map
         );
     }
@@ -76,17 +79,15 @@ public class FpKit {
      *
      * @param iterableResult the result object
      * @param <T>            the type of thing
-     *
      * @return an Iterable from that object
-     *
      * @throws java.lang.ClassCastException if its not an Iterable
      */
     @SuppressWarnings("unchecked")
     public static <T> Collection<T> toCollection(Object iterableResult) {
         if (iterableResult.getClass().isArray()) {
             List<Object> collect = IntStream.range(0, Array.getLength(iterableResult))
-                    .mapToObj(i -> Array.get(iterableResult, i))
-                    .collect(Collectors.toList());
+                .mapToObj(i -> Array.get(iterableResult, i))
+                .collect(Collectors.toList());
             return (List<T>) collect;
         }
         if (iterableResult instanceof Collection) {
@@ -101,14 +102,79 @@ public class FpKit {
         return list;
     }
 
+    public static boolean isIterable(Object result) {
+        return result.getClass().isArray() || result instanceof Iterable || result instanceof Stream || result instanceof Iterator;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <T> Iterable<T> toIterable(Object iterableResult) {
+        if (iterableResult instanceof Iterable) {
+            return ((Iterable<T>) iterableResult);
+        }
+
+        if (iterableResult instanceof Stream) {
+            return ((Stream<T>) iterableResult)::iterator;
+        }
+
+        if (iterableResult instanceof Iterator) {
+            return () -> (Iterator<T>) iterableResult;
+        }
+
+        if (iterableResult.getClass().isArray()) {
+            return () -> new ArrayIterator<>(iterableResult);
+        }
+
+        throw new ClassCastException("not Iterable: " + iterableResult.getClass());
+    }
+
+    private static class ArrayIterator<T> implements Iterator<T> {
+
+        private final Object array;
+        private final int size;
+        private int i;
+
+        private ArrayIterator(Object array) {
+            this.array = array;
+            this.size = Array.getLength(array);
+            this.i = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return i < size;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return (T) Array.get(array, i++);
+        }
+
+    }
+
+    public static OptionalInt toSize(Object iterableResult) {
+        if (iterableResult instanceof Collection) {
+            return OptionalInt.of(((Collection<?>) iterableResult).size());
+        }
+
+        if (iterableResult.getClass().isArray()) {
+            return OptionalInt.of(Array.getLength(iterableResult));
+        }
+
+        return OptionalInt.empty();
+    }
+
     /**
      * Concatenates (appends) a single elements to an existing list
      *
      * @param l   the list onto which to append the element
      * @param t   the element to append
      * @param <T> the type of elements of the list
-     *
-     * @return a <strong>new</strong> list componsed of the first list elements and the new element
+     * @return a <strong>new</strong> list composed of the first list elements and the new element
      */
     public static <T> List<T> concat(List<T> l, T t) {
         return concat(l, singletonList(t));
@@ -120,7 +186,6 @@ public class FpKit {
      * @param l1  the first list to concatenate
      * @param l2  the second list to concatenate
      * @param <T> the type of element of the lists
-     *
      * @return a <strong>new</strong> list composed of the two concatenated lists elements
      */
     public static <T> List<T> concat(List<T> l1, List<T> l2) {
@@ -153,7 +218,7 @@ public class FpKit {
             for (int j = 0; j < colCount; j++) {
                 T val = matrix.get(i).get(j);
                 if (result.size() <= j) {
-                    result.add(j, new ArrayList());
+                    result.add(j, new ArrayList<>());
                 }
                 result.get(j).add(i, val);
             }
@@ -167,15 +232,15 @@ public class FpKit {
 
     public static <T> List<T> flatList(List<List<T>> listLists) {
         return listLists.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     public static <T> Optional<T> findOne(Collection<T> list, Predicate<T> filter) {
         return list
-                .stream()
-                .filter(filter)
-                .findFirst();
+            .stream()
+            .filter(filter)
+            .findFirst();
     }
 
     public static <T> T findOneOrNull(List<T> list, Predicate<T> filter) {

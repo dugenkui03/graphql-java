@@ -39,10 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
@@ -56,7 +56,9 @@ import static graphql.execution.FieldValueInfo.CompleteValueType.NULL;
 import static graphql.execution.FieldValueInfo.CompleteValueType.OBJECT;
 import static graphql.execution.FieldValueInfo.CompleteValueType.SCALAR;
 import static graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironment;
+import static graphql.schema.GraphQLTypeUtil.isEnum;
 import static graphql.schema.GraphQLTypeUtil.isList;
+import static graphql.schema.GraphQLTypeUtil.isScalar;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
@@ -121,7 +123,7 @@ public abstract class ExecutionStrategy {
 
     protected final ValuesResolver valuesResolver = new ValuesResolver();
     protected final FieldCollector fieldCollector = new FieldCollector();
-    private final ExecutionStepInfoFactory executionStepInfoFactory = new ExecutionStepInfoFactory();
+    protected final ExecutionStepInfoFactory executionStepInfoFactory = new ExecutionStepInfoFactory();
     private final ResolveType resolvedType = new ResolveType();
 
     protected final DataFetcherExceptionHandler dataFetcherExceptionHandler;
@@ -145,20 +147,14 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * This is the entry point to an execution strategy.
-     * It will be passed the fields to execute and get values for.
-     *
-     * fixme
-     *      执行策略入口，将会解析字段并返回值
+     * This is the entry point to an execution strategy.  It will be passed the fields to execute and get values for.
      *
      * @param executionContext contains the top level execution parameters
      * @param parameters       contains the parameters holding the fields to be executed and source object
      * @return a promise to an {@link ExecutionResult}
      * @throws NonNullableFieldWasNullException in the future if a non null field resolves to a null value
      */
-    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
-                                                               ExecutionStrategyParameters parameters)
-            throws NonNullableFieldWasNullException;
+    public abstract CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
 
     /**
      * Called to fetch a value for a field and resolve it further in terms of the graphql query.  This will call
@@ -188,34 +184,23 @@ public abstract class ExecutionStrategy {
      * in the query, hence the fieldList.  However the first entry is representative of the field for most purposes.
      *
      * @param executionContext contains the top level execution parameters
-     * @param strategyParameters       contains the parameters holding the fields to be executed and source object
-     *
+     * @param parameters       contains the parameters holding the fields to be executed and source object
      * @return a promise to a {@link FieldValueInfo}
      * @throws NonNullableFieldWasNullException in the {@link FieldValueInfo#getFieldValue()} future if a non null field resolves to a null value
      */
-    protected CompletableFuture<FieldValueInfo> resolveFieldWithInfo(ExecutionContext executionContext,
-                                                                     ExecutionStrategyParameters strategyParameters) {
-
-        /**
-        * 使用内省、当前要访问的字段类型
-        *      getField()获取的是MergedField(MergedField本质是一个list<Field>,Field只会对应一个GraphQLFieldDefinition);
-        */
-        GraphQLFieldDefinition fieldDef = getFieldDef(executionContext, strategyParameters, strategyParameters.getField().getSingleField());
-        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.memoize(() -> createExecutionStepInfo(executionContext, strategyParameters, fieldDef, null));
+    protected CompletableFuture<FieldValueInfo> resolveFieldWithInfo(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+        GraphQLFieldDefinition fieldDef = getFieldDef(executionContext, parameters, parameters.getField().getSingleField());
+        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.memoize(() -> createExecutionStepInfo(executionContext, parameters, fieldDef, null));
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationContext<ExecutionResult> fieldCtx = instrumentation.beginField(
                 new InstrumentationFieldParameters(executionContext, executionStepInfo)
         );
 
-        //请求数据
-        CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, strategyParameters);
-        //解析数据
-        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply(
-                (fetchedValue) -> completeField(executionContext, strategyParameters, fetchedValue)
-        );
+        CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
+        CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) ->
+                completeField(executionContext, parameters, fetchedValue));
 
-        //thenCompose 对结果进一步处理，输入是第一个的future的结果
         CompletableFuture<ExecutionResult> executionResultFuture = result.thenCompose(FieldValueInfo::getFieldValue);
 
         fieldCtx.onDispatched(executionResultFuture);
@@ -245,9 +230,6 @@ public abstract class ExecutionStrategy {
     protected CompletableFuture<FetchedValue> fetchField(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
         MergedField field = parameters.getField();
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
-
-        //GraphQLObjectType包含 getFieldDefinition(name) 方法，名称从fieldgetSingleField()中获取，最终调用的Introspection方法检查了内省和可见性信息。
-        //大部分情况执行的都是 GraphQLFieldDefinition fieldDefinition = parentType.getFieldDefinition(field.getSingleField().getName());
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), parentType, field.getSingleField());
 
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
@@ -257,97 +239,66 @@ public abstract class ExecutionStrategy {
         DataFetchingFieldSelectionSet fieldCollector = DataFetchingFieldSelectionSetImpl.newCollector(executionContext, fieldType, parameters.getField());
         QueryDirectives queryDirectives = new QueryDirectivesImpl(field, executionContext.getGraphQLSchema(), executionContext.getVariables());
 
-        //定义两个回调方法、如果解析的字段不需要参数、例如PropertyDataFetcher，则不不执行取值函数
-        // if the DF (like PropertyDataFetcher) does not use the arguments of execution step info then don't build any
-
-        /**
-         * fixme
-         *      使用参数、或者 ExecutionStepInfo 的时候，才调用此回调方法进行获取；
-         *      参数在DataFetcher中使用
-         *      ExecutionStepInfo可以参考如下方法的调用位置、一般不使用
-         *             {@link graphql.schema.DataFetchingEnvironmentImpl#getExecutionStepInfo}
-         */
-        //解析、获取参数的回调方法
-        Supplier<Map<String, Object>> argumentValues = FpKit.memoize(
-                () -> valuesResolver.getArgumentValues(codeRegistry, fieldDef.getArguments(), field.getArguments(), executionContext.getVariables()));
-
-        //解析、获取ExecutionStepInfo的回调方法
         // if the DF (like PropertyDataFetcher) does not use the arguments of execution step info then dont build any
         Supplier<ExecutionStepInfo> executionStepInfo = FpKit.memoize(
                 () -> createExecutionStepInfo(executionContext, parameters, fieldDef, parentType));
+        Supplier<Map<String, Object>> argumentValues = () -> executionStepInfo.get().getArguments();
 
-        //获取DF环境变量
-        DataFetchingEnvironment dataFetchingEnvironment = newDataFetchingEnvironment(executionContext)
+
+        DataFetchingEnvironment environment = newDataFetchingEnvironment(executionContext)
                 .source(parameters.getSource())
                 .localContext(parameters.getLocalContext())
                 .arguments(argumentValues)
-                //两个回调函数
                 .fieldDefinition(fieldDef)
-                .executionStepInfo(executionStepInfo)
-
                 .mergedField(parameters.getField())
                 .fieldType(fieldType)
+                .executionStepInfo(executionStepInfo)
                 .parentType(parentType)
                 .selectionSet(fieldCollector)
                 .queryDirectives(queryDirectives)
                 .build();
 
-        /**
-         * 获取字段对应的DF，参见{@link graphql.schema.GraphQLCodeRegistry#getDataFetcherImpl}
-         *            使用字段名称从系统fetcher集合中获取；
-         *            使用字段坐标<类型名称-字段名称>、从dataFetcherMap中获取；
-         *            使用默认的fetcher。
-         */
         DataFetcher<?> dataFetcher = codeRegistry.getDataFetcher(parentType, fieldDef);
 
-        //开始获取字段前：执行上下文、dataFetchingEnvironment、dataFetcher是否是trivial等
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationFieldFetchParameters instrumentationFieldFetchParams =
-                new InstrumentationFieldFetchParameters(executionContext, fieldDef, dataFetchingEnvironment, parameters, dataFetcher instanceof TrivialDataFetcher);
-        InstrumentationContext<Object> fetchCtx = instrumentation.beginFieldFetch(instrumentationFieldFetchParams);
-        //instrument DF
-        dataFetcher = instrumentation.instrumentDataFetcher(dataFetcher, instrumentationFieldFetchParams);
 
+        InstrumentationFieldFetchParameters instrumentationFieldFetchParams = new InstrumentationFieldFetchParameters(executionContext, fieldDef, environment, parameters, dataFetcher instanceof TrivialDataFetcher);
+        InstrumentationContext<Object> fetchCtx = instrumentation.beginFieldFetch(instrumentationFieldFetchParams);
 
         CompletableFuture<Object> fetchedValue;
+        dataFetcher = instrumentation.instrumentDataFetcher(dataFetcher, instrumentationFieldFetchParams);
+        ExecutionId executionId = executionContext.getExecutionId();
         try {
-            Object fetchedValueRaw = dataFetcher.get(dataFetchingEnvironment);
+            Object fetchedValueRaw = dataFetcher.get(environment);
             fetchedValue = Async.toCompletableFuture(fetchedValueRaw);
         } catch (Exception e) {
-            //异常结果
+            if (logNotSafe.isDebugEnabled()) {
+                logNotSafe.debug(String.format("'%s', field '%s' fetch threw exception", executionId, executionStepInfo.get().getPath()), e);
+            }
+
             fetchedValue = new CompletableFuture<>();
             fetchedValue.completeExceptionally(e);
         }
-
-        //instrument回调
         fetchCtx.onDispatched(fetchedValue);
-
         return fetchedValue
                 .handle((result, exception) -> {
-                    //instrument
                     fetchCtx.onCompleted(result, exception);
-                    //如果结果有异常、则记录fetcher异常。fetcher异常就是在这里捕获、记录的
                     if (exception != null) {
-                        // handleFetchingException(executionContext, parameters, dataFetchingEnvironment, exception);
-                        handleFetchingException(executionContext, dataFetchingEnvironment, exception);
+                        handleFetchingException(executionContext, environment, exception);
                         return null;
-                    }
-                    //如果没有异常、则返回CompletableFuture<result>。
-                    // fixme：handle 和 下边的 thenApply只是处理流程的编排，即使这个函数结束执行后也可能没有执行到此逻辑
-                    else {
+                    } else {
                         return result;
                     }
                 })
                 .thenApply(result -> unboxPossibleDataFetcherResult(executionContext, parameters, result));
     }
 
-    FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
-                                                ExecutionStrategyParameters parameters,
-                                                Object result) {
+    protected FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
+                                                          ExecutionStrategyParameters parameters,
+                                                          Object result) {
 
         if (result instanceof DataFetcherResult) {
-            //noinspection unchecked
-            DataFetcherResult<?> dataFetcherResult = (DataFetcherResult) result;
+            DataFetcherResult<?> dataFetcherResult = (DataFetcherResult<?>) result;
             if (dataFetcherResult.isMapRelativeErrors()) {
                 dataFetcherResult.getErrors().stream()
                         .map(relError -> new AbsoluteGraphQLError(parameters, relError))
@@ -377,8 +328,8 @@ public abstract class ExecutionStrategy {
     }
 
     protected void handleFetchingException(ExecutionContext executionContext,
-                                         DataFetchingEnvironment environment,
-                                         Throwable e) {
+                                           DataFetchingEnvironment environment,
+                                           Throwable e) {
         DataFetcherExceptionHandlerParameters handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
                 .dataFetchingEnvironment(environment)
                 .exception(e)
@@ -421,8 +372,9 @@ public abstract class ExecutionStrategy {
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, fetchedValue);
-
-        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(instrumentationParams);
+        InstrumentationContext<ExecutionResult> ctxCompleteField = instrumentation.beginFieldComplete(
+                instrumentationParams
+        );
 
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, executionStepInfo);
 
@@ -461,32 +413,27 @@ public abstract class ExecutionStrategy {
      * @throws NonNullableFieldWasNullException if a non null field resolves to a null value
      */
     protected FieldValueInfo completeValue(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
-        //
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
         Object result = executionContext.getValueUnboxer().unbox(parameters.getSource());
         GraphQLType fieldType = executionStepInfo.getUnwrappedNonNullType();
         CompletableFuture<ExecutionResult> fieldValue;
 
-        //如果结果是null，则不管是什么类型的字段，都不会在进一步获取其值、除非是空map；
         if (result == null) {
             fieldValue = completeValueForNull(parameters);
             return FieldValueInfo.newFieldValueInfo(NULL).fieldValue(fieldValue).build();
-        }
-        //如果是list类型结果
-        else if (isList(fieldType)) {
-            //for循环中递归调用回completeValue
+        } else if (isList(fieldType)) {
             return completeValueForList(executionContext, parameters, result);
-        } else if (fieldType instanceof GraphQLScalarType) {
+        } else if (isScalar(fieldType)) {
             fieldValue = completeValueForScalar(executionContext, parameters, (GraphQLScalarType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(SCALAR).fieldValue(fieldValue).build();
-        } else if (fieldType instanceof GraphQLEnumType) {
+        } else if (isEnum(fieldType)) {
             fieldValue = completeValueForEnum(executionContext, parameters, (GraphQLEnumType) fieldType, result);
             return FieldValueInfo.newFieldValueInfo(ENUM).fieldValue(fieldValue).build();
         }
 
         // when we are here, we have a complex type: Interface, Union or Object
         // and we must go deeper
-        // fixme 当递归到这里的时候、fetcher获取的值是 对象、接口或者union
+        //
         GraphQLObjectType resolvedObjectType;
         try {
             resolvedObjectType = resolveType(executionContext, parameters, fieldType);
@@ -509,15 +456,11 @@ public abstract class ExecutionStrategy {
 
     }
 
-    private CompletableFuture<ExecutionResult> completeValueForNull(ExecutionStrategyParameters strategyParameters) {
-        return Async.tryCatch(
-                //Supplier: T get();
-                () -> {
-                    //nullValue的值就是null，此操作是为了验证该字段在graphql类型系统定义是非空的；
-                    Object nullValue = strategyParameters.getNonNullFieldValidator().validate(strategyParameters.getPath(), null);
-                    return completedFuture(new ExecutionResultImpl(nullValue, null));
-                }
-        );
+    private CompletableFuture<ExecutionResult> completeValueForNull(ExecutionStrategyParameters parameters) {
+        return Async.tryCatch(() -> {
+            Object nullValue = parameters.getNonNullFieldValidator().validate(parameters.getPath(), null);
+            return completedFuture(new ExecutionResultImpl(nullValue, null));
+        });
     }
 
     /**
@@ -529,10 +472,7 @@ public abstract class ExecutionStrategy {
      * @param result           the result to complete, raw result
      * @return a {@link FieldValueInfo}
      */
-    protected FieldValueInfo completeValueForList(
-            ExecutionContext executionContext, //执行上下文
-            ExecutionStrategyParameters parameters,//该字段的策略参数
-            Object result) {//该字段的list类型结果
+    protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Object result) {
         Iterable<Object> resultIterable = toIterable(executionContext, parameters, result);
         try {
             resultIterable = parameters.getNonNullFieldValidator().validate(parameters.getPath(), resultIterable);
@@ -554,21 +494,21 @@ public abstract class ExecutionStrategy {
      * @param iterableValues   the values to complete, can't be null
      * @return a {@link FieldValueInfo}
      */
-    protected FieldValueInfo completeValueForList(ExecutionContext executionContext,
-                                                  ExecutionStrategyParameters parameters, Iterable<Object> iterableValues) {
-        //list类型结果
-        Collection<Object> values = FpKit.toCollection(iterableValues);
+    protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Iterable<Object> iterableValues) {
 
+        OptionalInt size = FpKit.toSize(iterableValues);
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
 
-        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, values);
+        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, iterableValues);
         Instrumentation instrumentation = executionContext.getInstrumentation();
-        InstrumentationContext<ExecutionResult> completeListCtx =
-                instrumentation.beginFieldListComplete(instrumentationParams);
 
-        List<FieldValueInfo> fieldValueInfos = new ArrayList<>(values.size());
+        InstrumentationContext<ExecutionResult> completeListCtx = instrumentation.beginFieldListComplete(
+                instrumentationParams
+        );
+
+        List<FieldValueInfo> fieldValueInfos = new ArrayList<>(size.orElse(1));
         int index = 0;
-        for (Object item : values) {
+        for (Object item : iterableValues) {
             ResultPath indexedPath = parameters.getPath().segment(index);
 
             ExecutionStepInfo stepInfoForListElement = executionStepInfoFactory.newExecutionStepInfoForListElement(executionStepInfo, index);
@@ -581,13 +521,12 @@ public abstract class ExecutionStrategy {
             ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                     builder.executionStepInfo(stepInfoForListElement)
                             .nonNullFieldValidator(nonNullableFieldValidator)
-                            .listSize(values.size())
+                            .listSize(size.orElse(-1)) // -1 signals that we don't know the size
                             .localContext(value.getLocalContext())
                             .currentListIndex(finalIndex)
                             .path(indexedPath)
                             .source(value.getFetchedValue())
             );
-            //保存该元素结果
             fieldValueInfos.add(completeValue(executionContext, newParameters));
             index++;
         }
@@ -613,9 +552,7 @@ public abstract class ExecutionStrategy {
         overallResult.whenComplete(completeListCtx::onCompleted);
 
         return FieldValueInfo.newFieldValueInfo(LIST)
-                //todo
                 .fieldValue(overallResult)
-                //todo
                 .fieldValueInfos(fieldValueInfos)
                 .build();
     }
@@ -676,25 +613,17 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * 将dataFetcher请求的java对象转换为graphql对象值。
-     *
      * Called to turn an java object value into an graphql object value
      *
-     * @param executionContext contains the top level execution parameters
-     * @param strategyParameters contains the parameters holding the fields to be executed and source object
-     *
+     * @param executionContext   contains the top level execution parameters
+     * @param parameters         contains the parameters holding the fields to be executed and source object
      * @param resolvedObjectType the resolved object type
      * @param result             the result to be coerced
      * @return a promise to an {@link ExecutionResult}
      */
-    protected CompletableFuture<ExecutionResult> completeValueForObject(
-            ExecutionContext executionContext, //执行上下文：
-            ExecutionStrategyParameters strategyParameters, //策略上下文：每一个字段都有一个策略上下文对象
-            GraphQLObjectType resolvedObjectType, //具体的对象类型：interface和union也可以看作某一对象类型
-            Object result) { //该字段对应的值
-        ExecutionStepInfo executionStepInfo = strategyParameters.getExecutionStepInfo();
+    protected CompletableFuture<ExecutionResult> completeValueForObject(ExecutionContext executionContext, ExecutionStrategyParameters parameters, GraphQLObjectType resolvedObjectType, Object result) {
+        ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
 
-        //step 1.1：使用schema、字段类型、片段定义以及变量，获取字段收集参数
         FieldCollectorParameters collectorParameters = newParameters()
                 .schema(executionContext.getGraphQLSchema())
                 .objectType(resolvedObjectType)
@@ -702,20 +631,12 @@ public abstract class ExecutionStrategy {
                 .variables(executionContext.getVariables())
                 .build();
 
-        //step 1.2: 收集字段参数
-        MergedSelectionSet subFields = fieldCollector.collectFields(collectorParameters, strategyParameters.getField());
+        MergedSelectionSet subFields = fieldCollector.collectFields(collectorParameters, parameters.getField());
 
-        //step2: 创建新的ExecutionStepInfo对象：把type换成要解析的对象类型就行
         ExecutionStepInfo newExecutionStepInfo = executionStepInfo.changeTypeWithPreservedNonNull(resolvedObjectType);
-
         NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, newExecutionStepInfo);
 
-        /**
-         * fixme
-         *      每一个策略上下文都有一个ExecutionStrategyParameters对象；
-         *      每次递归回 Strategy.execute() 都会重置 ExecutionStepInfo、MergedSelectionSet、source；
-         */
-        ExecutionStrategyParameters newParameters = strategyParameters.transform(builder ->
+        ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                 builder.executionStepInfo(newExecutionStepInfo)
                         .fields(subFields)
                         .nonNullFieldValidator(nonNullableFieldValidator)
@@ -723,7 +644,7 @@ public abstract class ExecutionStrategy {
         );
 
         // Calling this from the executionContext to ensure we shift back from mutation strategy to the query strategy.
-        // 从执行上下文调用，确保我们从 更改策略 改为了 查询策略。
+
         return executionContext.getQueryStrategy().execute(executionContext, newParameters);
     }
 
@@ -745,7 +666,6 @@ public abstract class ExecutionStrategy {
      * @return an Iterable from that object
      * @throws java.lang.ClassCastException if its not an Iterable
      */
-    @SuppressWarnings("unchecked")
     protected Iterable<Object> toIterable(Object result) {
         return FpKit.toCollection(result);
     }
@@ -756,13 +676,14 @@ public abstract class ExecutionStrategy {
 
 
     protected Iterable<Object> toIterable(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
-        if (result.getClass().isArray() || result instanceof Iterable) {
-            return toIterable(result);
+        if (FpKit.isIterable(result)) {
+            return FpKit.toIterable(result);
         }
 
         handleTypeMismatchProblem(context, parameters, result);
         return null;
     }
+
 
     private void handleTypeMismatchProblem(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
         TypeMismatchError error = new TypeMismatchError(parameters.getPath(), parameters.getExecutionStepInfo().getUnwrappedNonNullType());
@@ -781,7 +702,6 @@ public abstract class ExecutionStrategy {
      * @return a {@link GraphQLFieldDefinition}
      */
     protected GraphQLFieldDefinition getFieldDef(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Field field) {
-        //parent一开始是query类型、不难找，以后递归获取子类型就行
         GraphQLObjectType parentType = (GraphQLObjectType) parameters.getExecutionStepInfo().getUnwrappedNonNullType();
         return getFieldDef(executionContext.getGraphQLSchema(), parentType, field);
     }
@@ -900,8 +820,6 @@ public abstract class ExecutionStrategy {
     }
 
 
-    // 获取第一个字段的别名或名称
-    // ResultPath中的路径名称是别名
     @Internal
     public static String mkNameForPath(List<Field> currentField) {
         Field field = currentField.get(0);

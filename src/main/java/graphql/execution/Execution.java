@@ -152,20 +152,18 @@ public class Execution {
 
         // 执行上下文对象是可变的
         executionContext = instrumentation.instrumentExecutionContext(executionContext, parameters);
-        return executeOperation(executionContext, parameters, executionInput.getRoot(), executionContext.getOperationDefinition());
+        return executeOperation(executionContext, executionInput.getRoot(), executionContext.getOperationDefinition());
     }
 
 
     /**
      *
      * @param executionContext
-     * @param instrumentationExecutionParameters
      * @param root
      * @param operationDefinition 要执行的操作：变量、指令、选择集等
      * @return
      */
     private CompletableFuture<ExecutionResult> executeOperation(ExecutionContext executionContext,
-                                                                InstrumentationExecutionParameters instrumentationExecutionParameters,
                                                                 Object root,
                                                                 OperationDefinition operationDefinition) {
 

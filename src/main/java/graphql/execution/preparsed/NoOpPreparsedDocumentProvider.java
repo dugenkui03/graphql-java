@@ -13,8 +13,7 @@ public class NoOpPreparsedDocumentProvider implements PreparsedDocumentProvider 
 
     // 标准用法是computeFunction计算后，使用ExecutionInput的字段作为key到一个map中，参见TestingPreparsedDocumentProvider
     @Override
-    public PreparsedDocumentEntry getDocument(ExecutionInput executionInput,
-                                              Function<ExecutionInput, PreparsedDocumentEntry> computeFunction) {
-        return computeFunction.apply(executionInput);
+    public PreparsedDocumentEntry getDocument(ExecutionInput executionInput, Function<ExecutionInput, PreparsedDocumentEntry> parseAndValidateFunction) {
+        return parseAndValidateFunction.apply(executionInput);
     }
 }

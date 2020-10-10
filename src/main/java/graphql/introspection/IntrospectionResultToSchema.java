@@ -7,6 +7,7 @@ import graphql.language.AstValueHelper;
 import graphql.language.Description;
 import graphql.language.Directive;
 import graphql.language.DirectiveDefinition;
+import graphql.language.DirectiveLocation;
 import graphql.language.Document;
 import graphql.language.EnumTypeDefinition;
 import graphql.language.EnumValueDefinition;
@@ -36,9 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static graphql.Assert.assertNotEmpty;
 import static graphql.Assert.assertNotNull;
 import static graphql.Assert.assertShouldNeverHappen;
 import static graphql.Assert.assertTrue;
+import static graphql.schema.idl.DirectiveInfo.isGraphqlSpecifiedDirective;
 
 @SuppressWarnings("unchecked")
 @PublicApi
@@ -67,6 +70,7 @@ public class IntrospectionResultToSchema {
 
     /**
      * Returns a IDL Document that represents the schema as defined by the introspection result map
+<<<<<<< HEAD
      *
      *  type __Schema {
      *      description: String
@@ -76,6 +80,8 @@ public class IntrospectionResultToSchema {
      *      subscriptionType: __Type
      *      directives: [__Directive!]!
      *  }
+=======
+>>>>>>> master
      *
      * @param introspectionResult the result of an introspection query on a schema
      *
@@ -99,6 +105,7 @@ public class IntrospectionResultToSchema {
 
         // 构造 OperationTypeDefinition 操作类型定义：名称为query、类型名称为queryType.name
         SchemaDefinition.Builder schemaDefinition = SchemaDefinition.newSchemaDefinition();
+        schemaDefinition.description(toDescription(schema));
         schemaDefinition.operationTypeDefinition(OperationTypeDefinition.newOperationTypeDefinition().name("query").typeName(queryTypeName).build());
 
         // 获取 mutationType 类型
@@ -130,10 +137,53 @@ public class IntrospectionResultToSchema {
             document.definition(typeDefinition);
         }
 
+        List<Map<String, Object>> directives = (List<Map<String, Object>>) schema.get("directives");
+        if (directives != null) {
+            for (Map<String, Object> directive : directives) {
+                DirectiveDefinition directiveDefinition = createDirective(directive);
+                if (directiveDefinition == null) {
+                    continue;
+                }
+                document.definition(directiveDefinition);
+            }
+        }
+
         return document.build();
     }
 
-    // 创建类型定义
+    private DirectiveDefinition createDirective(Map<String, Object> input) {
+        String directiveName = (String) input.get("name");
+        if(isGraphqlSpecifiedDirective(directiveName)){
+            return null;
+        }
+
+        DirectiveDefinition.Builder directiveDefBuilder = DirectiveDefinition.newDirectiveDefinition();
+        directiveDefBuilder
+                .name(directiveName)
+                .description(toDescription(input));
+
+        List<Object> locations = (List<Object>) input.get("locations");
+        List<DirectiveLocation> directiveLocations = createDirectiveLocations(locations);
+        directiveDefBuilder.directiveLocations(directiveLocations);
+
+
+        List<Map<String, Object>> args = (List<Map<String, Object>>) input.get("args");
+        List<InputValueDefinition> inputValueDefinitions = createInputValueDefinitions(args);
+        directiveDefBuilder.inputValueDefinitions(inputValueDefinitions);
+
+        return directiveDefBuilder.build();
+    }
+
+    private List<DirectiveLocation> createDirectiveLocations(List<Object> locations) {
+        assertNotEmpty(locations, () -> "the locations of directive should not be empty.");
+        ArrayList<DirectiveLocation> result = new ArrayList<>();
+        for (Object location : locations) {
+            DirectiveLocation directiveLocation = DirectiveLocation.newDirectiveLocation().name(location.toString()).build();
+            result.add(directiveLocation);
+        }
+        return result;
+    }
+
     private TypeDefinition createTypeDefinition(Map<String, Object> type) {
         String kind = (String) type.get("kind");
         String name = (String) type.get("name");
@@ -161,8 +211,12 @@ public class IntrospectionResultToSchema {
         if (ScalarInfo.isGraphqlSpecifiedScalar(name)) {
             return null;
         }
+
         // todo 还有desc呢
-        return ScalarTypeDefinition.newScalarTypeDefinition().name(name).build();
+        return ScalarTypeDefinition.newScalarTypeDefinition()
+                .name(name)
+                .description(toDescription(input))
+                .build();
     }
 
 
