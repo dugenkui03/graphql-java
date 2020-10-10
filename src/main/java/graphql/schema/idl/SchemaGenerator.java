@@ -59,10 +59,17 @@ public class SchemaGenerator {
      * controlled by the provided options.
      *
      * @param options      the controlling options
+     *                     暂时没啥用
+     *
      * @param typeRegistry this can be obtained via {@link SchemaParser#parse(String)}
+     *                     dsl定义的类型系统
+     *
      * @param wiring       this can be built using {@link RuntimeWiring#newRuntimeWiring()}
+     *                     运行时绑定：某个类型默认的dataFetcher、该类型下所有字段绑定的dataFetcher、
+     *                               枚举类型使用的provider、某个类型的运行时解析类。
      *
      * @return an executable schema
+     *         返回可执行的schema
      *
      * @throws SchemaProblem if there are problems in assembling a schema such as missing type resolvers or no operations defined
      */

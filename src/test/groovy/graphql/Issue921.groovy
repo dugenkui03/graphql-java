@@ -33,7 +33,10 @@ class Issue921 extends Specification {
             }
             '''
 
+        // fixme 将 ThreadSort graphql-枚举 和 ThreadSort 绑定。
         def typeRuntimeWiring = newTypeWiring('ThreadSort').enumValues(new NaturalEnumValuesProvider(ThreadSort)).build()
+
+        //
         def runtimeWiring = newRuntimeWiring().type(typeRuntimeWiring).build()
         def graphql = TestUtil.graphQL(spec, runtimeWiring).build()
 

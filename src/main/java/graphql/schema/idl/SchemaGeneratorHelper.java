@@ -534,6 +534,7 @@ public class SchemaGeneratorHelper {
         return fieldBuilder.build();
     }
 
+    // 构造枚举类型
     GraphQLEnumType buildEnumType(BuildContext buildCtx, EnumTypeDefinition typeDefinition) {
         GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum();
         builder.definition(typeDefinition);
@@ -544,6 +545,7 @@ public class SchemaGeneratorHelper {
         List<EnumTypeExtensionDefinition> extensions = enumTypeExtensions(typeDefinition, buildCtx);
         builder.extensionDefinitions(extensions);
 
+        // todo
         EnumValuesProvider enumValuesProvider = buildCtx.getWiring().getEnumValuesProviders().get(typeDefinition.getName());
         typeDefinition.getEnumValueDefinitions().forEach(evd -> {
             GraphQLEnumValueDefinition enumValueDefinition = buildEnumValue(buildCtx, typeDefinition, enumValuesProvider, evd);
@@ -581,8 +583,7 @@ public class SchemaGeneratorHelper {
         Object value;
         if (enumValuesProvider != null) {
             value = enumValuesProvider.getValue(evd.getName());
-            assertNotNull(value,
-                    () -> format("EnumValuesProvider for %s returned null for %s", typeDefinition.getName(), evd.getName()));
+            assertNotNull(value, () -> format("EnumValuesProvider for %s returned null for %s", typeDefinition.getName(), evd.getName()));
         } else {
             value = evd.getName();
         }

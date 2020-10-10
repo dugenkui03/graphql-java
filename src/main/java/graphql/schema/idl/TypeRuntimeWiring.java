@@ -15,13 +15,26 @@ import static graphql.Assert.assertNotNull;
  * A type runtime wiring is a specification of the data fetchers and possible type resolver for a given type name.
  *
  * This is used by {@link RuntimeWiring} to wire together a functional {@link GraphQLSchema}
+ *
+ * 给定类型名称在运行时绑定的dataFetcher(?)和类型解析器。
+ *
+ * 在 RuntimeWiring 中使用。
  */
 @PublicApi
 public class TypeRuntimeWiring {
+    // 类型名称
     private final String typeName;
+
+    // fixme 该类型默认的dataFetcher??
     private final DataFetcher defaultDataFetcher;
+
+    // fixme 该类型字段绑定的dataFetcher
     private final Map<String, DataFetcher> fieldDataFetchers;
+
+    // 类型解析器
     private final TypeResolver typeResolver;
+
+    // 枚举类型解析器
     private final EnumValuesProvider enumValuesProvider;
 
     private TypeRuntimeWiring(String typeName, DataFetcher defaultDataFetcher, Map<String, DataFetcher> fieldDataFetchers, TypeResolver typeResolver, EnumValuesProvider enumValuesProvider) {

@@ -876,7 +876,10 @@ class SchemaGeneratorTest extends Specification {
 
         when:
         def wiring = newRuntimeWiring()
-                // fixme 将 Graphql的枚举 Enum 和 java枚举provider绑定
+                // fixme
+                //    将 Graphql的枚举 Enum 和 java枚举provider绑定
+                //    将 TypeRuntimeWiring.Builder it -> it.enumValues(enumValuesProvider) 作为 UnaryOperator对象
+                //    参数类型是 TypeRuntimeWiring.Builder 返回值是 it.enumValues()
                 .type("Enum", { TypeRuntimeWiring.Builder it -> it.enumValues(enumValuesProvider) } as UnaryOperator)
                 .build()
 

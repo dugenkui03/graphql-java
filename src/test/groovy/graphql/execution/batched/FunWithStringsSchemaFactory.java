@@ -400,6 +400,7 @@ public class FunWithStringsSchemaFactory {
                 )
                 .typeResolver(env -> {
                     // always this for testing
+                    // fixme 该接口的实现类总是 simpleObjectType
                     return simpleObjectType;
                 })
                 .build();

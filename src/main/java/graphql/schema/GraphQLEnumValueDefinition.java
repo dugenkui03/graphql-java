@@ -32,6 +32,11 @@ public class GraphQLEnumValueDefinition implements GraphQLNamedSchemaElement, Gr
 
     private final String name;
     private final String description;
+
+    /**
+     * 其值是枚举的字符串名称、还是具体的java枚举值，
+     * 在构造schema的时候就已经在 {@link graphql.schema.idl.SchemaGeneratorHelper#buildEnumValue} 中指定好了
+     */
     private final Object value;
     private final String deprecationReason;
     private final List<GraphQLDirective> directives;

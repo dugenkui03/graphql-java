@@ -28,15 +28,20 @@ import static graphql.schema.visibility.DefaultGraphqlFieldVisibility.DEFAULT_FI
 @PublicApi
 public class RuntimeWiring {
 
+    // <类型名称,<字段名称,DataFetcher>>
     private final Map<String, Map<String, DataFetcher>> dataFetchers;
+
+    // <类型名称,默认的DataFetcher>
     private final Map<String, DataFetcher> defaultDataFetchers;
+
+
     private final Map<String, GraphQLScalarType> scalars;
     private final Map<String, TypeResolver> typeResolvers;
     private final Map<String, SchemaDirectiveWiring> registeredDirectiveWiring;
     private final List<SchemaDirectiveWiring> directiveWiring;
     private final WiringFactory wiringFactory;
-    // <枚举类型名称,解析具体枚举值的工具>
-    // Object getValue(String name);
+
+    // <枚举类型名称,解析具体枚举值的工具> Object getValue(String name);
     private final Map<String, EnumValuesProvider> enumValuesProviders;
     private final Collection<SchemaGeneratorPostProcessing> schemaGeneratorPostProcessings;
     private final GraphqlFieldVisibility fieldVisibility;
@@ -225,11 +230,19 @@ public class RuntimeWiring {
          *         运行时绑定 的builder
          */
         public Builder type(String typeName, UnaryOperator<TypeRuntimeWiring.Builder> builderFunction) {
-            TypeRuntimeWiring.Builder builder = builderFunction.apply(TypeRuntimeWiring.newTypeWiring(typeName));
-            return type(builder.build());
+            // 使用指定名称构造builder
+            TypeRuntimeWiring.Builder builder = TypeRuntimeWiring.newTypeWiring(typeName);
+
+            // fixme builderFunction 修改了builder，例如指定 enumValuesProvider
+            //       UnaryOperator 是入参和返回值相同的函数
+            TypeRuntimeWiring typeRuntimeWiring = builderFunction.apply(builder).build();
+
+
+            return type(typeRuntimeWiring);
         }
 
         /**
+         * fixme 添加类型绑定。
          * This adds a type wiring
          *
          * @param typeRuntimeWiring the new type wiring
@@ -237,17 +250,25 @@ public class RuntimeWiring {
          * @return the runtime wiring builder
          */
         public Builder type(TypeRuntimeWiring typeRuntimeWiring) {
+            // 获取类型名称
             String typeName = typeRuntimeWiring.getTypeName();
+
+            // 该类型名称对应的 dataFetcher集合 <String,DataFetcher>——fixme 该类型字段的
             Map<String, DataFetcher> typeDataFetchers = dataFetchers.computeIfAbsent(typeName, k -> new LinkedHashMap<>());
+
+            // 将 TypeRuntimeWiring 中指定类型下所有字段的dataFetcher记录到 RuntimeWiring 中
             typeRuntimeWiring.getFieldDataFetchers().forEach(typeDataFetchers::put);
 
+            // 指定类型默认的DataFetcher
             defaultDataFetchers.put(typeName, typeRuntimeWiring.getDefaultDataFetcher());
 
+            // 指定类型、默认的类型解析器
             TypeResolver typeResolver = typeRuntimeWiring.getTypeResolver();
             if (typeResolver != null) {
                 this.typeResolvers.put(typeName, typeResolver);
             }
 
+            // 指定类型默认的枚举解析器
             EnumValuesProvider enumValuesProvider = typeRuntimeWiring.getEnumValuesProvider();
             if (enumValuesProvider != null) {
                 this.enumValuesProviders.put(typeName, enumValuesProvider);
