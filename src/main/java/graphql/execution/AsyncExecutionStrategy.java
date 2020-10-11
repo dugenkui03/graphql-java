@@ -79,6 +79,8 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         });
 
         overallResult.whenComplete(executionStrategyCtx::onCompleted);
+        System.out.println(fieldNames);
+        overallResult.join();
         return overallResult;
     }
 }

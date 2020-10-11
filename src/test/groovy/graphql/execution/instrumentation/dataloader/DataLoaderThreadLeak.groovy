@@ -2,7 +2,6 @@ package graphql.execution.instrumentation.dataloader
 
 import graphql.GraphQL
 import graphql.TestUtil
-import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.StaticDataFetcher
 import graphql.schema.idl.RuntimeWiring
@@ -27,22 +26,22 @@ class DataLoaderThreadLeak extends Specification {
     def "deadlock attempt"() {
         setup:
         def sdl = """
-        type Nation {
+        type Toy {
             name: String
         }
         
-        type Toy {
+        type Cat {
+            name: String
+            toys: [Toy]
+        }
+        
+        type Nation {
             name: String
         }
         
         type Owner {
             name: String
             nation: Nation
-        }
-        
-        type Cat {
-            name: String
-            toys: [Toy]
         }
         
         type Dog {
@@ -60,143 +59,22 @@ class DataLoaderThreadLeak extends Specification {
         }
         """
 
-        def cats = [['id': "cat-1", 'name': "cat-1"], ['id': "cat-2", 'name': "cat-2"]]
-        def dogs = [['id': "dog-1", 'name': "dog-1"], ['id': "dog-2", 'name': "dog-2"]]
-
         ThreadFactory threadFactory = new BasicThreadFactory.Builder()
                 .namingPattern("resolver-chain-thread-%d").build()
 
-        def executor = new ThreadPoolExecutor(15, 15, 0L,
+        def executor = new ThreadPoolExecutor(15, Integer.MAX_VALUE, 0L,
                 TimeUnit.MILLISECONDS, new SynchronousQueue<>(), threadFactory,
                 new ThreadPoolExecutor.CallerRunsPolicy())
 
-        DataFetcher nationsDf = { env -> env.getDataLoader("owner.nation").load(env) } as DataFetcher
-        DataFetcher ownersDf = { env -> env.getDataLoader("dog.owner").load(env) } as DataFetcher
-
         def wiring = RuntimeWiring.newRuntimeWiring()
                 .type(newTypeWiring("Query")
-                        .dataFetcher("pets", new StaticDataFetcher(['cats': cats, 'dogs': dogs])))
-                .type(newTypeWiring("Cat")
-                        .dataFetcher("toys", new StaticDataFetcher(new List<Object>() {
-                            @Override
-                            int size() {
-                                return 1
-                            }
-
-                            @Override
-                            boolean isEmpty() {
-                                return false
-                            }
-
-                            @Override
-                            boolean contains(Object o) {
-                                return false
-                            }
-
-                            @Override
-                            Iterator iterator() {
-                                throw new RuntimeException()
-                            }
-
-                            @Override
-                            Object[] toArray() {
-                                return new Object[0]
-                            }
-
-                            @Override
-                            Object[] toArray(Object[] a) {
-                                return null
-                            }
-
-                            @Override
-                            boolean add(Object o) {
-                                return false
-                            }
-
-                            @Override
-                            boolean remove(Object o) {
-                                return false
-                            }
-
-                            @Override
-                            boolean containsAll(Collection c) {
-                                return false
-                            }
-
-                            @Override
-                            boolean addAll(Collection c) {
-                                return false
-                            }
-
-                            @Override
-                            boolean addAll(int index, Collection c) {
-                                return false
-                            }
-
-                            @Override
-                            boolean removeAll(Collection c) {
-                                return false
-                            }
-
-                            @Override
-                            boolean retainAll(Collection c) {
-                                return false
-                            }
-
-                            @Override
-                            void clear() {
-
-                            }
-
-                            @Override
-                            Object get(int index) {
-                                return null
-                            }
-
-                            @Override
-                            Object set(int index, Object element) {
-                                return null
-                            }
-
-                            @Override
-                            void add(int index, Object element) {
-
-                            }
-
-                            @Override
-                            Object remove(int index) {
-                                return null
-                            }
-
-                            @Override
-                            int indexOf(Object o) {
-                                return 0
-                            }
-
-                            @Override
-                            int lastIndexOf(Object o) {
-                                return 0
-                            }
-
-                            @Override
-                            ListIterator listIterator() {
-                                return null
-                            }
-
-                            @Override
-                            ListIterator listIterator(int index) {
-                                return null
-                            }
-
-                            @Override
-                            List subList(int fromIndex, int toIndex) {
-                                return null
-                            }
-                        })))
+                        .dataFetcher("pets", new StaticDataFetcher(['cats'  : [['name': "cat-1"], ['name': "cat-2"]]
+                                                                    , 'dogs': [['name': "dog-1"], ['name': "dog-2"]]
+                        ])))
                 .type(newTypeWiring("Dog")
-                        .dataFetcher("owner", ownersDf))
+                        .dataFetcher("owner", { env -> env.getDataLoader("dog.owner").load(env) }))
                 .type(newTypeWiring("Owner")
-                        .dataFetcher("nation", nationsDf))
+                        .dataFetcher("nation", { env -> env.getDataLoader("owner.nation").load(env) }))
                 .build()
 
         def schema = TestUtil.schema(sdl, wiring)
@@ -216,14 +94,15 @@ class DataLoaderThreadLeak extends Specification {
                       pets {
                         cats {
                           name
-                          toys {
-                            name
-                          }
                         }
+                        
+                        # 添加上对dog的请求后，就回出现线程泄漏
                         dogs {
                           name
+                          # 使用了dataLoader：dog.owner
                           owner {
                             name
+                            # 使用了dataLoader：owner.nation
                             nation {
                               name
                             }
@@ -231,8 +110,7 @@ class DataLoaderThreadLeak extends Specification {
                         }
                       }
                     }
-                    """)
-                .build())
+                    """).build())
 
         result.whenComplete({ res, error ->
             if (error) {
@@ -247,56 +125,32 @@ class DataLoaderThreadLeak extends Specification {
                 throw error
             }
             results.each { assert it.errors.empty }
-        })
-        /**
-         * join()执行不了了，报错信息
-         * "Test worker" #11 prio=5 os_prio=31 tid=0x00007fd17c832000 nid=0x5503 waiting on condition [0x000070000d3c4000]
-         *    java.lang.Thread.State: WAITING (parking)
-         * 	at sun.misc.Unsafe.park(Native Method)
-         * 	- parking to wait for  <0x00000007b64b1e88> (a java.util.concurrent.CompletableFuture$Signaller)
-         * 	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
-         * 	at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1707)
-         * 	at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3323)
-         * 	at java.util.concurrent.CompletableFuture.waitingGet(CompletableFuture.java:1742)
-         * 	at java.util.concurrent.CompletableFuture.join(CompletableFuture.java:1947)
-         */
-                .join()
+        }).join()
     }
 
-    //        DataFetcher nationsDf = { env -> env.getDataLoader("owner.nation").load(env) } as DataFetcher
-    //        DataFetcher ownersDf = { env -> env.getDataLoader("dog.owner").load(env) } as DataFetcher
-    // owner.nation
-    // dog.owner
     private static DataLoaderRegistry mkNewDataLoaderRegistry(executor) {
+        def dataLoaderRegistry = new DataLoaderRegistry()
+
         def dataLoaderNations = new DataLoader<Object, Object>(new BatchLoader<DataFetchingEnvironment, List<Object>>() {
             @Override
             CompletionStage<List<List<Object>>> load(List<DataFetchingEnvironment> keys) {
-                return CompletableFuture.supplyAsync({
-                    def nations = []
-                    for (int i = 1; i <= 2; i++) {
-                        nations.add(['id': "nation-$i", 'name': "nation-$i"])
-                    }
-                    return nations
-                }, executor)
+                List<Map> nationInfo = new ArrayList<>();
+                nationInfo.add([['name': "nation-name-1"]])
+                return nationInfo
             }
-        }, DataLoaderOptions.newOptions().setMaxBatchSize(5))
+        }, DataLoaderOptions.newOptions())
+        dataLoaderRegistry.register("owner.nation", dataLoaderNations)
 
         def dataLoaderOwners = new DataLoader<Object, Object>(new BatchLoader<DataFetchingEnvironment, List<Object>>() {
             @Override
             CompletionStage<List<List<Object>>> load(List<DataFetchingEnvironment> keys) {
-                return CompletableFuture.supplyAsync({
-                    def owners = []
-                    for (int i = 1; i <= 2; i++) {
-                        owners.add(['id': "owner-$i", 'name': "owner-$i"])
-                    }
-                    return owners
-                }, executor)
+                List<Map> ownerInfo = new ArrayList<>();
+                ownerInfo.add([['name': "owner-name-1"]])
+                return ownerInfo
             }
-        }, DataLoaderOptions.newOptions().setMaxBatchSize(5))
-
-        def dataLoaderRegistry = new DataLoaderRegistry()
+        }, DataLoaderOptions.newOptions())
         dataLoaderRegistry.register("dog.owner", dataLoaderOwners)
-        dataLoaderRegistry.register("owner.nation", dataLoaderNations)
+
         dataLoaderRegistry
     }
 }
