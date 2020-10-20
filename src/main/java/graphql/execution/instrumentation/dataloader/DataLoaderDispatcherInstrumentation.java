@@ -69,6 +69,11 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
 
     @Override
     public InstrumentationState createState(InstrumentationCreateStateParameters parameters) {
+        /**
+         * fixme
+         *      1.
+         *      2. 从输入中获取获取 dataLoader注册器，将其作为 DataLoaderDispatcherInstrumentationState 的属性；
+         */
         return new DataLoaderDispatcherInstrumentationState(log, parameters.getExecutionInput().getDataLoaderRegistry());
     }
 
@@ -78,17 +83,25 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
         if (state.isAggressivelyBatching()) {
             return dataFetcher;
         }
+
         //
         // currently only AsyncExecutionStrategy with DataLoader and hence this allows us to "dispatch"
         // on every object if its not using aggressive batching for other execution strategies
         // which allows them to work if used.
         return (DataFetcher<Object>) environment -> {
+            /**
+             * fixme
+             *      1. 先调用指定的 dataLoader 并获取结果；
+             *      2. 调度 dataLoader注册器 中所有的 dataLoader； ————————————————————- 有啥用呢
+             *      3. 返回结果。
+             */
             Object obj = dataFetcher.get(environment);
             immediatelyDispatch(state);
             return obj;
         };
     }
 
+    // 调度 dataLoader注册器 中所有的 dataLoader
     private void immediatelyDispatch(DataLoaderDispatcherInstrumentationState state) {
         state.getApproach().dispatch();
     }
@@ -125,9 +138,9 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
     @Override
     public ExecutionStrategyInstrumentationContext beginExecutionStrategy(InstrumentationExecutionStrategyParameters parameters) {
         DataLoaderDispatcherInstrumentationState state = parameters.getInstrumentationState();
-        //
+
         // if there are no data loaders, there is nothing to do
-        //
+        // 如果没有使用 dataLoader，则什么都不做
         if (state.hasNoDataLoaders()) {
             return new ExecutionStrategyInstrumentationContext() {
                 @Override
@@ -138,7 +151,6 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
                 public void onCompleted(ExecutionResult result, Throwable t) {
                 }
             };
-
         }
         return state.getApproach().beginExecutionStrategy(parameters.withNewState(state.getState()));
     }
@@ -156,14 +168,24 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
         return state.getApproach().beginFieldFetch(parameters.withNewState(state.getState()));
     }
 
+    // 是否将对 data-loader 的统计数据放到结果中
+    // 以及相应的操作
     @Override
     public CompletableFuture<ExecutionResult> instrumentExecutionResult(ExecutionResult executionResult, InstrumentationExecutionParameters parameters) {
         if (!options.isIncludeStatistics()) {
             return CompletableFuture.completedFuture(executionResult);
         }
+
+        // 获取全局状态累
         DataLoaderDispatcherInstrumentationState state = parameters.getInstrumentationState();
+
+        // 执行结果拓展
         Map<Object, Object> currentExt = executionResult.getExtensions();
+
+        // 新的执行结果拓展
         Map<Object, Object> statsMap = new LinkedHashMap<>(currentExt == null ? Collections.emptyMap() : currentExt);
+
+        //
         Map<Object, Object> dataLoaderStats = buildStatsMap(state);
         statsMap.put("dataloader", dataLoaderStats);
 
@@ -174,15 +196,25 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
         return CompletableFuture.completedFuture(new ExecutionResultImpl(executionResult.getData(), executionResult.getErrors(), statsMap));
     }
 
+    /**
+     * @return  创建全局状态对应的 Map
+     */
     private Map<Object, Object> buildStatsMap(DataLoaderDispatcherInstrumentationState state) {
+
+        // DataLoader注册器
         DataLoaderRegistry dataLoaderRegistry = state.getDataLoaderRegistry();
+
+        //获取注册器下所有dataLoader的统计数据、合并成一个
         Statistics allStats = dataLoaderRegistry.getStatistics();
+
+        // 将统计数据转换成map
         Map<Object, Object> statsMap = new LinkedHashMap<>();
         statsMap.put("overall-statistics", allStats.toMap());
 
         Map<Object, Object> individualStatsMap = new LinkedHashMap<>();
-
+        // 遍历注册器中的dataLoader
         for (String dlKey : dataLoaderRegistry.getKeys()) {
+            // 获取 dataLoader
             DataLoader<Object, Object> dl = dataLoaderRegistry.getDataLoader(dlKey);
             Statistics statistics = dl.getStatistics();
             individualStatsMap.put(dlKey, statistics.toMap());

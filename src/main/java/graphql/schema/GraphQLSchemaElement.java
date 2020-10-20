@@ -10,8 +10,11 @@ import java.util.List;
 import static graphql.schema.SchemaElementChildrenContainer.newSchemaElementChildrenContainer;
 
 /**
- * A GraphQLSchema can be viewed as a graph of GraphQLSchemaElement. Every node (vertex) of this graph implements
- * this interface.
+ * A GraphQLSchema can be viewed as a graph of GraphQLSchemaElement.
+ * Every node (vertex) of this graph implements this interface.
+ *
+ * fixme
+ *      GraphQLSchema的字段实现的接口。
  */
 @PublicApi
 public interface GraphQLSchemaElement {

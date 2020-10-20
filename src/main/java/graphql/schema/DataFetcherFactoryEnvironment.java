@@ -8,6 +8,7 @@ import graphql.PublicApi;
  */
 @PublicApi
 public class DataFetcherFactoryEnvironment {
+
     private final GraphQLFieldDefinition fieldDefinition;
 
     DataFetcherFactoryEnvironment(GraphQLFieldDefinition fieldDefinition) {

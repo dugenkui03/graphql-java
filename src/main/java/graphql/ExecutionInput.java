@@ -18,16 +18,40 @@ import static graphql.Assert.assertNotNull;
  */
 @PublicApi
 public class ExecutionInput {
+    // 查询dsl
     private final String query;
+
+    // 操作名称
     private final String operationName;
+
+    // 传递个所有dataFetcher的查询上下文
+    // fixme 可以保存全局状态
     private final Object context;
+
+    //
     private final Object localContext;
+
+    // 查询根对象
     private final Object root;
+
+    // 查询变量
     private final Map<String, Object> variables;
+
+    // ?查询拓展？
+    // https://github.com/graphql-java/graphql-java/pull/2013
     private final Map<String, Object> extensions;
+
+    // fixme
     private final DataLoaderRegistry dataLoaderRegistry;
+
+    // 返回 dataFetcher 对所查询字段的缓存信息描述
+    // 结果放在 extends 中，key 为 cacheControl
     private final CacheControl cacheControl;
+
+    // 输入id
     private final ExecutionId executionId;
+
+    // 包含某个 国家、地区的信息
     private final Locale locale;
 
 
@@ -68,6 +92,8 @@ public class ExecutionInput {
     }
 
     /**
+     * 值传递给顶层字段的dataFetcher，可查看其使用位置(只会被调用一次)
+     *
      * @return the local context object to pass to all top level (i.e. query, mutation, subscription) data fetchers
      */
     public Object getLocalContext() {
@@ -90,6 +116,7 @@ public class ExecutionInput {
 
     /**
      * @return the data loader registry associated with this execution
+     *          与此执行相关的 dataLoader 注册器
      */
     public DataLoaderRegistry getDataLoaderRegistry() {
         return dataLoaderRegistry;
@@ -192,8 +219,8 @@ public class ExecutionInput {
         private Map<String, Object> variables = Collections.emptyMap();
         public Map<String, Object> extensions = Collections.emptyMap();
         //
-        // this is important - it allows code to later known if we never really set a dataloader and hence it can optimize
-        // dataloader field tracking away.
+        // this is important - it allows code to later known if we never really set a dataloader
+        // and hence it can optimize dataloader field tracking away.
         //
         private DataLoaderRegistry dataLoaderRegistry = DataLoaderDispatcherInstrumentationState.EMPTY_DATALOADER_REGISTRY;
         private CacheControl cacheControl = CacheControl.newCacheControl();

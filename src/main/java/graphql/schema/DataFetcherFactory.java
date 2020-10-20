@@ -17,6 +17,7 @@ public interface DataFetcherFactory<T> {
      * Returns a {@link graphql.schema.DataFetcher}
      *
      * @param environment the environment that needs the data fetcher
+     *                    参数是一个 GraphQLFieldDefinition 对象
      *
      * @return a data fetcher
      */

@@ -106,16 +106,17 @@ public class HttpMain extends AbstractHandler {
         }
 
         //
+        // fixme dataLoader使用示例
         // This example uses the DataLoader technique to ensure that the most efficient
         // loading of data (in this case StarWars characters) happens.
         //
         DataLoaderRegistry dataLoaderRegistry = buildDataLoaderRegistry();
 
-
         ExecutionInput.Builder executionInput = newExecutionInput()
                 .query(parameters.getQuery())
                 .operationName(parameters.getOperationName())
                 .variables(parameters.getVariables())
+                // fixme 每个输入都有一个 dataLoader注册器。
                 .dataLoaderRegistry(dataLoaderRegistry);
 
 
@@ -135,8 +136,9 @@ public class HttpMain extends AbstractHandler {
         context.put("YouAppExecutingUser", "Dr Nefarious");
         executionInput.context(context);
 
-        //
-        // you need a schema in order to execute queries
+        /**
+         * 构造执行请求的类型上下文/you need a schema in order to execute queries
+         */
         GraphQLSchema schema = buildStarWarsSchema();
 
         DataLoaderDispatcherInstrumentation dlInstrumentation =
@@ -168,21 +170,33 @@ public class HttpMain extends AbstractHandler {
         JsonKit.toJson(response, executionResult.toSpecification());
     }
 
+    /**
+     * @return
+     */
     private DataLoaderRegistry buildDataLoaderRegistry() {
-        BatchLoader<String, Object> friendsBatchLoader = keys ->
-                //
-                // we are using multi threading here.  Imagine if loadCharactersViaHTTP was
-                // actually a HTTP call - its not be it could be done asynchronously as
-                // a batch API call
-                //
-                CompletableFuture.supplyAsync(() ->
-                        loadCharactersViaHTTP(keys));
 
+        /**
+         *  we are using multi threading here. Imagine if loadCharactersViaHTTP was actually a HTTP call
+         *  - its not be it could be done asynchronously as a batch API call
+         *
+         *  fixme 创建批量加载函数
+         */
+        BatchLoader<String, Object> friendsBatchLoader = keys ->
+                CompletableFuture.supplyAsync(() -> loadCharactersViaHTTP(keys));
+
+        /**
+         * 使用 批量加载函数 创建 DataLoader
+         *
+         * todo: 可以指定 缓存、cacheKey和统计数据收集器等对象
+         */
         DataLoader<String, Object> friendsDataLoader = new DataLoader<>(friendsBatchLoader);
 
+        /**
+         * we make sure our dataloader is in the registry
+         *
+         * 将DataLoader放到注册器中、并取名friends
+         */
         DataLoaderRegistry dataLoaderRegistry = new DataLoaderRegistry();
-        //
-        // we make sure our dataloader is in the registry
         dataLoaderRegistry.register("friends", friendsDataLoader);
 
         return dataLoaderRegistry;
@@ -259,6 +273,8 @@ public class HttpMain extends AbstractHandler {
         return starWarsSchema;
     }
 
+
+    // 根据ids、获取人物对象列表
     private List<Object> loadCharactersViaHTTP(List<String> keys) {
         List<Object> values = new ArrayList<>();
         for (String key : keys) {
@@ -268,7 +284,6 @@ public class HttpMain extends AbstractHandler {
         return values;
     }
 
-    @SuppressWarnings("SameParameterValue")
     private Reader loadSchemaFile(String name) {
         InputStream stream = getClass().getClassLoader().getResourceAsStream(name);
         return new InputStreamReader(stream, Charset.defaultCharset());

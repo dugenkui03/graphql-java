@@ -25,13 +25,12 @@ import java.util.function.Supplier;
 /**
  * This approach uses field level tracking to achieve its aims of making the data loader more efficient
  *
- * 跟踪字段的层级，使得dataLoader更加高效。
+ * fixme
+ *      跟踪字段的层级，使得dataLoader更加高效；
+ *      唯一属性： dataLoader
  */
 @Internal
 public class FieldLevelTrackingApproach {
-    // 调用get() 方法获取 DataLoaderRegistry对象
-    private final Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier;
-    private final Logger log;
 
     // 调用栈，todo 又是一个InstrumentationState
     private static class CallStack implements InstrumentationState {
@@ -40,13 +39,16 @@ public class FieldLevelTrackingApproach {
         private final Map<Integer, Integer> expectedFetchCountPerLevel = new LinkedHashMap<>();
         // 每一层获取个数
         private final Map<Integer, Integer> fetchCountPerLevel = new LinkedHashMap<>();
+
         // 每一层期望的策略调用
         private final Map<Integer, Integer> expectedStrategyCallsPerLevel = new LinkedHashMap<>();
         // 每一层进行的策略调用
         private final Map<Integer, Integer> happenedStrategyCallsPerLevel = new LinkedHashMap<>();
+
         // 每一层进行的 字段值/FieldValue 调用
         private final Map<Integer, Integer> happenedOnFieldValueCallsPerLevel = new LinkedHashMap<>();
-        // 派遣层级
+
+        // 调度层级
         private final Set<Integer> dispatchedLevels = new LinkedHashSet<>();
 
         // 初始化的时候， 每一层期望的策略调用 <1,1>
@@ -123,6 +125,12 @@ public class FieldLevelTrackingApproach {
             happenedStrategyCallsPerLevel.put(level, 1);
         }
     }
+
+    private final Logger log;
+
+    // 调用get() 方法获取 DataLoaderRegistry对象
+    // fixme 对 dataLoader 的一个包装。
+    private final Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier;
 
     public FieldLevelTrackingApproach(Logger log, Supplier<DataLoaderRegistry> dataLoaderRegistrySupplier) {
         this.dataLoaderRegistrySupplier = dataLoaderRegistrySupplier;
@@ -249,6 +257,7 @@ public class FieldLevelTrackingApproach {
         return false;
     }
 
+    // fixme 调度 dataLoader注册器 中所有的dataLoader
     void dispatch() {
         DataLoaderRegistry dataLoaderRegistry = getDataLoaderRegistry();
         if (log.isDebugEnabled()) {
@@ -257,6 +266,7 @@ public class FieldLevelTrackingApproach {
         dataLoaderRegistry.dispatchAll();
     }
 
+    // 获取 dataLoader 注册器
     private DataLoaderRegistry getDataLoaderRegistry() {
         return dataLoaderRegistrySupplier.get();
     }

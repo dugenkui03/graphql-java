@@ -80,7 +80,9 @@ class StarWarsData {
         return humanData[id] != null
     }
 
+    // 根据 id 获取人物对象
     static def getCharacter(String id) {
+        // 人类和机器人
         if (humanData[id] != null) return humanData[id]
         if (droidData[id] != null) return droidData[id]
         return null
