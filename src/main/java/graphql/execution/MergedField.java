@@ -72,7 +72,7 @@ public class MergedField {
         assertNotEmpty(fields);
         //todo 不能被更改的集合？那transform怎么办？
         //     new Builder()的时候，使用list作为构造器参数，构造了一个新fields。
-        this.fields = unmodifiableList(new ArrayList<>(fields));
+        this.fields = unmodifiableList(fields);
         this.singleField = fields.get(0);
         this.name = singleField.getName();
         this.resultKey = singleField.getAlias() != null ? singleField.getAlias() : name;
@@ -149,7 +149,8 @@ public class MergedField {
     }
 
     public static class Builder {
-        private List<Field> fields;
+
+        private final List<Field> fields;
 
         private Builder() {
             this.fields = new ArrayList<>();
@@ -160,7 +161,7 @@ public class MergedField {
         }
 
         public Builder fields(List<Field> fields) {
-            this.fields = fields;
+            this.fields.addAll(fields);
             return this;
         }
 
@@ -172,7 +173,6 @@ public class MergedField {
         public MergedField build() {
             return new MergedField(fields);
         }
-
 
     }
 

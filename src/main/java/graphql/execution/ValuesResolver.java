@@ -171,9 +171,10 @@ public class ValuesResolver {
                 // fixme 后两者都可能为null、但是此时不应该去找默认值了。
                 value = coerceValueAst(codeRegistry.getFieldVisibility(), fieldArgument.getType(), argument.getValue(), variables);
             }
-
-            // fixme 查询dsl中没有此变量；有此变量、但值是常量null；有此变量、但值引用的变量是null；
-            if (value == null) {
+            if (value == null
+                    && !(argument != null && argument.getValue() instanceof NullValue)
+                    && !(argument != null && argument.getValue() instanceof VariableReference && variables.containsKey(((VariableReference) argument.getValue()).getName()))
+            ) {
                 value = fieldArgument.getDefaultValue();
             }
 
