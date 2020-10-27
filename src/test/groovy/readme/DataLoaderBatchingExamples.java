@@ -27,103 +27,17 @@ import static graphql.ExecutionInput.newExecutionInput;
 @SuppressWarnings({"unused", "Convert2Lambda", "ConstantConditions", "ClassCanBeStatic"})
 public class DataLoaderBatchingExamples {
 
-
+    // 星球大战人物
     class StarWarsCharacter {
+        /**
+         * 获取该人物的 friendId 列表
+         */
         List<String> getFriendIds() {
             return null;
         }
     }
 
-    private String getQuery() {
-        return null;
-    }
-
-    void starWarsExample() {
-
-        //
-        // a batch loader function that will be called with N or more keys for batch loading
-        // This can be a singleton object since it's stateless
-        //
-        BatchLoader<String, Object> characterBatchLoader = new BatchLoader<String, Object>() {
-            @Override
-            public CompletionStage<List<Object>> load(List<String> keys) {
-                //
-                // we use supplyAsync() of values here for maximum parellisation
-                //
-                return CompletableFuture.supplyAsync(() -> getCharacterDataViaBatchHTTPApi(keys));
-            }
-        };
-
-
-        //
-        // use this data loader in the data fetchers associated with characters and put them into
-        // the graphql schema (not shown)
-        //
-        DataFetcher heroDataFetcher = new DataFetcher() {
-            @Override
-            public Object get(DataFetchingEnvironment environment) {
-                DataLoader<String, Object> dataLoader = environment.getDataLoader("character");
-                return dataLoader.load("2001"); // R2D2
-            }
-        };
-
-        DataFetcher friendsDataFetcher = new DataFetcher() {
-            @Override
-            public Object get(DataFetchingEnvironment environment) {
-                StarWarsCharacter starWarsCharacter = environment.getSource();
-                List<String> friendIds = starWarsCharacter.getFriendIds();
-                DataLoader<String, Object> dataLoader = environment.getDataLoader("character");
-                return dataLoader.loadMany(friendIds);
-            }
-        };
-
-
-        //
-        // this instrumentation implementation will dispatch all the data loaders
-        // as each level of the graphql query is executed and hence make batched objects
-        // available to the query and the associated DataFetchers
-        //
-        // In this case we use options to make it keep statistics on the batching efficiency
-        //
-        DataLoaderDispatcherInstrumentationOptions options = DataLoaderDispatcherInstrumentationOptions
-                .newOptions().includeStatistics(true);
-
-        DataLoaderDispatcherInstrumentation dispatcherInstrumentation
-                = new DataLoaderDispatcherInstrumentation(options);
-
-        //
-        // now build your graphql object and execute queries on it.
-        // the data loader will be invoked via the data fetchers on the
-        // schema fields
-        //
-        GraphQL graphQL = GraphQL.newGraphQL(buildSchema())
-                .instrumentation(dispatcherInstrumentation)
-                .build();
-
-        //
-        // a data loader for characters that points to the character batch loader
-        //
-        // Since data loaders are stateful, they are created per execution request.
-        //
-        DataLoader<String, Object> characterDataLoader = DataLoader.newDataLoader(characterBatchLoader);
-
-        //
-        // DataLoaderRegistry is a place to register all data loaders in that needs to be dispatched together
-        // in this case there is 1 but you can have many.
-        //
-        // Also note that the data loaders are created per execution request
-        //
-        DataLoaderRegistry registry = new DataLoaderRegistry();
-        registry.register("character", characterDataLoader);
-
-        ExecutionInput executionInput = newExecutionInput()
-                .query(getQuery())
-                .dataLoaderRegistry(registry)
-                .build();
-
-        ExecutionResult executionResult = graphQL.execute(executionInput);
-    }
-
+    // redis 类型数据源
     class Redis {
 
         public boolean containsKey(String key) {
@@ -146,14 +60,136 @@ public class DataLoaderBatchingExamples {
         }
     }
 
+    // 安全上下文
+    static class SecurityContext {
+
+        static SecurityContext newSecurityContext() {
+            return null;
+        }
+
+        /**
+         * 获取token
+         */
+        Object getToken() {
+            return null;
+        }
+    }
+
+
+    // redis对象
     Redis redisIntegration;
 
+    // 批量加载函数
     BatchLoader<String, Object> batchLoader = new BatchLoader<String, Object>() {
         @Override
         public CompletionStage<List<Object>> load(List<String> keys) {
             return CompletableFuture.completedFuture(null);
         }
     };
+
+
+    /**
+     * fixme 构造 dataLoaser 注册器
+     */
+    public static DataLoaderRegistry registry = new DataLoaderRegistry();
+    static{
+        // a batch loader function that will be called with N or more keys for batch loading
+        // This can be a singleton object since it's stateless
+        // fixme 方法里创建的批量加载对象
+        BatchLoader<String, Object> characterBatchLoader = new BatchLoader<String, Object>() {
+            @Override
+            public CompletionStage<List<Object>> load(List<String> keys) {
+                //
+                // we use supplyAsync() of values here for maximum parellisation
+                //
+                return CompletableFuture.supplyAsync(() -> getCharacterDataViaBatchHTTPApi(keys));
+            }
+        };
+
+        // a data loader for characters that points to the character batch loader
+        // Since data loaders are stateful, they are created per execution request.
+        DataLoader<String, Object> characterDataLoader = DataLoader.newDataLoader(characterBatchLoader);
+
+        // DataLoaderRegistry is a place to register all data loaders in that needs to be dispatched together
+        // in this case there is 1 but you can have many.
+        // Also note that the data loaders are created per execution request
+        registry.register("character", characterDataLoader);
+    }
+
+
+    // 获取查询？
+    private String getQuery() {
+        return null;
+    }
+
+    private static List<Object> getCharacterDataViaBatchHTTPApi(List<String> keys) {
+        return null;
+    }
+
+    void starWarsExample() {
+
+        // fixme 英雄 dataFetcher，使用 character dataLoader
+        // use this data loader in the data fetchers associated with characters
+        // and put them into the graphql schema (not shown)
+        DataFetcher heroDataFetcher = new DataFetcher() {
+            @Override
+            public Object get(DataFetchingEnvironment environment) {
+                // fixme 获取人物类型 DataLoader
+                DataLoader<String, Object> dataLoader = environment.getDataLoader("character");
+                // fixme 获取2001的数据
+                return dataLoader.load("2001"); // R2D2
+            }
+        };
+
+        // fixme 朋友 dataFetcher，使用的dataLoader同heroDataFetcher
+        DataFetcher friendsDataFetcher = new DataFetcher() {
+            @Override
+            public Object get(DataFetchingEnvironment environment) {
+                /**
+                 * 从父级资源获取朋友ids
+                 */
+                StarWarsCharacter starWarsCharacter = environment.getSource();
+                List<String> friendIds = starWarsCharacter.getFriendIds();
+
+                /**
+                 * 获取这些id对应的朋友列表
+                 */
+                DataLoader<String, Object> dataLoader = environment.getDataLoader("character");
+                return dataLoader.loadMany(friendIds);
+            }
+        };
+
+
+        //
+        // this instrumentation implementation will dispatch all the data loaders
+        // as each level of the graphql query is executed and hence make batched objects
+        // available to the query and the associated DataFetchers
+        //
+        // true表示 "是否将对 java-dataloader 的统计数据放到结果中"
+        //
+        DataLoaderDispatcherInstrumentationOptions options = DataLoaderDispatcherInstrumentationOptions
+                .newOptions().includeStatistics(true);
+
+
+        DataLoaderDispatcherInstrumentation dispatcherInstrumentation = new DataLoaderDispatcherInstrumentation(options);
+
+        //
+        // now build your graphql object and execute queries on it.
+        // the data loader will be invoked via the data fetchers on the
+        // schema fields
+        //
+        GraphQL graphQL = GraphQL.newGraphQL(buildSchema())
+                .instrumentation(dispatcherInstrumentation)
+                .build();
+
+        ExecutionInput executionInput = newExecutionInput()
+                .query(getQuery())
+                .dataLoaderRegistry(registry)
+                .build();
+
+        ExecutionResult executionResult = graphQL.execute(executionInput);
+    }
+
 
     private void changeCachingSolutionOfDataLoader() {
 
@@ -294,17 +330,6 @@ public class DataLoaderBatchingExamples {
         };
     }
 
-    static class SecurityContext {
-
-        static SecurityContext newSecurityContext() {
-            return null;
-        }
-
-        Object getToken() {
-            return null;
-        }
-    }
-
 
     private List<Object> getTheseCharacters(List<String> keys) {
         return null;
@@ -325,10 +350,5 @@ public class DataLoaderBatchingExamples {
     private GraphQLSchema buildSchema() {
         return null;
     }
-
-    private List<Object> getCharacterDataViaBatchHTTPApi(List<String> keys) {
-        return null;
-    }
-
 
 }

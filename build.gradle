@@ -224,6 +224,11 @@ tasks.withType(PublishToMavenRepository) {
 }
 
 
+/**
+ * 一直报错、语法和 gradle7.0 不兼容，最后发现是网络的问题。
+ *
+ * 即使语法不兼容，也能够构建成功、最终跑成功单测。
+ */
 task myWrapper(type: Wrapper) {
     gradleVersion = '6.6.1'
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
