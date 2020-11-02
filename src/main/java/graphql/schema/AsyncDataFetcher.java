@@ -64,6 +64,7 @@ public class AsyncDataFetcher<T> implements DataFetcher<CompletableFuture<T>> {
 
     @Override
     public CompletableFuture<T> get(DataFetchingEnvironment environment) {
+        // 使用指定线程池、异步执行此任务
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return wrappedDataFetcher.get(environment);

@@ -171,6 +171,7 @@ public class GraphQL {
             executionResult = executionResult.thenApply(result -> instrumentation.instrumentExecutionResult(result, instrumentationParameters));
             return executionResult;
         } catch (AbortExecutionException abortException) {
+            // 将指定的参数对象包装为异步任务结果
             return CompletableFuture.completedFuture(abortException.toExecutionResult());
         }
     }
@@ -184,6 +185,7 @@ public class GraphQL {
         };
         PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);
         if (preparsedDoc.hasErrors()) {
+            // 将指定的ExecutionResultImpl对象包装为异步任务结果
             return CompletableFuture.completedFuture(new ExecutionResultImpl(preparsedDoc.getErrors()));
         }
         return execute(executionInputRef.get(), preparsedDoc.getDocument(), graphQLSchema, instrumentationState);

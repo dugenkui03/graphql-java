@@ -16,7 +16,9 @@ import static graphql.Assert.assertNotNull;
 import static java.util.Collections.emptyList;
 
 /**
- * This Exception indicates that the current execution should be aborted.
+ * This Exception indicates that the current execution should be aborted(中断).
+ *
+ * 当前执行的查询应该中断。
  */
 @PublicApi
 public class AbortExecutionException extends GraphQLException implements GraphQLError {
@@ -75,5 +77,7 @@ public class AbortExecutionException extends GraphQLException implements GraphQL
             executionResult = new ExecutionResultImpl(this.getUnderlyingErrors());
         }
         return executionResult;
+
+
     }
 }
