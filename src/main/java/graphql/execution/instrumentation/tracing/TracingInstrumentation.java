@@ -80,6 +80,7 @@ public class TracingInstrumentation extends SimpleInstrumentation {
         Map<Object, Object> tracingMap = new LinkedHashMap<>(currentExt == null ? Collections.emptyMap() : currentExt);
         tracingMap.put("tracing", tracingSupport.snapshotTracingData());
 
+        // 指定对象设置为异步任务结果
         return CompletableFuture.completedFuture(new ExecutionResultImpl(executionResult.getData(), executionResult.getErrors(), tracingMap));
     }
 

@@ -29,6 +29,7 @@ public class Execution {
             executionData = executionHelper.createExecutionData(document, graphQLSchema, executionId, executionInput, instrumentationState);
         } catch (RuntimeException rte) {
             if (rte instanceof GraphQLError) {
+                // 指定参数设置为异步任务结果
                 return CompletableFuture.completedFuture(new ExecutionResultImpl((GraphQLError) rte));
             }
             return Async.exceptionallyCompletedFuture(rte);
