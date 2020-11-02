@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -30,10 +29,13 @@ public class Async {
         @SuppressWarnings("unchecked")
         CompletableFuture<U>[] arrayOfFutures = futures.toArray(new CompletableFuture[0]);
 
-        //当所有的CompletableFuture都执行完后执行计算
+        /**
+         * fixme step_1：等所有的任务完成
+         *       当所有的CompletableFuture都执行完后执行计算
+         */
         CompletableFuture.allOf(arrayOfFutures)
 
-                //总体结果无法反映在返回结果中，单独的 get()/join() 元素任务分析结果。
+                //fixme 重点：总体结果无法反映在返回结果中，单独的 get()/join() 元素任务分析结果。
                 // whenComplete
                 .whenComplete((ignored, exception) -> {
 
@@ -43,7 +45,10 @@ public class Async {
                         return;
                     }
 
-                    //获取每个任务的结果放到总体结果中
+                    /**
+                     * fixme step_2：将结果放到list中
+                     *       获取每个任务的结果放到总体结果中
+                     */
                     List<U> results = new ArrayList<>(arrayOfFutures.length);
                     for (CompletableFuture<U> future : arrayOfFutures) {
                         results.add(future.join());
