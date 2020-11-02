@@ -12,7 +12,7 @@ import java.util.function.Function;
 @PublicSpi
 public interface PreparsedDocumentProvider {
 
-//    PreparsedDocumentProvider INSTANCE = (executionInput, computeFunction) -> computeFunction.apply(executionInput);
+    PreparsedDocumentProvider INSTANCE = (executionInput, computeFunction) -> computeFunction.apply(executionInput);
 
     /**
      * This is called to get a "cached" pre-parsed query and if its not present, then the "parseAndValidateFunction"

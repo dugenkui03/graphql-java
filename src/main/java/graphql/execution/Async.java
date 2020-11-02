@@ -3,13 +3,11 @@ package graphql.execution;
 import graphql.Assert;
 import graphql.Internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,26 +23,31 @@ public class Async {
     }
 
     public static <U> CompletableFuture<List<U>> each(List<CompletableFuture<U>> futures) {
+
         CompletableFuture<List<U>> overallResult = new CompletableFuture<>();
 
-        //当所有的CompletableFuture都执行完后执行计算
+        // list to array
         @SuppressWarnings("unchecked")
         CompletableFuture<U>[] arrayOfFutures = futures.toArray(new CompletableFuture[0]);
-        CompletableFuture
-                .allOf(arrayOfFutures)
-                //noUsed是返回值、exception是计算遇到的异常
+
+        //当所有的CompletableFuture都执行完后执行计算
+        CompletableFuture.allOf(arrayOfFutures)
+
+                //总体结果无法反映在返回结果中，单独的 get()/join() 元素任务分析结果。
+                // whenComplete
                 .whenComplete((ignored, exception) -> {
-                    //如果计算过程中遇到异常、记录异常
+
+                    // 指定完成异常
                     if (exception != null) {
                         overallResult.completeExceptionally(exception);
                         return;
                     }
+
+                    //获取每个任务的结果放到总体结果中
                     List<U> results = new ArrayList<>(arrayOfFutures.length);
                     for (CompletableFuture<U> future : arrayOfFutures) {
-                        //获取结果
                         results.add(future.join());
                     }
-                    //
                     overallResult.complete(results);
                 });
         return overallResult;
@@ -112,6 +115,7 @@ public class Async {
             //noinspection unchecked 返回本身
             return ((CompletionStage<T>) t).toCompletableFuture();
         } else {
+            // 使用 t 作为结果、返回一个已经完成计算的CompletableFuture。
             return CompletableFuture.completedFuture(t);
         }
     }
@@ -127,12 +131,14 @@ public class Async {
         }
     }
 
+    // 使用制定异常结果构造 CompletableFuture
     public static <T> CompletableFuture<T> exceptionallyCompletedFuture(Throwable exception) {
         CompletableFuture<T> result = new CompletableFuture<>();
         result.completeExceptionally(exception);
         return result;
     }
 
+    // 将 source 的计算结果拷贝到 target
     public static <T> void copyResults(CompletableFuture<T> source, CompletableFuture<T> target) {
         source.whenComplete((o, throwable) -> {
             if (throwable != null) {
@@ -160,6 +166,7 @@ public class Async {
         });
     }
 
+    // Function<参数, 结果>
     public static <U, T> CompletableFuture<List<U>> flatMap(List<T> inputs, Function<T, CompletableFuture<U>> mapper) {
         List<CompletableFuture<U>> collect = inputs
                 .stream()
