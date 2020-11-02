@@ -19,9 +19,13 @@ public class ExecutionStrategyParameters {
     private final NonNullableFieldValidator nonNullableFieldValidator;
     private final ResultPath path;
     private final MergedField currentField;
-    private final int listSize;
 
+    // 如果是list、该字段表示list大小，-1表示null
+    private final int listSize;
+    // 如果是list的元素，该字段表示在list中的索引
     private final int currentListIndex;
+
+    // 指向父字段的指针，注意、不是 list元素 指向 list对象
     private final ExecutionStrategyParameters parent;
 
     private ExecutionStrategyParameters(ExecutionStepInfo executionStepInfo,

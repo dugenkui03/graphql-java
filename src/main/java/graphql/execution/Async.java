@@ -58,13 +58,14 @@ public class Async {
         return overallResult;
     }
 
-    public static <T, U> CompletableFuture<List<U>> each(Collection<T> list, BiFunction<T, Integer, CompletableFuture<U>> cfFactory) {
+    public static <T, U> CompletableFuture<List<U>> each(Collection<T> list,
+                                                         BiFunction<T, Integer, CompletableFuture<U>> cfFactory) {
         List<CompletableFuture<U>> futures = new ArrayList<>(list.size());
         int index = 0;
-        for (T t : list) {
+        for (T listEle : list) {
             CompletableFuture<U> cf;
             try {
-                cf = cfFactory.apply(t, index++);
+                cf = cfFactory.apply(listEle, index++);
                 Assert.assertNotNull(cf, () -> "cfFactory must return a non null value");
             } catch (Exception e) {
                 cf = new CompletableFuture<>();

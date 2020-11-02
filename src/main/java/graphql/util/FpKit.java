@@ -102,25 +102,36 @@ public class FpKit {
         return list;
     }
 
+
     public static boolean isIterable(Object result) {
-        return result.getClass().isArray() || result instanceof Iterable || result instanceof Stream || result instanceof Iterator;
+        return result.getClass().isArray() // 数组
+                || result instanceof Iterable // 集合
+                || result instanceof Stream // 流
+                || result instanceof Iterator; //
     }
 
 
     @SuppressWarnings("unchecked")
     public static <T> Iterable<T> toIterable(Object iterableResult) {
+        // todo 其实可以先判断个npe。但是使用该方法的入口判断了、而且该方法也是@Internal的
+
+        // 集合
         if (iterableResult instanceof Iterable) {
             return ((Iterable<T>) iterableResult);
         }
 
+        // 流
         if (iterableResult instanceof Stream) {
             return ((Stream<T>) iterableResult)::iterator;
         }
 
+        // todo ?只有一个元素?
         if (iterableResult instanceof Iterator) {
+            // fixme 对接口唯一抽象方法的定义： Iterator<T> iterator()
             return () -> (Iterator<T>) iterableResult;
         }
 
+        // fixme 数组 转 Iterator
         if (iterableResult.getClass().isArray()) {
             return () -> new ArrayIterator<>(iterableResult);
         }
@@ -128,10 +139,15 @@ public class FpKit {
         throw new ClassCastException("not Iterable: " + iterableResult.getClass());
     }
 
+    /**
+     * fixme Iterator 的实现
+     */
     private static class ArrayIterator<T> implements Iterator<T> {
 
         private final Object array;
         private final int size;
+
+        // 初始化为0
         private int i;
 
         private ArrayIterator(Object array) {
@@ -140,27 +156,32 @@ public class FpKit {
             this.i = 0;
         }
 
+        // fixme step_1: 当前索引是否没有指向末尾
         @Override
         public boolean hasNext() {
             return i < size;
         }
 
+        // 由使用方式可知、此处不用保证线程安全
         @SuppressWarnings("unchecked")
         @Override
         public T next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
+            // fixme step_2: 每取完一次元素、下标后移
             return (T) Array.get(array, i++);
         }
 
     }
 
     public static OptionalInt toSize(Object iterableResult) {
+        // 集合
         if (iterableResult instanceof Collection) {
             return OptionalInt.of(((Collection<?>) iterableResult).size());
         }
 
+        // 数组
         if (iterableResult.getClass().isArray()) {
             return OptionalInt.of(Array.getLength(iterableResult));
         }
