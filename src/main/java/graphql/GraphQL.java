@@ -553,6 +553,7 @@ public class GraphQL {
             executionResult = executionResult.thenCompose(result -> instrumentation.instrumentExecutionResult(result, instrumentationParameters));
             return executionResult;
         } catch (AbortExecutionException abortException) {
+            // 指定异步任务结果
             return CompletableFuture.completedFuture(abortException.toExecutionResult());
         }
     }
@@ -588,6 +589,7 @@ public class GraphQL {
         // 如果解析出错，返回结果
         PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);
         if (preparsedDoc.hasErrors()) {
+            // 指定异步任务结果
             return CompletableFuture.completedFuture(new ExecutionResultImpl(preparsedDoc.getErrors()));
         }
 

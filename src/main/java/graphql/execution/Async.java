@@ -110,6 +110,7 @@ public class Async {
 
     /**
      * Turns an object T into a CompletableFuture if its not already
+     * 如果dataFetcher的结果是个异步任务，则获取该异步任务，否则将其包装为异步任务。
      *
      * @param t   - the object to check
      * @param <T> for two
@@ -117,8 +118,9 @@ public class Async {
      * @return a CompletableFuture
      */
     public static <T> CompletableFuture<T> toCompletableFuture(T t) {
+        // 如果dataFetcher的结果是个异步任务，则获取该异步任务
         if (t instanceof CompletionStage) {
-            //noinspection unchecked 返回本身
+            //noinspection unchecked 返回本身：return this;
             return ((CompletionStage<T>) t).toCompletableFuture();
         } else {
             // 使用 t 作为结果、返回一个已经完成计算的CompletableFuture。

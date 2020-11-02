@@ -211,6 +211,7 @@ public abstract class ExecutionStrategy {
     protected CompletableFuture<FieldValueInfo> resolveFieldWithInfoToNull(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
         FetchedValue fetchedValue = FetchedValue.newFetchedValue().build();
         FieldValueInfo fieldValueInfo = completeField(executionContext, parameters, fetchedValue);
+        // 计算好的任务结果，估计不是啥预留方法
         return CompletableFuture.completedFuture(fieldValueInfo);
     }
 
