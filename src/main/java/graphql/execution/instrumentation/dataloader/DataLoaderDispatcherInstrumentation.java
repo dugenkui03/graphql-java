@@ -173,6 +173,7 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
     @Override
     public CompletableFuture<ExecutionResult> instrumentExecutionResult(ExecutionResult executionResult, InstrumentationExecutionParameters parameters) {
         if (!options.isIncludeStatistics()) {
+            // 指定对象为异步任务结果
             return CompletableFuture.completedFuture(executionResult);
         }
 
@@ -193,6 +194,7 @@ public class DataLoaderDispatcherInstrumentation extends SimpleInstrumentation {
             log.debug("Data loader stats : {}", dataLoaderStats);
         }
 
+        // 指定对象为异步任务结果
         return CompletableFuture.completedFuture(new ExecutionResultImpl(executionResult.getData(), executionResult.getErrors(), statsMap));
     }
 

@@ -253,6 +253,7 @@ public interface Instrumentation {
      * @return a new execution result completable future
      */
     default CompletableFuture<ExecutionResult> instrumentExecutionResult(ExecutionResult executionResult, InstrumentationExecutionParameters parameters) {
+        // 指定对象为异步任务结果，默认不处理
         return CompletableFuture.completedFuture(executionResult);
     }
 
