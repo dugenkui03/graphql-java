@@ -58,8 +58,7 @@ public class Async {
         return overallResult;
     }
 
-    public static <T, U> CompletableFuture<List<U>> each(Collection<T> list,
-                                                         BiFunction<T, Integer, CompletableFuture<U>> cfFactory) {
+    public static <T, U> CompletableFuture<List<U>> each(Collection<T> list, BiFunction<T, Integer, CompletableFuture<U>> cfFactory) {
         List<CompletableFuture<U>> futures = new ArrayList<>(list.size());
         int index = 0;
         for (T listEle : list) {
@@ -72,6 +71,7 @@ public class Async {
                 // Async.each makes sure that it is not a CompletionException inside a CompletionException
                 cf.completeExceptionally(new CompletionException(e));
             }
+            // 不管是异常还是正常的任务，都放到任务列表中
             futures.add(cf);
         }
         return each(futures);

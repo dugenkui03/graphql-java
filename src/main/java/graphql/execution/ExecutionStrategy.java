@@ -526,15 +526,19 @@ public abstract class ExecutionStrategy {
         List<FieldValueInfo> fieldValueInfos = new ArrayList<>(size.orElse(1));
         int index = 0;
         for (Object item : iterableValues) {
+            /**
+             *  ======================== 构造请求参数 ==============================
+             */
+
             ResultPath indexedPath = parameters.getPath().segment(index);
 
             ExecutionStepInfo stepInfoForListElement = executionStepInfoFactory.newExecutionStepInfoForListElement(executionStepInfo, index);
 
             NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, stepInfoForListElement);
 
-            int finalIndex = index;
             FetchedValue value = unboxPossibleDataFetcherResult(executionContext, parameters, item);
 
+            int finalIndex = index;
             ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                     builder.executionStepInfo(stepInfoForListElement)
                             .nonNullFieldValidator(nonNullableFieldValidator)
@@ -544,22 +548,31 @@ public abstract class ExecutionStrategy {
                             .path(indexedPath)
                             .source(value.getFetchedValue())
             );
+
             // fixme 对每个元素的解析都是并行的
             fieldValueInfos.add(completeValue(executionContext, newParameters));
             index++;
         }
 
-        CompletableFuture<List<ExecutionResult>> resultsFuture = Async.each(fieldValueInfos, (item, i) -> item.getFieldValue());
+        // 等待每一个元素代表的异步任务执行结束
+        // todo n+1 问题
+        CompletableFuture<List<ExecutionResult>> resultsFuture = Async.each(fieldValueInfos,
+                (item, i) -> item.getFieldValue() // item：第 i 个任务
+        );
 
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         completeListCtx.onDispatched(overallResult);
 
+        // 走到这的时候、resultsFuture一般也完成了
         resultsFuture.whenComplete((results, exception) -> {
+            // 异常
             if (exception != null) {
                 ExecutionResult executionResult = handleNonNullException(executionContext, overallResult, exception);
                 completeListCtx.onCompleted(executionResult, exception);
                 return;
             }
+
+            // 正常：
             List<Object> completedResults = new ArrayList<>(results.size());
             for (ExecutionResult completedValue : results) {
                 completedResults.add(completedValue.getData());

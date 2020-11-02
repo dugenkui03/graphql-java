@@ -198,6 +198,7 @@ public class ResultPath {
      * @return a new path containing that segment
      */
     public ResultPath segment(int segment) {
+        // this 是 parent字段
         return new ResultPath(this, segment);
     }
 
