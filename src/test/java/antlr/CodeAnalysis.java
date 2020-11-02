@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @Description
@@ -14,6 +15,9 @@ import java.util.List;
  * @Author dugenkui
  **/
 public class CodeAnalysis {
+
+    private static AtomicLong count = new AtomicLong(0);
+
     public static long countCodeLine(String rootDir, List<String> postfix) throws IOException {
         File file = new File(rootDir);
         if (file.isDirectory()) {
@@ -23,6 +27,7 @@ public class CodeAnalysis {
             }
             return totalCount;
         } else {
+            count.incrementAndGet();
             String absolutePath = file.getAbsolutePath();
             if (postfix.stream().filter(ele -> absolutePath.endsWith(ele)).count() <= 0) {
                 return 0;
@@ -32,7 +37,8 @@ public class CodeAnalysis {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(countCodeLine("/Users/dugenkui/githubPlus/calcite/example", Arrays.asList(".java")));
+        System.out.println(countCodeLine("/Users/dugenkui/github/jdk/src/java.base/share/classes", Arrays.asList(".java")));
+        System.out.println(count.get());
     }
 
 }

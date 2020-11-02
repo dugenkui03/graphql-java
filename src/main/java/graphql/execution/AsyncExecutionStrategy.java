@@ -74,7 +74,9 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         executionStrategyCtx.onDispatched(overallResult);
 
-        Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
+        Async.each(futures)
+        //
+        .whenComplete((completeValueInfos, throwable) -> {
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult);
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
@@ -83,7 +85,9 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
             List<CompletableFuture<ExecutionResult>> executionResultFuture = completeValueInfos.stream().map(FieldValueInfo::getFieldValue).collect(Collectors.toList());
             executionStrategyCtx.onFieldValuesInfo(completeValueInfos);
             Async.each(executionResultFuture).whenComplete(handleResultsConsumer);
-        }).exceptionally((ex) -> {
+        })
+        // 如果上一步 whenComplete 计算发生异常，则再次处理。return 值会有相应的展现。
+        .exceptionally((ex) -> {
             // if there are any issues with combining/handling the field results,
             // complete the future at all costs and bubble up any thrown exception so
             // the execution does not hang.
