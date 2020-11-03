@@ -74,14 +74,21 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         executionStrategyCtx.onDispatched(overallResult);
 
+        /**
+         * 每一个字段对应个元素；
+         * 即使有字段执行报错、已经在 resolveFieldWithInfo 进行了解析、封装为"错误结果"，
+         * 因此在 Async.each 调用 allOf方法的时候，并不会有"一个错误导致整体错误"的事情。
+         */
         Async.each(futures)
-        //
+        // whenComplete 的参数是消费函数，handle会对值进行转换
         .whenComplete((completeValueInfos, throwable) -> {
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult);
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
                 return;
             }
+
+            // CompletableFuture<List<U>> -> List<U>
             List<CompletableFuture<ExecutionResult>> executionResultFuture = completeValueInfos.stream().map(FieldValueInfo::getFieldValue).collect(Collectors.toList());
             executionStrategyCtx.onFieldValuesInfo(completeValueInfos);
             Async.each(executionResultFuture).whenComplete(handleResultsConsumer);

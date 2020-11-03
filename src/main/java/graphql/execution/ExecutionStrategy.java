@@ -197,7 +197,10 @@ public abstract class ExecutionStrategy {
                 new InstrumentationFieldParameters(executionContext, executionStepInfo)
         );
 
+        // fixme 请求
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
+
+        // fixme 解析
         CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) ->
                 completeField(executionContext, parameters, fetchedValue));
 
@@ -282,8 +285,16 @@ public abstract class ExecutionStrategy {
         }
         fetchCtx.onDispatched(fetchedValue);
         return fetchedValue
+                // 对结果进行进一步的转化
+                // fixme 如果是异常信息，则包装为正常数据
                 .handle((result, exception) -> {
                     fetchCtx.onCompleted(result, exception);
+
+                    /**
+                     * 如果该dataFetcher的执行是异常结束:
+                     *      1. 将错误信息保存在执行上下文中；
+                     *      2. 该字段对应的值为null。
+                     */
                     if (exception != null) {
                         handleFetchingException(executionContext, environment, exception);
                         return null;
@@ -328,12 +339,20 @@ public abstract class ExecutionStrategy {
         }
     }
 
+    /**
+     * 1. 使用 DataFetcherExceptionHandler 处理 dataFetcher执行过程中遇到的异常信息；
+     * 2.  fixme 将执行过程中遇到的错误信息放到 全局错误保存器中；
+     *
+     * @param executionContext
+     * @param environment
+     * @param throwable
+     */
     protected void handleFetchingException(ExecutionContext executionContext,
                                            DataFetchingEnvironment environment,
-                                           Throwable e) {
+                                           Throwable throwable) {
         DataFetcherExceptionHandlerParameters handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
                 .dataFetchingEnvironment(environment)
-                .exception(e)
+                .exception(throwable)
                 .build();
 
         DataFetcherExceptionHandlerResult handlerResult;
@@ -346,6 +365,8 @@ public abstract class ExecutionStrategy {
                     .build();
             handlerResult = new SimpleDataFetcherExceptionHandler().onException(handlerParameters);
         }
+
+        // fixme 将执行过程中遇到的错误信息放到 全局错误保存器中。
         handlerResult.getErrors().forEach(executionContext::addError);
 
     }
