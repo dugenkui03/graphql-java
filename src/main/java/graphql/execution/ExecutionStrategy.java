@@ -305,6 +305,10 @@ public abstract class ExecutionStrategy {
                 .thenApply(result -> unboxPossibleDataFetcherResult(executionContext, parameters, result));
     }
 
+    /**
+     * 1. DataFetcherResult：结果和错误；
+     * 2.
+     */
     protected FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
                                                           ExecutionStrategyParameters parameters,
                                                           Object result) {
@@ -332,8 +336,15 @@ public abstract class ExecutionStrategy {
                     .build();
         } else {
             return FetchedValue.newFetchedValue()
+                    /**
+                     * fixme
+                     *      拆解dataFetcher返回的结果。
+                     *      dataFetcher可以返回自定义类型、然后在自定义的 ValueUnboxer 中解析指定的结果。
+                     */
                     .fetchedValue(executionContext.getValueUnboxer().unbox(result))
+                    // dataFetcher 返回的 原生结果
                     .rawFetchedValue(result)
+                    // 本地上下文
                     .localContext(parameters.getLocalContext())
                     .build();
         }
@@ -554,10 +565,13 @@ public abstract class ExecutionStrategy {
 
             ResultPath indexedPath = parameters.getPath().segment(index);
 
+            // 为指定下标的list元素创建 ExecutionStepInfo
+            // ExecutionStepInfo：当前字段的详细信息，包括输出类型、定义类型、字段定义、参数父子段信息等
             ExecutionStepInfo stepInfoForListElement = executionStepInfoFactory.newExecutionStepInfoForListElement(executionStepInfo, index);
 
             NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, stepInfoForListElement);
 
+            //
             FetchedValue value = unboxPossibleDataFetcherResult(executionContext, parameters, item);
 
             int finalIndex = index;

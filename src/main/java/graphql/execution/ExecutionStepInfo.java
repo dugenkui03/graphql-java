@@ -143,6 +143,8 @@ public class ExecutionStepInfo {
 
     /**
      * This returns the type which is unwrapped if it was {@link GraphQLNonNull} wrapped
+     * fixme 如果StepInfo表达一个字段，则type为fieldDefinition.getType()，这个方法返回去掉 ! 后的类型
+     *
      *
      * @return the graphql type in question
      */

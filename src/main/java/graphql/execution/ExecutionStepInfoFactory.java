@@ -39,13 +39,31 @@ public class ExecutionStepInfoFactory {
                 .arguments(argumentValues));
     }
 
+    /**
+     * 为指定的 list 元素创建 ExecutionStepInfo
+     *
+     * @param executionInfo list对应的 ExecutionStepInfo
+     * @param index 指定list的下标
+     * @return list元素对应的 ExecutionStepInfo
+     */
     public ExecutionStepInfo newExecutionStepInfoForListElement(ExecutionStepInfo executionInfo, int index) {
+        //fixme  如果StepInfo表达一个字段，则type为fieldDefinition.getType()，这个方法返回去掉 ! 后的类型
         GraphQLList fieldType = (GraphQLList) executionInfo.getUnwrappedNonNullType();
+
+        // 返回其list的元素类
         GraphQLOutputType typeInList = (GraphQLOutputType) fieldType.getWrappedType();
+
+        // todo 指定路径信息
         ResultPath indexedPath = executionInfo.getPath().segment(index);
+
+        // 构造元素 ExecutionStepInfo
         return executionInfo.transform(builder -> builder
+                // 指定 父级 ExecutionStepInfo
                 .parentInfo(executionInfo)
+                // 指定其类型
                 .type(typeInList)
+
+                // todo 执行路径信息
                 .path(indexedPath));
     }
 

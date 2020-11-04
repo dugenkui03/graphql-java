@@ -19,7 +19,6 @@ import static graphql.Assert.assertNotNull;
 @PublicApi
 public class GraphQLList implements GraphQLType, GraphQLInputType, GraphQLOutputType, GraphQLModifiedType, GraphQLNullableType {
 
-
     private final GraphQLType originalWrappedType;
     private GraphQLType replacedWrappedType;
 
