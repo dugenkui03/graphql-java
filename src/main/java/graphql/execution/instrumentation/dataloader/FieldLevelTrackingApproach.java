@@ -86,6 +86,7 @@ public class FieldLevelTrackingApproach {
             return Objects.equals(happenedOnFieldValueCallsPerLevel.get(level), expectedStrategyCallsPerLevel.get(level));
         }
 
+        // 所有的调用操作已经发生。
         boolean allFetchesHappened(int level) {
             return Objects.equals(fetchCountPerLevel.get(level), expectedFetchCountPerLevel.get(level));
         }
@@ -179,6 +180,16 @@ public class FieldLevelTrackingApproach {
     //
     // thread safety : called with synchronised(callStack)
     //
+    //
+
+    /**
+     * todo 这个是干啥的，返回值决定了是否调用所有的 dataLoader
+     *
+     * @param fieldValueInfoList
+     * @param callStack
+     * @param curLevel
+     * @return
+     */
     private boolean handleOnFieldValuesInfo(List<FieldValueInfo> fieldValueInfoList, CallStack callStack, int curLevel) {
         callStack.increaseHappenedOnFieldValueCalls(curLevel);
         int expectedStrategyCalls = 0;
@@ -263,6 +274,9 @@ public class FieldLevelTrackingApproach {
         if (log.isDebugEnabled()) {
             log.debug("Dispatching data loaders ({})", dataLoaderRegistry.getKeys());
         }
+        // https://www.graphql-java.com/documentation/v15/batching/
+        // At each level dataloader.dispatch() will be called
+        // to fire off the batch requests for that part of the query
         dataLoaderRegistry.dispatchAll();
     }
 

@@ -2,11 +2,16 @@ package graphql.execution.instrumentation.dataloader
 
 import graphql.TestUtil
 import graphql.schema.DataFetcher
+import org.dataloader.BatchLoader
 import spock.lang.Specification
+
+import java.util.concurrent.CompletionStage
+import java.util.stream.Collector
+import java.util.stream.Collectors
 
 class n1 extends Specification{
 
-    def "复现在一次调用中的 n +1 问题"() {
+    def "how to avoid n+1 problem "() {
         given:
         def spec = """
             type Query {
@@ -36,9 +41,10 @@ class n1 extends Specification{
             return [userInfo1,userInfo2,userInfo3]
         } as DataFetcher<List>
 
-        // fixme 的确是打印了三遍、即调用了三次
+        // invoke 3 times
         def partnerNameDataFetcher = { partnerNameDataFetcher ->
-            println "调用 partnerNameDataFetcher"
+            println "invoke partnerNameDataFetcher"
+            // todo 使用dataLoader？？
             return "partnerName";
         } as DataFetcher<String>
 
@@ -56,8 +62,6 @@ class n1 extends Specification{
         ''').getData();
 
         then:
-        print(data)
-
         1==1
     }
 

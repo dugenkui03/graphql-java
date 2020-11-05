@@ -139,8 +139,12 @@ public class DataLoaderBatchingExamples {
         return null;
     }
 
-    void starWarsExample() {
 
+    public static void main(String[] args) {
+        new DataLoaderBatchingExamples().starWarsExample();
+    }
+
+    void starWarsExample() {
         // fixme 英雄 dataFetcher，使用 character dataLoader
         // use this data loader in the data fetchers associated with characters
         // and put them into the graphql schema (not shown)
