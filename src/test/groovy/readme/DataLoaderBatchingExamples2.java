@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 import static graphql.ExecutionInput.newExecutionInput;
 
 @SuppressWarnings({"unused", "Convert2Lambda", "ConstantConditions", "ClassCanBeStatic"})
-public class DataLoaderBatchingExamples {
+public class DataLoaderBatchingExamples2 {
 
     // 星球大战人物
     class StarWarsCharacter {
@@ -141,7 +141,7 @@ public class DataLoaderBatchingExamples {
 
 
     public static void main(String[] args) {
-        new DataLoaderBatchingExamples().starWarsExample();
+        new DataLoaderBatchingExamples2().starWarsExample();
     }
 
     void starWarsExample() {
