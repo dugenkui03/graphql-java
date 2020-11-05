@@ -1,0 +1,14 @@
+#### 一、使用方式
+
+- step_1：创建 批量加载函数 BatchLoader；
+- step_2：使用批量加载函数创建 DataLoader；
+- step_3：构造 dataLoaser 注册器register；
+- step_4：将该 dataLoader 加入到 注册器：指定dataLoader的名称；
+- step_5：将 register 作为输入参数；
+- step_6：environment.getDataLoader 获取指定名称的 dataLoader；
+- step_7：调用dataLoader的 load()、loadMany()等方法，可选择性的附带上下文。
+
+
+#### 二、注意点
+
+- 创建 dataLoaser 的时候可选择是否使用缓存、是否支持批量处理(怎么批量？)

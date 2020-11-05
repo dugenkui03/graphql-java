@@ -37,7 +37,10 @@ public class DataLoaderBatchingExamples {
         }
     }
 
-    // redis 类型数据源
+    /**
+     *  redis 类型数据源：
+     *      1. 设置、获取、是否包含、清空
+     */
     class Redis {
 
         public boolean containsKey(String key) {
@@ -60,16 +63,16 @@ public class DataLoaderBatchingExamples {
         }
     }
 
-    // 安全上下文
+    /**
+     * 安全上下文：保存token
+     */
     static class SecurityContext {
 
         static SecurityContext newSecurityContext() {
             return null;
         }
 
-        /**
-         * 获取token
-         */
+        // 获取token
         Object getToken() {
             return null;
         }
@@ -79,7 +82,9 @@ public class DataLoaderBatchingExamples {
     // redis对象
     Redis redisIntegration;
 
-    // 批量加载函数
+    /**
+     * fixme 批量加载函数
+     */
     BatchLoader<String, Object> batchLoader = new BatchLoader<String, Object>() {
         @Override
         public CompletionStage<List<Object>> load(List<String> keys) {
@@ -89,12 +94,20 @@ public class DataLoaderBatchingExamples {
 
 
     /**
-     * fixme 构造 dataLoaser 注册器
+     * fixme
+     *      step_1：创建 批量加载函数 BatchLoader；
+     *      step_2：使用批量加载函数创建 DataLoader；
+     *      step_3：构造 dataLoaser 注册器register；
+     *      step_4：将该 dataLoader 加入到 注册器：指定dataLoader的名称；
+     *      step_5：将 register 作为输入参数；
+     *      step_6：environment.getDataLoader 获取指定名称的 dataLoader；
+     *      step_7：调用dataLoader的 load()、loadMany()等方法，可选择性的附带上下文。
      */
     public static DataLoaderRegistry registry = new DataLoaderRegistry();
     static{
         // a batch loader function that will be called with N or more keys for batch loading
         // This can be a singleton object since it's stateless
+
         // fixme 方法里创建的批量加载对象
         BatchLoader<String, Object> characterBatchLoader = new BatchLoader<String, Object>() {
             @Override
@@ -152,7 +165,8 @@ public class DataLoaderBatchingExamples {
                 List<String> friendIds = starWarsCharacter.getFriendIds();
 
                 /**
-                 * 获取这些id对应的朋友列表
+                 * fixme 获取这些id对应的朋友列表
+                 *       此处调用loadMay，上边调用 load()
                  */
                 DataLoader<String, Object> dataLoader = environment.getDataLoader("character");
                 return dataLoader.loadMany(friendIds);
