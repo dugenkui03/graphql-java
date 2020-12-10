@@ -27,17 +27,18 @@ public class CodeAnalysis {
             }
             return totalCount;
         } else {
-            count.incrementAndGet();
             String absolutePath = file.getAbsolutePath();
             if (postfix.stream().filter(ele -> absolutePath.endsWith(ele)).count() <= 0) {
                 return 0;
             }
+            count.incrementAndGet();
+            System.out.println(file.getName());
             return Files.lines(Paths.get(absolutePath)).count();
         }
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(countCodeLine("/Users/dugenkui/github/jdk/src/java.base/share/classes", Arrays.asList(".java")));
+        System.out.println(countCodeLine("/Users/dugenkui/github/graphql-java-calculate", Arrays.asList(".java")));
         System.out.println(count.get());
     }
 
