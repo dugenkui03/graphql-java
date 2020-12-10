@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotEmpty;
+import static graphql.language.NodeUtil.getAliasOrName;
 
 /**
  * This represent all Fields in a query which overlap and are merged into one.
@@ -70,7 +71,7 @@ public class MergedField {
         this.fields = ImmutableList.copyOf(fields);
         this.singleField = fields.get(0);
         this.name = singleField.getName();
-        this.resultKey = singleField.getAlias() != null ? singleField.getAlias() : name;
+        this.resultKey = getAliasOrName(singleField);
     }
 
     /**

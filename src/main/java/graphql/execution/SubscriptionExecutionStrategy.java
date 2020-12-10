@@ -20,6 +20,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import static graphql.Assert.assertTrue;
+import static graphql.language.NodeUtil.getAliasOrName;
 import static java.util.Collections.singletonMap;
 
 /**
@@ -153,7 +154,7 @@ public class SubscriptionExecutionStrategy extends ExecutionStrategy {
 
     private String getRootFieldName(ExecutionStrategyParameters parameters) {
         Field rootField = parameters.getField().getSingleField();
-        return rootField.getAlias() != null ? rootField.getAlias() : rootField.getName();
+        return getAliasOrName(rootField);
     }
 
     private ExecutionStrategyParameters firstFieldOfSubscriptionSelection(ExecutionStrategyParameters parameters) {

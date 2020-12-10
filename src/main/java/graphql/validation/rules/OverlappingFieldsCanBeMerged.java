@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static graphql.language.NodeUtil.getAliasOrName;
 import static graphql.schema.GraphQLTypeUtil.isEnum;
 import static graphql.schema.GraphQLTypeUtil.isList;
 import static graphql.schema.GraphQLTypeUtil.isNonNull;
@@ -321,7 +322,7 @@ public class OverlappingFieldsCanBeMerged extends AbstractRule {
     }
 
     private void collectFieldsForField(Map<String, List<FieldAndType>> fieldMap, GraphQLType parentType, Field field) {
-        String responseName = field.getAlias() != null ? field.getAlias() : field.getName();
+        String responseName = getAliasOrName(field);
         if (!fieldMap.containsKey(responseName)) {
             fieldMap.put(responseName, new ArrayList<>());
         }

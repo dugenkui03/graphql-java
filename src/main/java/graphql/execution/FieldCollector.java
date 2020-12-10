@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static graphql.execution.MergedSelectionSet.newMergedSelectionSet;
 import static graphql.execution.TypeFromAST.getTypeFromAST;
+import static graphql.language.NodeUtil.getAliasOrName;
 
 /**
  * A field collector can iterate over field selection sets and build out the sub fields that have been selected,
@@ -103,7 +104,7 @@ public class FieldCollector {
         if (!conditionalNodes.shouldInclude(parameters.getVariables(), field.getDirectives())) {
             return;
         }
-        String name = getFieldEntryKey(field);
+        String name = getAliasOrName(field);
         if (fields.containsKey(name)) {
             MergedField curFields = fields.get(name);
             fields.put(name, curFields.transform(builder -> builder.addField(field)));
@@ -111,15 +112,6 @@ public class FieldCollector {
             fields.put(name, MergedField.newMergedField(field).build());
         }
     }
-
-    private String getFieldEntryKey(Field field) {
-        if (field.getAlias() != null) {
-            return field.getAlias();
-        } else {
-            return field.getName();
-        }
-    }
-
 
     private boolean doesFragmentConditionMatch(FieldCollectorParameters parameters, InlineFragment inlineFragment) {
         if (inlineFragment.getTypeCondition() == null) {

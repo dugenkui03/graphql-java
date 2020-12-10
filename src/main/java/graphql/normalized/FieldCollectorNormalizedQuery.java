@@ -35,6 +35,7 @@ import static graphql.Assert.assertNotNull;
 import static graphql.introspection.Introspection.SchemaMetaFieldDef;
 import static graphql.introspection.Introspection.TypeMetaFieldDef;
 import static graphql.introspection.Introspection.TypeNameMetaFieldDef;
+import static graphql.language.NodeUtil.getAliasOrName;
 
 
 /**
@@ -193,7 +194,7 @@ public class FieldCollectorNormalizedQuery {
         if (!conditionalNodes.shouldInclude(parameters.getVariables(), field.getDirectives())) {
             return;
         }
-        String name = getFieldEntryKey(field);
+        String name = getAliasOrName(field);
         result.computeIfAbsent(name, ignored -> new LinkedHashMap<>());
         Map<GraphQLObjectType, NormalizedField> existingFieldWTC = result.get(name);
 
@@ -230,15 +231,6 @@ public class FieldCollectorNormalizedQuery {
                 existingFieldWTC.put(objectType, newFieldWTC);
                 mergedFieldByNormalizedField.put(newFieldWTC, MergedField.newMergedField(field).build());
             }
-        }
-    }
-
-
-    private String getFieldEntryKey(Field field) {
-        if (field.getAlias() != null) {
-            return field.getAlias();
-        } else {
-            return field.getName();
         }
     }
 

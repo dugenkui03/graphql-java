@@ -58,6 +58,7 @@ import static graphql.execution.FieldValueInfo.CompleteValueType.LIST;
 import static graphql.execution.FieldValueInfo.CompleteValueType.NULL;
 import static graphql.execution.FieldValueInfo.CompleteValueType.OBJECT;
 import static graphql.execution.FieldValueInfo.CompleteValueType.SCALAR;
+import static graphql.language.NodeUtil.getAliasOrName;
 import static graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironment;
 import static graphql.schema.GraphQLTypeUtil.isEnum;
 import static graphql.schema.GraphQLTypeUtil.isList;
@@ -821,6 +822,6 @@ public abstract class ExecutionStrategy {
     @Internal
     public static String mkNameForPath(List<Field> currentField) {
         Field field = currentField.get(0);
-        return field.getAlias() != null ? field.getAlias() : field.getName();
+        return getAliasOrName(field);
     }
 }
