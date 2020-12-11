@@ -422,6 +422,7 @@ public abstract class ExecutionStrategy {
             log.debug("'{}' completing field '{}'...", executionContext.getExecutionId(), executionStepInfo.getPath());
         }
 
+        // todo 计算完数据
         FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
 
         CompletableFuture<ExecutionResult> executionResultFuture = fieldValueInfo.getFieldValue();

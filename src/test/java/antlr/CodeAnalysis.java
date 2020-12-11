@@ -32,7 +32,6 @@ public class CodeAnalysis {
                 return 0;
             }
             count.incrementAndGet();
-            System.out.println(file.getName());
             return Files.lines(Paths.get(absolutePath)).count();
         }
     }

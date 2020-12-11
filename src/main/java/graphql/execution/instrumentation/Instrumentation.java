@@ -161,6 +161,7 @@ public interface Instrumentation {
 
     /**
      * This is called just before the complete field list is started.
+     * fixme 可以对list进行操作
      *
      * @param parameters the parameters to this step
      *
