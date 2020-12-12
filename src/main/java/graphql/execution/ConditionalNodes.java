@@ -1,16 +1,16 @@
 package graphql.execution;
 
+import graphql.Assert;
 import graphql.Internal;
 import graphql.VisibleForTesting;
 import graphql.language.Directive;
+import graphql.language.NodeUtil;
 
 import java.util.List;
 import java.util.Map;
 
 import static graphql.Directives.IncludeDirective;
 import static graphql.Directives.SkipDirective;
-import static graphql.language.NodeUtil.directiveByName;
-
 
 @Internal
 public class ConditionalNodes {
@@ -30,20 +30,14 @@ public class ConditionalNodes {
         return !skip && include;
     }
 
-    private Directive getDirectiveByName(List<Directive> directives, String name) {
-        if (directives.isEmpty()) {
-            return null;
-        }
-        return directiveByName(directives, name).orElse(null);
-    }
-
     private boolean getDirectiveResult(Map<String, Object> variables, List<Directive> directives, String directiveName, boolean defaultValue) {
-        Directive directive = getDirectiveByName(directives, directiveName);
-        if (directive != null) {
-            Map<String, Object> argumentValues = valuesResolver.getArgumentValues(SkipDirective.getArguments(), directive.getArguments(), variables);
-            return (Boolean) argumentValues.get("if");
+        Directive foundDirective = NodeUtil.findNodeByName(directives, directiveName);
+        if (foundDirective != null) {
+            Map<String, Object> argumentValues = valuesResolver.getArgumentValues(SkipDirective.getArguments(), foundDirective.getArguments(), variables);
+            Object flag = argumentValues.get("if");
+            Assert.assertTrue(flag instanceof Boolean, () -> String.format("The '%s' directive MUST have a value for the 'if' argument", directiveName));
+            return (Boolean) flag;
         }
-
         return defaultValue;
     }
 

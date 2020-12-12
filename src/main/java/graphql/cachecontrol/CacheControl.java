@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static graphql.Assert.assertNotEmpty;
 import static graphql.Assert.assertNotNull;
-import static graphql.util.FpKit.map;
+import static graphql.collect.ImmutableKit.map;
 
 /**todo：?是对dataFetcher缓存的 字段信息 的描述？
  * This class implements the graphql Cache Control specification
@@ -98,7 +98,6 @@ public class CacheControl {
      * @param path   the path to the field that has the cache control hint
      * @param maxAge the caching time in seconds
      * @param scope  the scope of the cache control hint
-     *
      * @return this object builder style
      */
     public CacheControl hint(ResultPath path, Integer maxAge, Scope scope) {
@@ -113,7 +112,6 @@ public class CacheControl {
      *
      * @param path  the path to the field that has the cache control hint
      * @param scope the scope of the cache control hint
-     *
      * @return this object builder style
      */
     public CacheControl hint(ResultPath path, Scope scope) {
@@ -125,7 +123,6 @@ public class CacheControl {
      *
      * @param path   the path to the field that has the cache control hint
      * @param maxAge the caching time in seconds
-     *
      * @return this object builder style
      */
     public CacheControl hint(ResultPath path, Integer maxAge) {
@@ -138,7 +135,6 @@ public class CacheControl {
      * @param dataFetchingEnvironment the path to the field that has the cache control hint
      * @param maxAge                  the caching time in seconds
      * @param scope                   the scope of the cache control hint
-     *
      * @return this object builder style
      */
     public CacheControl hint(DataFetchingEnvironment dataFetchingEnvironment, Integer maxAge, Scope scope) {
@@ -154,7 +150,6 @@ public class CacheControl {
      *
      * @param dataFetchingEnvironment the path to the field that has the cache control hint
      * @param maxAge                  the caching time in seconds
-     *
      * @return this object builder style
      */
     public CacheControl hint(DataFetchingEnvironment dataFetchingEnvironment, Integer maxAge) {
@@ -167,7 +162,6 @@ public class CacheControl {
      *
      * @param dataFetchingEnvironment the path to the field that has the cache control hint
      * @param scope                   the scope of the cache control hint
-     *
      * @return this object builder style
      */
     public CacheControl hint(DataFetchingEnvironment dataFetchingEnvironment, Scope scope) {
@@ -188,14 +182,13 @@ public class CacheControl {
      * object back out
      *
      * @param executionResult the starting execution result object
-     *
      * @return a new execution result with the hints in the extensions map.
      */
     public ExecutionResult addTo(ExecutionResult executionResult) {
         return ExecutionResultImpl.newExecutionResult()
-                                  .from(executionResult)
-                                  .addExtension(CACHE_CONTROL_EXTENSION_KEY, hintsToCacheControlProperties())
-                                  .build();
+                .from(executionResult)
+                .addExtension(CACHE_CONTROL_EXTENSION_KEY, hintsToCacheControlProperties())
+                .build();
     }
 
     private Map<String, Object> hintsToCacheControlProperties() {

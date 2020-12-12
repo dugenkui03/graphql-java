@@ -22,6 +22,7 @@ import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLModifiedType;
 import graphql.schema.GraphQLNamedSchemaElement;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
@@ -31,9 +32,11 @@ import graphql.schema.GraphQLUnionType;
 import graphql.schema.visibility.GraphqlFieldVisibility;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static graphql.Assert.assertTrue;
 import static graphql.Scalars.GraphQLBoolean;
@@ -50,17 +53,12 @@ import static graphql.schema.GraphQLTypeUtil.simplePrint;
 
 @PublicApi
 public class Introspection {
-    // 内省类型字段坐标和内省DataFetcher的绑定关系
-    // 如果内省字段没有绑定dataFetcher、则使用默认的PropertyDataFetcher
     private static final Map<FieldCoordinates, IntrospectionDataFetcher> introspectionDataFetchers = new LinkedHashMap<>();
 
-    private static void register(GraphQLFieldsContainer parentType,
-                                 String fieldName,
-                                 IntrospectionDataFetcher introspectionDataFetcher) {
-        // 获取字段坐标
-        FieldCoordinates coordinates = coordinates(parentType.getName(), fieldName);
-        // 将字段坐标和指定的fetcher绑定
-        introspectionDataFetchers.put(coordinates, introspectionDataFetcher);
+    private static final Set<GraphQLNamedType> introspectionTypes = new HashSet<>();
+
+    private static void register(GraphQLFieldsContainer parentType, String fieldName, IntrospectionDataFetcher introspectionDataFetcher) {
+        introspectionDataFetchers.put(coordinates(parentType.getName(), fieldName), introspectionDataFetcher);
     }
 
     @Internal
@@ -161,10 +159,6 @@ public class Introspection {
             }
             return null;
         });
-
-        // fixme 将内省类型__InputValue中的字段name、绑定nameDataFetcher
-        //       跟将一个类型的字段绑定fetcher是一样的道理
-        //       如果不进行绑定，那么将会使用默认的PropertyDataFetcher，将使用getter方法解析"同名属性"
         register(__InputValue, "name", nameDataFetcher);
         register(__InputValue, "description", descriptionDataFetcher);
     }
@@ -201,8 +195,6 @@ public class Introspection {
             Object type = environment.getSource();
             return ((GraphQLFieldDefinition) type).getArguments();
         });
-
-        // isDeprecated()是根据对象是否存在deprecationReason判定的
         register(__Field, "isDeprecated", environment -> {
             Object type = environment.getSource();
             return ((GraphQLFieldDefinition) type).isDeprecated();
@@ -443,13 +435,17 @@ public class Introspection {
             .name("__Directive")
             .field(newFieldDefinition()
                     .name("name")
-                    .type(GraphQLString))
+                    .description("The __Directive type represents a Directive that a server supports.")
+                    .type(nonNull(GraphQLString)))
             .field(newFieldDefinition()
                     .name("description")
                     .type(GraphQLString))
             .field(newFieldDefinition()
+                    .name("isRepeatable")
+                    .type(nonNull(GraphQLBoolean)))
+            .field(newFieldDefinition()
                     .name("locations")
-                    .type(list(nonNull(__DirectiveLocation))))
+                    .type(nonNull(list(nonNull(__DirectiveLocation)))))
             .field(newFieldDefinition()
                     .name("args")
                     .type(nonNull(list(nonNull(__InputValue)))))
@@ -478,6 +474,10 @@ public class Introspection {
         });
         register(__Directive, "name", nameDataFetcher);
         register(__Directive, "description", descriptionDataFetcher);
+        register(__Directive, "isRepeatable", environment -> {
+            GraphQLDirective directive = environment.getSource();
+            return directive.isRepeatable();
+        });
     }
 
     public static final GraphQLObjectType __Schema = newObject()
@@ -534,7 +534,6 @@ public class Introspection {
     }
 
     public static final IntrospectionDataFetcher SchemaMetaFieldDefDataFetcher = IntrospectionDataFetchingEnvironment::getGraphQLSchema;
-
     public static final GraphQLFieldDefinition SchemaMetaFieldDef = newFieldDefinition()
             .name("__schema")
             .type(nonNull(__Schema))
@@ -563,60 +562,60 @@ public class Introspection {
             .build();
 
 
+    private static final GraphQLObjectType IntrospectionQuery = newObject()
+            .name("IntrospectionQuery")
+            .field(SchemaMetaFieldDef)
+            .field(TypeMetaFieldDef)
+            .field(TypeNameMetaFieldDef)
+            .build();
+
     static {
-        // make sure all TypeReferences are resolved
-        GraphQLSchema.newSchema()
-                .query(GraphQLObjectType.newObject()
-                        .name("IntrospectionQuery")
-                        .field(SchemaMetaFieldDef)
-                        .field(TypeMetaFieldDef)
-                        .field(TypeNameMetaFieldDef)
-                        .build())
-                .build();
+        introspectionTypes.add(__DirectiveLocation);
+        introspectionTypes.add(__TypeKind);
+        introspectionTypes.add(__Type);
+        introspectionTypes.add(__Schema);
+        introspectionTypes.add(__InputValue);
+        introspectionTypes.add(__Field);
+        introspectionTypes.add(__EnumValue);
+        introspectionTypes.add(__Directive);
+        introspectionTypes.add(IntrospectionQuery);
+
+        // make sure all TypeReferences are resolved.
+        // note: it is important to put this on the bottom of static code block.
+        GraphQLSchema.newSchema().query(IntrospectionQuery).build();
     }
 
-    /** fixme：在指定的schema中，查找指定类型和名称的字段。
-     *
-     * This will look up a field definition by name,
-     * and understand that fields like __typename and __schema are special
-     * and take precedence(优先) in field resolution
+    public static boolean isIntrospectionTypes(GraphQLNamedType type) {
+        return introspectionTypes.contains(type);
+    }
+
+    /**
+     * This will look up a field definition by name, and understand that fields like __typename and __schema are special
+     * and take precedence in field resolution
      *
      * @param schema     the schema to use
-     * @param parentType the type of the parent object 父亲类型
-     * @param fieldName  the field to look up fixme 字段的名称，不是别名
+     * @param parentType the type of the parent object
+     * @param fieldName  the field to look up
      *
      * @return a field definition otherwise throws an assertion exception if its null
-     *         fixme 返回schema中、指定名称和类型的字段
      */
-    public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema,
-                                                     GraphQLCompositeType parentType, // getName()
-                                                     String fieldName) {
-        //如果是顶层类型，则可能是内省查询
+    public static GraphQLFieldDefinition getFieldDef(GraphQLSchema schema, GraphQLCompositeType parentType, String fieldName) {
+
         if (schema.getQueryType() == parentType) {
-            //判断是不是查询的 __schema，是这返回其对应的字段定义类型
             if (fieldName.equals(SchemaMetaFieldDef.getName())) {
                 return SchemaMetaFieldDef;
             }
-            //如果是根据 name 查询 __type 信息
             if (fieldName.equals(TypeMetaFieldDef.getName())) {
                 return TypeMetaFieldDef;
             }
         }
-
-        //如果是 __typename，则返回其定义。
-        // fixme，注意、这里是用的是字段名称、而非别名，所以如果实体没有定义 __ 开始的字段，理论上不会有影响的
         if (fieldName.equals(TypeNameMetaFieldDef.getName())) {
             return TypeNameMetaFieldDef;
         }
 
-        assertTrue(parentType instanceof GraphQLFieldsContainer,
-                () -> String.format("should not happen : parent type must be an object or interface %s", parentType));
+        assertTrue(parentType instanceof GraphQLFieldsContainer, () -> String.format("should not happen : parent type must be an object or interface %s", parentType));
         GraphQLFieldsContainer fieldsContainer = (GraphQLFieldsContainer) parentType;
-
-        GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();
-        GraphqlFieldVisibility fieldVisibility = codeRegistry.getFieldVisibility();
-        //fixme 最终还是从 GraphQLFieldsContainer  里边获取名称为 fieldName的字段定义。提前对内省和可见性等内容做了检查
-        GraphQLFieldDefinition fieldDefinition = fieldVisibility.getFieldDefinition(fieldsContainer, fieldName);
+        GraphQLFieldDefinition fieldDefinition = schema.getCodeRegistry().getFieldVisibility().getFieldDefinition(fieldsContainer, fieldName);
         Assert.assertTrue(fieldDefinition != null, () -> String.format("Unknown field '%s'", fieldName));
         return fieldDefinition;
     }

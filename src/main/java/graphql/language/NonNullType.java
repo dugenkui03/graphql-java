@@ -1,6 +1,7 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
 import graphql.util.TraversalControl;
@@ -13,8 +14,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
-import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNullType> {
@@ -35,7 +37,7 @@ public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNu
      * @param type the wrapped type
      */
     public NonNullType(Type type) {
-        this(type, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(type, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     public Type getType() {
@@ -44,9 +46,7 @@ public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNu
 
     @Override
     public List<Node> getChildren() {
-        List<Node> result = new ArrayList<>();
-        result.add(type);
-        return result;
+        return ImmutableList.of(type);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNu
     public static final class Builder implements NodeBuilder {
         private SourceLocation sourceLocation;
         private Type type;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -119,7 +119,7 @@ public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNu
 
         private Builder(NonNullType existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.type = existing.getType();
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
@@ -150,7 +150,7 @@ public class NonNullType extends AbstractNode<NonNullType> implements Type<NonNu
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 

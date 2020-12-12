@@ -1,7 +1,11 @@
 package graphql.schema;
 
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import graphql.Directives;
+import graphql.DirectivesUtil;
 import graphql.Internal;
 import graphql.PublicApi;
 import graphql.language.SchemaDefinition;
@@ -14,18 +18,21 @@ import graphql.schema.visibility.GraphqlFieldVisibility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
 import static graphql.Assert.assertShouldNeverHappen;
 import static graphql.Assert.assertTrue;
-import static graphql.DirectivesUtil.directivesByName;
+import static graphql.DirectivesUtil.allDirectivesByName;
+import static graphql.DirectivesUtil.nonRepeatableDirectivesByName;
+import static graphql.DirectivesUtil.nonRepeatedDirectiveByNameWithAssert;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.map;
+import static graphql.collect.ImmutableKit.nonNullCopyOf;
 import static graphql.schema.GraphqlTypeComparators.byNameAsc;
 import static graphql.schema.GraphqlTypeComparators.sortTypes;
 import static java.util.Arrays.asList;
@@ -39,25 +46,23 @@ import static java.util.Arrays.asList;
 @PublicApi
 public class GraphQLSchema {
 
-    //操作类型 fixme 一个schema只能有一个查询、更新或者订阅类型
+
     private final GraphQLObjectType queryType;
     private final GraphQLObjectType mutationType;
     private final GraphQLObjectType subscriptionType;
-
-    private final Set<GraphQLDirective> directives = new LinkedHashSet<>();
-    private final Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
+    private final ImmutableSet<GraphQLType> additionalTypes;
+    private final DirectivesUtil.DirectivesHolder directives;
+    private final DirectivesUtil.DirectivesHolder schemaDirectives;
     private final SchemaDefinition definition;
+    private final ImmutableList<SchemaExtensionDefinition> extensionDefinitions;
 
-    //fixme 包含 字段-对应的fetcher 映射关系；字段可见性处理器；
     private final GraphQLCodeRegistry codeRegistry;
 
-    private final Map<String, GraphQLNamedType> typeMap;
-    private final Map<String, List<GraphQLObjectType>> byInterface;
+    private final ImmutableMap<String, GraphQLNamedType> typeMap;
+    private final ImmutableMap<String, ImmutableList<GraphQLObjectType>> interfaceNameToObjectTypes;
+    private final ImmutableMap<String, ImmutableList<String>> interfaceNameToObjectTypeNames;
 
     private final String description;
-
-    private final Set<GraphQLType> additionalTypes = new LinkedHashSet<>();
-    private final List<SchemaExtensionDefinition> extensionDefinitions;
 
     /**
      * @param queryType the query type
@@ -108,36 +113,57 @@ public class GraphQLSchema {
         this.queryType = builder.queryType;
         this.mutationType = builder.mutationType;
         this.subscriptionType = builder.subscriptionType;
-        this.additionalTypes.addAll(builder.additionalTypes);
-        this.directives.addAll(builder.additionalDirectives);
-        this.schemaDirectives.putAll(builder.schemaDirectives);
+        this.additionalTypes = ImmutableSet.copyOf(builder.additionalTypes);
+        this.directives = new DirectivesUtil.DirectivesHolder(builder.additionalDirectives);
+        this.schemaDirectives = new DirectivesUtil.DirectivesHolder(builder.schemaDirectives);
         this.definition = builder.definition;
-        this.extensionDefinitions = builder.extensionDefinitions == null ? Collections.emptyList() : builder.extensionDefinitions;
+        this.extensionDefinitions = nonNullCopyOf(builder.extensionDefinitions);
         this.codeRegistry = builder.codeRegistry;
         // sorted by type name
         SchemaUtil schemaUtil = new SchemaUtil();
-        this.typeMap = new TreeMap<>(schemaUtil.allTypes(this, additionalTypes, afterTransform));
-        this.byInterface = new TreeMap<>(schemaUtil.groupImplementations(this));
+        this.typeMap = ImmutableMap.copyOf(schemaUtil.allTypes(this, additionalTypes, afterTransform));
+        this.interfaceNameToObjectTypes = buildInterfacesToObjectTypes(schemaUtil.groupImplementations(this));
+        this.interfaceNameToObjectTypeNames = buildInterfacesToObjectName(interfaceNameToObjectTypes);
         this.description = builder.description;
     }
 
     // This can be removed once we no longer extract legacy code from types such as data fetchers but for now
     // we need it to make an efficient copy that does not walk the types twice
+
     @Internal
     private GraphQLSchema(GraphQLSchema otherSchema, GraphQLCodeRegistry codeRegistry) {
         this.queryType = otherSchema.queryType;
         this.mutationType = otherSchema.mutationType;
         this.subscriptionType = otherSchema.subscriptionType;
-        this.additionalTypes.addAll(otherSchema.additionalTypes);
-        this.directives.addAll(otherSchema.directives);
-        this.schemaDirectives.putAll(otherSchema.schemaDirectives);
+        this.additionalTypes = otherSchema.additionalTypes;
+        this.directives = otherSchema.directives;
+        this.schemaDirectives = otherSchema.schemaDirectives;
         this.definition = otherSchema.definition;
-        this.extensionDefinitions = otherSchema.extensionDefinitions == null ? Collections.emptyList() : otherSchema.extensionDefinitions;
+        this.extensionDefinitions = nonNullCopyOf(otherSchema.extensionDefinitions);
         this.codeRegistry = codeRegistry;
 
         this.typeMap = otherSchema.typeMap;
-        this.byInterface = otherSchema.byInterface;
+        this.interfaceNameToObjectTypes = otherSchema.interfaceNameToObjectTypes;
+        this.interfaceNameToObjectTypeNames = otherSchema.interfaceNameToObjectTypeNames;
         this.description = otherSchema.description;
+    }
+
+    private ImmutableMap<String, ImmutableList<GraphQLObjectType>> buildInterfacesToObjectTypes(Map<String, List<GraphQLObjectType>> groupImplementations) {
+        ImmutableMap.Builder<String, ImmutableList<GraphQLObjectType>> map = ImmutableMap.builder();
+        for (Map.Entry<String, List<GraphQLObjectType>> e : groupImplementations.entrySet()) {
+            ImmutableList<GraphQLObjectType> sortedObjectTypes = ImmutableList.copyOf(sortTypes(byNameAsc(), e.getValue()));
+            map.put(e.getKey(), sortedObjectTypes);
+        }
+        return map.build();
+    }
+
+    private ImmutableMap<String, ImmutableList<String>> buildInterfacesToObjectName(ImmutableMap<String, ImmutableList<GraphQLObjectType>> byInterface) {
+        ImmutableMap.Builder<String, ImmutableList<String>> map = ImmutableMap.builder();
+        for (Map.Entry<String, ImmutableList<GraphQLObjectType>> e : byInterface.entrySet()) {
+            ImmutableList<String> objectTypeNames = map(e.getValue(), GraphQLObjectType::getName);
+            map.put(e.getKey(), objectTypeNames);
+        }
+        return map.build();
     }
 
 
@@ -172,7 +198,7 @@ public class GraphQLSchema {
     }
 
     public Map<String, GraphQLNamedType> getTypeMap() {
-        return Collections.unmodifiableMap(typeMap);
+        return typeMap;
     }
 
     public List<GraphQLNamedType> getAllTypesAsList() {
@@ -188,10 +214,7 @@ public class GraphQLSchema {
      * @return list of types implementing provided interface
      */
     public List<GraphQLObjectType> getImplementations(GraphQLInterfaceType type) {
-        List<GraphQLObjectType> implementations = byInterface.get(type.getName());
-        return (implementations == null)
-                ? Collections.emptyList()
-                : Collections.unmodifiableList(sortTypes(byNameAsc(), implementations));
+        return interfaceNameToObjectTypes.getOrDefault(type.getName(), emptyList());
     }
 
     /**
@@ -207,15 +230,11 @@ public class GraphQLSchema {
      */
     public boolean isPossibleType(GraphQLNamedType abstractType, GraphQLObjectType concreteType) {
         if (abstractType instanceof GraphQLInterfaceType) {
-            return getImplementations((GraphQLInterfaceType) abstractType).stream()
-                    .map(GraphQLObjectType::getName)
-                    .anyMatch(name -> concreteType.getName().equals(name));
+            ImmutableList<String> objectNames = this.interfaceNameToObjectTypeNames.getOrDefault(abstractType.getName(), emptyList());
+            return objectNames.contains(concreteType.getName());
         } else if (abstractType instanceof GraphQLUnionType) {
-            return ((GraphQLUnionType) abstractType).getTypes().stream()
-                    .map(GraphQLNamedType::getName)
-                    .anyMatch(name -> concreteType.getName().equals(name));
+            return ((GraphQLUnionType) abstractType).isPossibleType(concreteType);
         }
-
         return assertShouldNeverHappen("Unsupported abstract type %s. Abstract types supported are Union and Interface.", abstractType.getName());
     }
 
@@ -248,26 +267,58 @@ public class GraphQLSchema {
      * @return a list of directives
      */
     public List<GraphQLDirective> getDirectives() {
-        return new ArrayList<>(directives);
+        return directives.getDirectives();
     }
 
     /**
-     * This returns a map of directives that are associated with this schema object including
-     * built in ones.
-     *
-     * @return a map of directives
+     * @return a a map of non repeatable directives by directive name
      */
-    public Map<String, GraphQLDirective> getDirectiveByName() {
-        return directivesByName(getDirectives());
+    public Map<String, GraphQLDirective> getDirectivesByName() {
+        return directives.getDirectivesByName();
     }
 
-    public GraphQLDirective getDirective(String name) {
-        for (GraphQLDirective directive : getDirectives()) {
-            if (directive.getName().equals(name)) {
-                return directive;
-            }
-        }
-        return null;
+    /**
+     * Directives can be `repeatable` and hence this returns a list of directives by name, some with an arity of 1 and some with an arity of greater than
+     * 1.
+     *
+     * @return a map of all directives by directive name
+     */
+    public Map<String, List<GraphQLDirective>> getAllDirectivesByName() {
+        return directives.getAllDirectivesByName();
+    }
+
+    /**
+     * Returns a named directive that (for legacy reasons) will be only in the set of non repeatable directives
+     *
+     * @param directiveName the name of the directive to retrieve
+     *
+     * @return the directive or null if there is not one with that name
+     */
+    public GraphQLDirective getDirective(String directiveName) {
+        return directives.getDirective(directiveName);
+    }
+
+    /**
+     * Returns a list of named directive that can include non repeatable and repeatable directives.
+     *
+     * @param directiveName the name of the directives to retrieve
+     *
+     * @return the directive or empty list if there is not one with that name
+     */
+    public List<GraphQLDirective> getDirectives(String directiveName) {
+        return directives.getDirectives(directiveName);
+    }
+
+    /**
+     * Returns a the first named directive that can include non repeatable and repeatable directives
+     * or null if there is not one called that name
+     *
+     * @param directiveName the name of the directives to retrieve
+     *
+     * @return the directive or null if there is not one with that name
+     */
+    public GraphQLDirective getFirstDirective(String directiveName) {
+        return DirectivesUtil.getFirstDirective(directiveName, getAllDirectivesByName());
     }
 
     /**
@@ -279,11 +330,11 @@ public class GraphQLSchema {
      * @return a list of directives
      */
     public List<GraphQLDirective> getSchemaDirectives() {
-        return new ArrayList<>(schemaDirectives.values());
+        return schemaDirectives.getDirectives();
     }
 
     /**
-     * This returns a map of directives that have been explicitly put on the
+     * This returns a map of non repeatable directives that have been explicitly put on the
      * schema object.  Note that {@link #getDirectives()} will return
      * directives for all schema elements, whereas this is just for the schema
      * element itself
@@ -291,19 +342,35 @@ public class GraphQLSchema {
      * @return a list of directives
      */
     public Map<String, GraphQLDirective> getSchemaDirectiveByName() {
-        return directivesByName(getSchemaDirectives());
+        return schemaDirectives.getDirectivesByName();
+    }
+
+    /**
+     * Schema directives can be `repeatable` and hence this returns a list of directives by name, some with an arity of 1 and some with an arity of greater than
+     * 1.
+     *
+     * @return a map of all schema directives by directive name
+     */
+    public Map<String, List<GraphQLDirective>> getAllSchemaDirectivesByName() {
+        return schemaDirectives.getAllDirectivesByName();
     }
 
     /**
      * This returns the named directive that have been explicitly put on the
-     * schema object.  Note that {@link #getDirective(String)} will return
+     * schema object.  Note that {@link graphql.schema.GraphQLDirectiveContainer#getDirective(String)} will return
      * directives for all schema elements, whereas this is just for the schema
      * element itself
      *
+     * @param directiveName the name of the directive
+     *
      * @return a named directive
      */
-    public GraphQLDirective getSchemaDirective(String name) {
-        return schemaDirectives.get(name);
+    public GraphQLDirective getSchemaDirective(String directiveName) {
+        return schemaDirectives.getDirective(directiveName);
+    }
+
+    public List<GraphQLDirective> getSchemaDirectives(String directiveName) {
+        return schemaDirectives.getDirectives(directiveName);
     }
 
     public SchemaDefinition getDefinition() {
@@ -311,7 +378,7 @@ public class GraphQLSchema {
     }
 
     public List<SchemaExtensionDefinition> getExtensionDefinitions() {
-        return new ArrayList<>(extensionDefinitions);
+        return extensionDefinitions;
     }
 
     public boolean isSupportingMutations() {
@@ -363,7 +430,7 @@ public class GraphQLSchema {
                 .codeRegistry(existingSchema.getCodeRegistry())
                 .clearAdditionalTypes()
                 .clearDirectives()
-                .additionalDirectives(existingSchema.directives)
+                .additionalDirectives(new LinkedHashSet<>(existingSchema.getDirectives()))
                 .clearSchemaDirectives()
                 .withSchemaDirectives(schemaDirectivesArray(existingSchema))
                 .additionalTypes(existingSchema.additionalTypes)
@@ -371,8 +438,7 @@ public class GraphQLSchema {
     }
 
     private static GraphQLDirective[] schemaDirectivesArray(GraphQLSchema existingSchema) {
-        return existingSchema.schemaDirectives.values()
-                .toArray(new GraphQLDirective[0]);
+        return existingSchema.schemaDirectives.getDirectives().toArray(new GraphQLDirective[0]);
     }
 
     public static class Builder {
@@ -389,7 +455,7 @@ public class GraphQLSchema {
         private Set<GraphQLDirective> additionalDirectives = new LinkedHashSet<>(
                 asList(Directives.IncludeDirective, Directives.SkipDirective)
         );
-        private Map<String, GraphQLDirective> schemaDirectives = new LinkedHashMap<>();
+        private List<GraphQLDirective> schemaDirectives = new ArrayList<>();
 
         private SchemaUtil schemaUtil = new SchemaUtil();
 
@@ -476,9 +542,16 @@ public class GraphQLSchema {
             return this;
         }
 
+        public Builder withSchemaDirectives(Collection<? extends GraphQLDirective> directives) {
+            for (GraphQLDirective directive : directives) {
+                withSchemaDirective(directive);
+            }
+            return this;
+        }
+
         public Builder withSchemaDirective(GraphQLDirective directive) {
             assertNotNull(directive, () -> "directive can't be null");
-            schemaDirectives.put(directive.getName(), directive);
+            schemaDirectives.add(directive);
             return this;
         }
 

@@ -1,12 +1,13 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +15,15 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
+import static graphql.collect.ImmutableKit.nonNullCopyOf;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
-import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefinition> implements DirectivesContainer<EnumValueDefinition>, NamedNode<EnumValueDefinition> {
-    // 枚举值名称
     private final String name;
-    // 枚举值上定义的指令
-    private final List<Directive> directives;
+    private final ImmutableList<Directive> directives;
 
     public static final String CHILD_DIRECTIVES = "directives";
 
@@ -35,7 +36,7 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
                                   IgnoredChars ignoredChars, Map<String, String> additionalData) {
         super(sourceLocation, comments, ignoredChars, additionalData, description);
         this.name = name;
-        this.directives = (null == directives) ? new ArrayList<>() : directives;
+        this.directives = nonNullCopyOf(directives);
     }
 
     /**
@@ -44,7 +45,7 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
      * @param name of the enum value
      */
     public EnumValueDefinition(String name) {
-        this(name, new ArrayList<>(), null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, emptyList(), null, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     /**
@@ -54,7 +55,7 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
      * @param directives the directives on the enum value
      */
     public EnumValueDefinition(String name, List<Directive> directives) {
-        this(name, directives, null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, directives, null, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     @Override
@@ -64,12 +65,12 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
 
     @Override
     public List<Directive> getDirectives() {
-        return new ArrayList<>(directives);
+        return directives;
     }
 
     @Override
     public List<Node> getChildren() {
-        return new ArrayList<>(directives);
+        return ImmutableList.copyOf(directives);
     }
 
     @Override
@@ -131,10 +132,10 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
 
     public static final class Builder implements NodeDirectivesBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private String name;
         private Description description;
-        private List<Directive> directives;
+        private ImmutableList<Directive> directives = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -143,10 +144,10 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
 
         private Builder(EnumValueDefinition existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
             this.description = existing.getDescription();
-            this.directives = existing.getDirectives();
+            this.directives = ImmutableList.copyOf(existing.getDirectives());
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
         }
@@ -157,7 +158,7 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 
@@ -173,7 +174,12 @@ public class EnumValueDefinition extends AbstractDescribedNode<EnumValueDefiniti
 
         @Override
         public Builder directives(List<Directive> directives) {
-            this.directives = directives;
+            this.directives = ImmutableList.copyOf(directives);
+            return this;
+        }
+
+        public Builder directive(Directive directive) {
+            this.directives = ImmutableKit.addToList(directives, directive);
             return this;
         }
 

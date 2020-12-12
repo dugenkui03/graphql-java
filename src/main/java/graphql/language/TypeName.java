@@ -1,6 +1,7 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
 import graphql.util.TraversalControl;
@@ -14,9 +15,10 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static graphql.language.NodeUtil.assertNewChildrenAreEmpty;
-import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, NamedNode<TypeName> {
@@ -35,7 +37,7 @@ public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, 
      * @param name of the type
      */
     public TypeName(String name) {
-        this(name, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
 
@@ -45,7 +47,7 @@ public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, 
 
     @Override
     public List<Node> getChildren() {
-        return new ArrayList<>();
+        return emptyList();
     }
 
     @Override
@@ -108,7 +110,7 @@ public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, 
     public static final class Builder implements NodeBuilder {
         private String name;
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -117,7 +119,7 @@ public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, 
 
         private Builder(TypeName existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
         }
@@ -134,7 +136,7 @@ public class TypeName extends AbstractNode<TypeName> implements Type<TypeName>, 
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 

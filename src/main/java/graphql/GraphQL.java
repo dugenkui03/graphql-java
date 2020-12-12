@@ -3,10 +3,12 @@ package graphql;
 import graphql.execution.AbortExecutionException;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.execution.AsyncSerialExecutionStrategy;
+import graphql.execution.DataFetcherExceptionHandler;
 import graphql.execution.Execution;
 import graphql.execution.ExecutionId;
 import graphql.execution.ExecutionIdProvider;
 import graphql.execution.ExecutionStrategy;
+import graphql.execution.SimpleDataFetcherExceptionHandler;
 import graphql.execution.SubscriptionExecutionStrategy;
 import graphql.execution.ValueUnboxer;
 import graphql.execution.instrumentation.ChainedInstrumentation;
@@ -84,133 +86,28 @@ import static graphql.execution.ExecutionIdProvider.DEFAULT_EXECUTION_ID_PROVIDE
 @PublicApi
 public class GraphQL {
 
-    // 日志对象
     private static final Logger log = LoggerFactory.getLogger(GraphQL.class);
     private static final Logger logNotSafe = LogKit.getNotPrivacySafeLogger(GraphQL.class);
 
-    // 默认的 Instrumentation，static类型的
-    private final static Instrumentation DEFAULT_INSTRUMENTATION = new DataLoaderDispatcherInstrumentation();
-    private final static ExecutionStrategy DEFAULT_QUERY_STRATEGY = new AsyncExecutionStrategy();
-    private final static ExecutionStrategy DEFAULT_MUTATION_STRATEGY = new AsyncSerialExecutionStrategy();
-    private final static ExecutionStrategy DEFAULT_SUBSCRIPTION_STRATEGY = new SubscriptionExecutionStrategy();
-
-
-    // 自定义的 Instrumentation
-    private final Instrumentation instrumentation;
-
-    // 类型系统定义
     private final GraphQLSchema graphQLSchema;
-
-    // 执行策略
     private final ExecutionStrategy queryStrategy;
     private final ExecutionStrategy mutationStrategy;
     private final ExecutionStrategy subscriptionStrategy;
-
-    // id提供者，默认的有性能问题：UUID.randomUUID().toString()
-    // 最好使用业务相关的、唯一的string_key
     private final ExecutionIdProvider idProvider;
-
-    // 查询dsl缓存
+    private final Instrumentation instrumentation;
     private final PreparsedDocumentProvider preparsedDocumentProvider;
-
-    // 解析dataFetcher返回值
     private final ValueUnboxer valueUnboxer;
 
 
-    /**
-     * A GraphQL object ready to execute queries
-     *
-     * @param graphQLSchema the schema to use
-     * @deprecated use the {@link #newGraphQL(GraphQLSchema)} builder instead.  This will be removed in a future version.
-     */
-    @Internal
-    @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema) {
-        this(graphQLSchema, null, null);
-    }
-
-    /**
-     * A GraphQL object ready to execute queries
-     *
-     * @param graphQLSchema the schema to use
-     * @param queryStrategy the query execution strategy to use
-     * @deprecated use the {@link #newGraphQL(GraphQLSchema)} builder instead.  This will be removed in a future version.
-     */
-    @Internal
-    @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema,
-                   ExecutionStrategy queryStrategy) {
-        this(graphQLSchema, queryStrategy, null);
-    }
-
-    /**
-     * A GraphQL object ready to execute queries
-     *
-     * @param graphQLSchema    the schema to use
-     * @param queryStrategy    the query execution strategy to use
-     * @param mutationStrategy the mutation execution strategy to use
-     * @deprecated use the {@link #newGraphQL(GraphQLSchema)} builder instead.  This will be removed in a future version.
-     */
-    @Internal
-    @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema,
-                   ExecutionStrategy queryStrategy,
-                   ExecutionStrategy mutationStrategy) {
-
-        this(graphQLSchema,
-                queryStrategy,
-                mutationStrategy,
-                null,
-                DEFAULT_EXECUTION_ID_PROVIDER,
-                DEFAULT_INSTRUMENTATION,
-                NoOpPreparsedDocumentProvider.INSTANCE,
-                ValueUnboxer.DEFAULT);
-    }
-
-    /**
-     * A GraphQL object ready to execute queries
-     *
-     * @param graphQLSchema        the schema to use
-     * @param queryStrategy        the query execution strategy to use
-     * @param mutationStrategy     the mutation execution strategy to use
-     * @param subscriptionStrategy the subscription execution strategy to use
-     * @deprecated use the {@link #newGraphQL(GraphQLSchema)} builder instead.  This will be removed in a future version.
-     */
-    @Internal
-    @Deprecated
-    public GraphQL(GraphQLSchema graphQLSchema,
-                   ExecutionStrategy queryStrategy,
-                   ExecutionStrategy mutationStrategy,
-                   ExecutionStrategy subscriptionStrategy) {
-
-        this(graphQLSchema,
-                queryStrategy,
-                mutationStrategy,
-                subscriptionStrategy,
-                DEFAULT_EXECUTION_ID_PROVIDER,
-                DEFAULT_INSTRUMENTATION,
-                NoOpPreparsedDocumentProvider.INSTANCE,
-                ValueUnboxer.DEFAULT);
-    }
-
-    private GraphQL(GraphQLSchema graphQLSchema,
-                    ExecutionStrategy queryStrategy,
-                    ExecutionStrategy mutationStrategy,
-                    ExecutionStrategy subscriptionStrategy,
-                    ExecutionIdProvider idProvider,
-                    Instrumentation instrumentation,
-                    PreparsedDocumentProvider preparsedDocumentProvider,
-                    ValueUnboxer valueUnboxer) {
-        // schema 和 idProvider都不能为null
-        this.graphQLSchema = assertNotNull(graphQLSchema, () -> "graphQLSchema must be non null");
-        this.idProvider = assertNotNull(idProvider, () -> "idProvider must be non null");
-        // 执行策略不存在则使用默认策略
-        this.queryStrategy = queryStrategy != null ? queryStrategy : DEFAULT_QUERY_STRATEGY;
-        this.mutationStrategy = mutationStrategy != null ? mutationStrategy : DEFAULT_MUTATION_STRATEGY;
-        this.subscriptionStrategy = subscriptionStrategy != null ? subscriptionStrategy : DEFAULT_SUBSCRIPTION_STRATEGY;
-        this.instrumentation = assertNotNull(instrumentation);
-        this.preparsedDocumentProvider = assertNotNull(preparsedDocumentProvider, () -> "preparsedDocumentProvider must be non null");
-        this.valueUnboxer = valueUnboxer;
+    private GraphQL(Builder builder) {
+        this.graphQLSchema = assertNotNull(builder.graphQLSchema, () -> "graphQLSchema must be non null");
+        this.queryStrategy = assertNotNull(builder.queryExecutionStrategy, () -> "queryStrategy must not be null");
+        this.mutationStrategy = assertNotNull(builder.mutationExecutionStrategy, () -> "mutationStrategy must not be null");
+        this.subscriptionStrategy = assertNotNull(builder.subscriptionExecutionStrategy, () -> "subscriptionStrategy must not be null");
+        this.idProvider = assertNotNull(builder.idProvider, () -> "idProvider must be non null");
+        this.instrumentation = assertNotNull(builder.instrumentation, () -> "instrumentation must not be null");
+        this.preparsedDocumentProvider = assertNotNull(builder.preparsedDocumentProvider, () -> "preparsedDocumentProvider must be non null");
+        this.valueUnboxer = assertNotNull(builder.valueUnboxer, () -> "valueUnboxer must not be null");
     }
 
     /**
@@ -233,9 +130,9 @@ public class GraphQL {
     public GraphQL transform(Consumer<GraphQL.Builder> builderConsumer) {
         Builder builder = new Builder(this.graphQLSchema);
         builder
-                .queryExecutionStrategy(Optional.ofNullable(this.queryStrategy).orElse(builder.queryExecutionStrategy))
-                .mutationExecutionStrategy(Optional.ofNullable(this.mutationStrategy).orElse(builder.mutationExecutionStrategy))
-                .subscriptionExecutionStrategy(Optional.ofNullable(this.subscriptionStrategy).orElse(builder.subscriptionExecutionStrategy))
+                .queryExecutionStrategy(this.queryStrategy)
+                .mutationExecutionStrategy(this.mutationStrategy)
+                .subscriptionExecutionStrategy(this.subscriptionStrategy)
                 .executionIdProvider(Optional.ofNullable(this.idProvider).orElse(builder.idProvider))
                 .instrumentation(Optional.ofNullable(this.instrumentation).orElse(builder.instrumentation))
                 .preparsedDocumentProvider(Optional.ofNullable(this.preparsedDocumentProvider).orElse(builder.preparsedDocumentProvider));
@@ -248,9 +145,10 @@ public class GraphQL {
     @PublicApi
     public static class Builder {
         private GraphQLSchema graphQLSchema;
-        private ExecutionStrategy queryExecutionStrategy = DEFAULT_QUERY_STRATEGY;
-        private ExecutionStrategy mutationExecutionStrategy = DEFAULT_MUTATION_STRATEGY;
-        private ExecutionStrategy subscriptionExecutionStrategy = DEFAULT_SUBSCRIPTION_STRATEGY;
+        private ExecutionStrategy queryExecutionStrategy;
+        private ExecutionStrategy mutationExecutionStrategy;
+        private ExecutionStrategy subscriptionExecutionStrategy;
+        private DataFetcherExceptionHandler defaultExceptionHandler = new SimpleDataFetcherExceptionHandler();
         private ExecutionIdProvider idProvider = DEFAULT_EXECUTION_ID_PROVIDER;
         private Instrumentation instrumentation = null; // deliberate default here
         private PreparsedDocumentProvider preparsedDocumentProvider = NoOpPreparsedDocumentProvider.INSTANCE;
@@ -279,6 +177,18 @@ public class GraphQL {
 
         public Builder subscriptionExecutionStrategy(ExecutionStrategy executionStrategy) {
             this.subscriptionExecutionStrategy = assertNotNull(executionStrategy, () -> "Subscription ExecutionStrategy must be non null");
+            return this;
+        }
+
+        /**
+         * This allows you to set a default {@link graphql.execution.DataFetcherExceptionHandler} that will be used to handle exceptions that happen
+         * in {@link graphql.schema.DataFetcher} invocations.
+         *
+         * @param dataFetcherExceptionHandler the default handler for data fetching exception
+         * @return this builder
+         */
+        public Builder defaultDataFetcherExceptionHandler(DataFetcherExceptionHandler dataFetcherExceptionHandler) {
+            this.defaultExceptionHandler = assertNotNull(dataFetcherExceptionHandler, () -> "The DataFetcherExceptionHandler must be non null");
             return this;
         }
 
@@ -320,24 +230,32 @@ public class GraphQL {
         }
 
         public GraphQL build() {
-            assertNotNull(graphQLSchema, () -> "graphQLSchema must be non null");
-            assertNotNull(queryExecutionStrategy, () -> "queryStrategy must be non null");
-            assertNotNull(idProvider, () -> "idProvider must be non null");
-            final Instrumentation augmentedInstrumentation = checkInstrumentationDefaultState(instrumentation, doNotAddDefaultInstrumentations);
-            return new GraphQL(graphQLSchema, queryExecutionStrategy, mutationExecutionStrategy, subscriptionExecutionStrategy, idProvider, augmentedInstrumentation, preparsedDocumentProvider, valueUnboxer);
+            // we use the data fetcher exception handler unless they set their own strategy in which case bets are off
+            if (queryExecutionStrategy == null) {
+                this.queryExecutionStrategy = new AsyncExecutionStrategy(this.defaultExceptionHandler);
+            }
+            if (mutationExecutionStrategy == null) {
+                this.mutationExecutionStrategy = new AsyncSerialExecutionStrategy(this.defaultExceptionHandler);
+            }
+            if (subscriptionExecutionStrategy == null) {
+                this.subscriptionExecutionStrategy = new SubscriptionExecutionStrategy(this.defaultExceptionHandler);
+            }
+
+            this.instrumentation = checkInstrumentationDefaultState(this.instrumentation, this.doNotAddDefaultInstrumentations);
+            return new GraphQL(this);
         }
     }
 
     /**
      * Executes the specified graphql query/mutation/subscription
-     * 执行指定的查询。
      *
      * @param query the query/mutation/subscription
-     *
      * @return an {@link ExecutionResult} which can include errors
      */
     public ExecutionResult execute(String query) {
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(query).build();
+        ExecutionInput executionInput = ExecutionInput.newExecutionInput()
+                .query(query)
+                .build();
         return execute(executionInput);
     }
 
@@ -354,9 +272,7 @@ public class GraphQL {
         ExecutionInput executionInput = ExecutionInput.newExecutionInput()
                 .query(query)
                 .context(context)
-                // This we are doing do be backwards compatible
-                // 先后兼容？将上下文也作为root对象
-                .root(context)
+                .root(context) // This we are doing do be backwards compatible
                 .build();
         return execute(executionInput);
     }
@@ -376,8 +292,7 @@ public class GraphQL {
                 .query(query)
                 .operationName(operationName)
                 .context(context)
-                // This we are doing do be backwards compatible, 向后兼容
-                .root(context)
+                .root(context) // This we are doing do be backwards compatible
                 .build();
         return execute(executionInput);
     }
@@ -396,8 +311,7 @@ public class GraphQL {
         ExecutionInput executionInput = ExecutionInput.newExecutionInput()
                 .query(query)
                 .context(context)
-                // This we are doing do be backwards compatible，向后兼容
-                .root(context)
+                .root(context) // This we are doing do be backwards compatible
                 .variables(variables)
                 .build();
         return execute(executionInput);
@@ -419,8 +333,7 @@ public class GraphQL {
                 .query(query)
                 .operationName(operationName)
                 .context(context)
-                // This we are doing do be backwards compatible
-                .root(context)
+                .root(context) // This we are doing do be backwards compatible
                 .variables(variables)
                 .build();
         return execute(executionInput);
@@ -428,7 +341,6 @@ public class GraphQL {
 
     /**
      * Executes the graphql query using the provided input object builder
-     * 使用输入builder进行执行
      *
      * @param executionInputBuilder {@link ExecutionInput.Builder}
      * @return an {@link ExecutionResult} which can include errors
@@ -462,9 +374,7 @@ public class GraphQL {
      */
     public ExecutionResult execute(ExecutionInput executionInput) {
         try {
-            CompletableFuture<ExecutionResult> executionResultCompletableFuture = executeAsync(executionInput);
-            // 运行结束的时候返回结果，或者出现异常的时候抛运行时异常
-            return executionResultCompletableFuture.join();
+            return executeAsync(executionInput).join();
         } catch (CompletionException e) {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
@@ -508,13 +418,12 @@ public class GraphQL {
     }
 
     /**
-     * Executes the graphql query using the provided input object.
-     * fixme 真正的执行查询的方法。
+     * Executes the graphql query using the provided input object
+     * fixme 真正的执行查询的方法
      *
      * <p>
-     * This will return a promise (aka {@link CompletableFuture})
-     * to provide a {@link ExecutionResult} which is the result of executing the provided query.
-     *
+     * This will return a promise (aka {@link CompletableFuture}) to provide a {@link ExecutionResult}
+     * which is the result of executing the provided query.
      *
      * @param executionInput {@link ExecutionInput}
      * @return a promise to an {@link ExecutionResult} which can include errors
@@ -524,58 +433,44 @@ public class GraphQL {
             if (logNotSafe.isDebugEnabled()) {
                 logNotSafe.debug("Executing request. operation name: '{}'. query: '{}'. variables '{}'", executionInput.getOperationName(), executionInput.getQuery(), executionInput.getVariables());
             }
-            // 确认是否有输入id，没有的话使用idProvider.provide()方法、生成执行ID
             executionInput = ensureInputHasId(executionInput);
 
-            // fixme 使用schema和请求信息构造状态对象。
-            InstrumentationCreateStateParameters stateParameters = new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput);
-            InstrumentationState instrumentationState = instrumentation.createState(stateParameters);
+            InstrumentationState instrumentationState = instrumentation.createState(new InstrumentationCreateStateParameters(this.graphQLSchema, executionInput));
 
             InstrumentationExecutionParameters inputInstrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
-            // 用schema和输入对象，修改输入对象的值
-            // 查询dsl、查询变量、DataLoaderRegistry和CacheControl
             executionInput = instrumentation.instrumentExecutionInput(executionInput, inputInstrumentationParameters);
 
             InstrumentationExecutionParameters instrumentationParameters = new InstrumentationExecutionParameters(executionInput, this.graphQLSchema, instrumentationState);
-            // InstrumentationContext 回调
             InstrumentationContext<ExecutionResult> executionInstrumentation = instrumentation.beginExecution(instrumentationParameters);
 
             // fixme 可以根据查询输入对schema进行修改，使用修改后的schema进行查询
             GraphQLSchema graphQLSchema = instrumentation.instrumentSchema(this.graphQLSchema, instrumentationParameters);
 
-            // 解析查询文档、在类型系统上下文验证查询文档、执行查询文档
             CompletableFuture<ExecutionResult> executionResult = parseValidateAndExecute(executionInput, graphQLSchema, instrumentationState);
-            // fixme：整体的查询、有结果或者异常的时候。跟ExecutionResult对象的错误列表和data无关
+            //
             // finish up instrumentation
             executionResult = executionResult.whenComplete(executionInstrumentation::onCompleted);
-            // 根据查询输入、schema对最终的结果进行修改
+            //
             // allow instrumentation to tweak the result
             executionResult = executionResult.thenCompose(result -> instrumentation.instrumentExecutionResult(result, instrumentationParameters));
             return executionResult;
         } catch (AbortExecutionException abortException) {
-            // 指定异步任务结果
             return CompletableFuture.completedFuture(abortException.toExecutionResult());
         }
     }
 
-    // fixme 如果没有执行id，返回一个新的ExecutionInput对象
     private ExecutionInput ensureInputHasId(ExecutionInput executionInput) {
         if (executionInput.getExecutionId() != null) {
             return executionInput;
         }
-        // 没有输入id的话、执行idProvider.provide()方法生成执行id
         String queryString = executionInput.getQuery();
         String operationName = executionInput.getOperationName();
         Object context = executionInput.getContext();
-        // fixme 返回一个新的ExecutionInput对象，但是引用指向的属性元素是一样的
         return executionInput.transform(builder -> builder.executionId(idProvider.provide(queryString, operationName, context)));
     }
 
 
-    private CompletableFuture<ExecutionResult> parseValidateAndExecute(ExecutionInput executionInput,
-                                                                       GraphQLSchema graphQLSchema,
-                                                                       InstrumentationState instrumentationState) {
-        // 输入的原子引用
+    private CompletableFuture<ExecutionResult> parseValidateAndExecute(ExecutionInput executionInput, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
         AtomicReference<ExecutionInput> executionInputRef = new AtomicReference<>(executionInput);
 
         // fixme 解析和验证的函数；
@@ -585,11 +480,8 @@ public class GraphQL {
             executionInputRef.set(transformedInput);
             return parseAndValidate(executionInputRef, graphQLSchema, instrumentationState);
         };
-
-        // 如果解析出错，返回结果
         PreparsedDocumentEntry preparsedDoc = preparsedDocumentProvider.getDocument(executionInput, computeFunction);
         if (preparsedDoc.hasErrors()) {
-            // 指定异步任务结果
             return CompletableFuture.completedFuture(new ExecutionResultImpl(preparsedDoc.getErrors()));
         }
 
@@ -597,13 +489,12 @@ public class GraphQL {
     }
 
     /**
-     * 解析和验证输入文档。fixme：为啥解析和验证要分开？因为每个操作都有instrument
+     * 解析和验证输入文档。
+     * fixme：为啥解析和验证要分开？因为每个操作都有instrument
      *
      * @return 解析结果
      */
-    private PreparsedDocumentEntry parseAndValidate(AtomicReference<ExecutionInput> executionInputRef,
-                                                    GraphQLSchema graphQLSchema,
-                                                    InstrumentationState instrumentationState) {
+    private PreparsedDocumentEntry parseAndValidate(AtomicReference<ExecutionInput> executionInputRef, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
 
         ExecutionInput executionInput = executionInputRef.get();
         String query = executionInput.getQuery();
@@ -634,12 +525,8 @@ public class GraphQL {
         }
     }
 
-    // 解析和验证文档
-    private ParseAndValidateResult parse(ExecutionInput executionInput,
-                                         GraphQLSchema graphQLSchema,
-                                         InstrumentationState instrumentationState) {
-        InstrumentationExecutionParameters parameters =
-                new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
+    private ParseAndValidateResult parse(ExecutionInput executionInput, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
+        InstrumentationExecutionParameters parameters = new InstrumentationExecutionParameters(executionInput, graphQLSchema, instrumentationState);
         InstrumentationContext<Document> parseInstrumentation = instrumentation.beginParse(parameters);
         CompletableFuture<Document> documentCF = new CompletableFuture<>();
         parseInstrumentation.onDispatched(documentCF);
@@ -672,12 +559,8 @@ public class GraphQL {
         return validationErrors;
     }
 
-    private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput,
-                                                       Document document,
-                                                       GraphQLSchema graphQLSchema,
-                                                       InstrumentationState instrumentationState) {
+    private CompletableFuture<ExecutionResult> execute(ExecutionInput executionInput, Document document, GraphQLSchema graphQLSchema, InstrumentationState instrumentationState) {
 
-        // fixme 构造执行器
         Execution execution = new Execution(queryStrategy, mutationStrategy, subscriptionStrategy, instrumentation, valueUnboxer);
         ExecutionId executionId = executionInput.getExecutionId();
 
@@ -686,7 +569,6 @@ public class GraphQL {
         }
         // fixme 执行并返回结果
         CompletableFuture<ExecutionResult> future = execution.execute(document, graphQLSchema, executionId, executionInput, instrumentationState);
-        // 一些日志和return
         future = future.whenComplete((result, throwable) -> {
             if (throwable != null) {
                 logNotSafe.error(String.format("Execution '%s' threw exception when executing : query : '%s'. variables '%s'", executionId, executionInput.getQuery(), executionInput.getVariables()), throwable);

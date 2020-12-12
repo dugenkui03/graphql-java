@@ -269,7 +269,7 @@ public class TypeDefinitionRegistry {
     /**
      * Removes a {@code SDLDefinition} from the definition list.
      *
-     * @param definition
+     * @param definition the definition to remove
      */
     public void remove(SDLDefinition definition) {
         assertNotNull(definition, () -> "definition to remove can't be null");
@@ -314,8 +314,8 @@ public class TypeDefinitionRegistry {
     /**
      * Removes a {@code SDLDefinition} from a map.
      *
-     * @param key
-     * @param definition
+     * @param key the key to remove
+     * @param definition the definition to remove
      */
     public void remove(String key, SDLDefinition definition) {
         assertNotNull(definition, () -> "definition to remove can't be null");

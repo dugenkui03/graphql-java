@@ -1,5 +1,6 @@
 package graphql.execution;
 
+import com.google.common.collect.ImmutableList;
 import graphql.ExecutionResult;
 import graphql.ExecutionResultImpl;
 import graphql.GraphQLError;
@@ -19,6 +20,8 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldParamete
 import graphql.introspection.Introspection;
 import graphql.language.Argument;
 import graphql.language.Field;
+import graphql.normalized.NormalizedField;
+import graphql.normalized.NormalizedQueryTree;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -190,17 +193,14 @@ public abstract class ExecutionStrategy {
      */
     protected CompletableFuture<FieldValueInfo> resolveFieldWithInfo(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext, parameters, parameters.getField().getSingleField());
-        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.memoize(() -> createExecutionStepInfo(executionContext, parameters, fieldDef, null));
+        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.intraThreadMemoize(() -> createExecutionStepInfo(executionContext, parameters, fieldDef, null));
 
         Instrumentation instrumentation = executionContext.getInstrumentation();
         InstrumentationContext<ExecutionResult> fieldCtx = instrumentation.beginField(
                 new InstrumentationFieldParameters(executionContext, executionStepInfo)
         );
 
-        // fixme 请求
         CompletableFuture<FetchedValue> fetchFieldFuture = fetchField(executionContext, parameters);
-
-        // fixme 解析
         CompletableFuture<FieldValueInfo> result = fetchFieldFuture.thenApply((fetchedValue) ->
                 completeField(executionContext, parameters, fetchedValue));
 
@@ -210,14 +210,6 @@ public abstract class ExecutionStrategy {
         executionResultFuture.whenComplete(fieldCtx::onCompleted);
         return result;
     }
-
-    protected CompletableFuture<FieldValueInfo> resolveFieldWithInfoToNull(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
-        FetchedValue fetchedValue = FetchedValue.newFetchedValue().build();
-        FieldValueInfo fieldValueInfo = completeField(executionContext, parameters, fetchedValue);
-        // 计算好的任务结果，估计不是啥预留方法
-        return CompletableFuture.completedFuture(fieldValueInfo);
-    }
-
 
     /**
      * Called to fetch a value for a field from the {@link DataFetcher} associated with the field
@@ -239,14 +231,16 @@ public abstract class ExecutionStrategy {
         GraphQLCodeRegistry codeRegistry = executionContext.getGraphQLSchema().getCodeRegistry();
         GraphQLOutputType fieldType = fieldDef.getType();
 
-        // DataFetchingFieldSelectionSet and QueryDirectives is a supplier of sorts - eg a lazy pattern
-        DataFetchingFieldSelectionSet fieldCollector = DataFetchingFieldSelectionSetImpl.newCollector(executionContext, fieldType, parameters.getField());
-        QueryDirectives queryDirectives = new QueryDirectivesImpl(field, executionContext.getGraphQLSchema(), executionContext.getVariables());
-
         // if the DF (like PropertyDataFetcher) does not use the arguments of execution step info then dont build any
-        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.memoize(
+        Supplier<ExecutionStepInfo> executionStepInfo = FpKit.intraThreadMemoize(
                 () -> createExecutionStepInfo(executionContext, parameters, fieldDef, parentType));
         Supplier<Map<String, Object>> argumentValues = () -> executionStepInfo.get().getArguments();
+
+        Supplier<NormalizedField> normalizedFieldSupplier = getNormalizedField(executionContext, parameters, executionStepInfo);
+
+        // DataFetchingFieldSelectionSet and QueryDirectives is a supplier of sorts - eg a lazy pattern
+        DataFetchingFieldSelectionSet fieldCollector = DataFetchingFieldSelectionSetImpl.newCollector(fieldType, normalizedFieldSupplier);
+        QueryDirectives queryDirectives = new QueryDirectivesImpl(field, executionContext.getGraphQLSchema(), executionContext.getVariables());
 
 
         DataFetchingEnvironment environment = newDataFetchingEnvironment(executionContext)
@@ -285,9 +279,9 @@ public abstract class ExecutionStrategy {
         }
         fetchCtx.onDispatched(fetchedValue);
         return fetchedValue
-                // 对结果进行进一步的转化
-                // fixme 如果是异常信息，则包装为正常数据
                 .handle((result, exception) -> {
+                    // 对结果进行进一步的转化
+                    // fixme 如果是异常信息，则包装为正常数据
                     fetchCtx.onCompleted(result, exception);
 
                     /**
@@ -305,23 +299,19 @@ public abstract class ExecutionStrategy {
                 .thenApply(result -> unboxPossibleDataFetcherResult(executionContext, parameters, result));
     }
 
-    /**
-     * 1. DataFetcherResult：结果和错误；
-     * 2.
-     */
+    protected Supplier<NormalizedField> getNormalizedField(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Supplier<ExecutionStepInfo> executionStepInfo) {
+        Supplier<NormalizedQueryTree> normalizedQuery = executionContext.getNormalizedQueryTree();
+        return () -> normalizedQuery.get().getNormalizedField(parameters.getField(), executionStepInfo.get().getObjectType(), executionStepInfo.get().getPath());
+    }
+
     protected FetchedValue unboxPossibleDataFetcherResult(ExecutionContext executionContext,
                                                           ExecutionStrategyParameters parameters,
                                                           Object result) {
 
         if (result instanceof DataFetcherResult) {
-            DataFetcherResult<?> dataFetcherResult = (DataFetcherResult<?>) result;
-            if (dataFetcherResult.isMapRelativeErrors()) {
-                dataFetcherResult.getErrors().stream()
-                        .map(relError -> new AbsoluteGraphQLError(parameters, relError))
-                        .forEach(executionContext::addError);
-            } else {
-                dataFetcherResult.getErrors().forEach(executionContext::addError);
-            }
+            //noinspection unchecked
+            DataFetcherResult<?> dataFetcherResult = (DataFetcherResult) result;
+            dataFetcherResult.getErrors().forEach(executionContext::addError);
 
             Object localContext = dataFetcherResult.getLocalContext();
             if (localContext == null) {
@@ -335,20 +325,19 @@ public abstract class ExecutionStrategy {
                     .localContext(localContext)
                     .build();
         } else {
+            /**
+             * fixme
+             *      拆解dataFetcher返回的结果。
+             *      dataFetcher可以返回自定义类型、然后在自定义的 ValueUnboxer 中解析指定的结果。
+             */
             return FetchedValue.newFetchedValue()
-                    /**
-                     * fixme
-                     *      拆解dataFetcher返回的结果。
-                     *      dataFetcher可以返回自定义类型、然后在自定义的 ValueUnboxer 中解析指定的结果。
-                     */
                     .fetchedValue(executionContext.getValueUnboxer().unbox(result))
-                    // dataFetcher 返回的 原生结果
                     .rawFetchedValue(result)
-                    // 本地上下文
                     .localContext(parameters.getLocalContext())
                     .build();
         }
     }
+
 
     /**
      * 1. 使用 DataFetcherExceptionHandler 处理 dataFetcher执行过程中遇到的异常信息；
@@ -360,10 +349,10 @@ public abstract class ExecutionStrategy {
      */
     protected void handleFetchingException(ExecutionContext executionContext,
                                            DataFetchingEnvironment environment,
-                                           Throwable throwable) {
+                                           Throwable e) {
         DataFetcherExceptionHandlerParameters handlerParameters = DataFetcherExceptionHandlerParameters.newExceptionParameters()
                 .dataFetchingEnvironment(environment)
-                .exception(throwable)
+                .exception(e)
                 .build();
 
         DataFetcherExceptionHandlerResult handlerResult;
@@ -422,7 +411,6 @@ public abstract class ExecutionStrategy {
             log.debug("'{}' completing field '{}'...", executionContext.getExecutionId(), executionStepInfo.getPath());
         }
 
-        // todo 计算完数据
         FieldValueInfo fieldValueInfo = completeValue(executionContext, newParameters);
 
         CompletableFuture<ExecutionResult> executionResultFuture = fieldValueInfo.getFieldValue();
@@ -498,24 +486,15 @@ public abstract class ExecutionStrategy {
     }
 
     /**
-     * Called to complete a list of value for a field based on a list type.
-     * This iterates the values and calls {@link #completeValue(ExecutionContext, ExecutionStrategyParameters)} for each value.
-     * fixme
-     *      计算一个list类型的字段，会调用 completeValue 计算每一个元素
+     * Called to complete a list of value for a field based on a list type.  This iterates the values and calls
+     * {@link #completeValue(ExecutionContext, ExecutionStrategyParameters)} for each value.
      *
      * @param executionContext contains the top level execution parameters
-     *                         执行上下文
-     *
      * @param parameters       contains the parameters holding the fields to be executed and source object
-     *
      * @param result           the result to complete, raw result
-     *                         fixme 应该是个集合类型：Iterable、Array
-     *
      * @return a {@link FieldValueInfo}
      */
-    protected FieldValueInfo completeValueForList(ExecutionContext executionContext,
-                                                  ExecutionStrategyParameters parameters,
-                                                  Object result) {
+    protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Object result) {
         Iterable<Object> resultIterable = toIterable(executionContext, parameters, result);
         try {
             resultIterable = parameters.getNonNullFieldValidator().validate(parameters.getPath(), resultIterable);
@@ -537,45 +516,30 @@ public abstract class ExecutionStrategy {
      * @param iterableValues   the values to complete, can't be null
      * @return a {@link FieldValueInfo}
      */
-    protected FieldValueInfo completeValueForList(ExecutionContext executionContext,
-                                                  ExecutionStrategyParameters parameters,
-                                                  Iterable<Object> iterableValues) {
-        // 集合大小
-        OptionalInt size = FpKit.toSize(iterableValues);
+    protected FieldValueInfo completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, Iterable<Object> iterableValues) {
 
-        // 当前字段的详细信息，包括输出类型、定义类型、字段定义、参数父子段信息等。
+        OptionalInt size = FpKit.toSize(iterableValues);
         ExecutionStepInfo executionStepInfo = parameters.getExecutionStepInfo();
 
-        InstrumentationFieldCompleteParameters instrumentationParams =
-                new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, iterableValues);
-        // 全局 Instrumentation
+        InstrumentationFieldCompleteParameters instrumentationParams = new InstrumentationFieldCompleteParameters(executionContext, parameters, () -> executionStepInfo, iterableValues);
         Instrumentation instrumentation = executionContext.getInstrumentation();
 
-        // 开始计算list类型字段
         InstrumentationContext<ExecutionResult> completeListCtx = instrumentation.beginFieldListComplete(
                 instrumentationParams
         );
 
-        // todo 为啥 1 呢
         List<FieldValueInfo> fieldValueInfos = new ArrayList<>(size.orElse(1));
         int index = 0;
         for (Object item : iterableValues) {
-            /**
-             *  ======================== 构造请求参数 ==============================
-             */
-
             ResultPath indexedPath = parameters.getPath().segment(index);
 
-            // 为指定下标的list元素创建 ExecutionStepInfo
-            // ExecutionStepInfo：当前字段的详细信息，包括输出类型、定义类型、字段定义、参数父子段信息等
             ExecutionStepInfo stepInfoForListElement = executionStepInfoFactory.newExecutionStepInfoForListElement(executionStepInfo, index);
 
             NonNullableFieldValidator nonNullableFieldValidator = new NonNullableFieldValidator(executionContext, stepInfoForListElement);
 
-            //
+            int finalIndex = index;
             FetchedValue value = unboxPossibleDataFetcherResult(executionContext, parameters, item);
 
-            int finalIndex = index;
             ExecutionStrategyParameters newParameters = parameters.transform(builder ->
                     builder.executionStepInfo(stepInfoForListElement)
                             .nonNullFieldValidator(nonNullableFieldValidator)
@@ -585,31 +549,21 @@ public abstract class ExecutionStrategy {
                             .path(indexedPath)
                             .source(value.getFetchedValue())
             );
-
-            // fixme 对每个元素的解析都是并行的
             fieldValueInfos.add(completeValue(executionContext, newParameters));
             index++;
         }
 
-        // 等待每一个元素代表的异步任务执行结束
-        // todo n+1 问题
-        CompletableFuture<List<ExecutionResult>> resultsFuture = Async.each(fieldValueInfos,
-                (item, i) -> item.getFieldValue() // item：第 i 个任务
-        );
+        CompletableFuture<List<ExecutionResult>> resultsFuture = Async.each(fieldValueInfos, (item, i) -> item.getFieldValue());
 
         CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
         completeListCtx.onDispatched(overallResult);
 
-        // 走到这的时候、resultsFuture一般也完成了
         resultsFuture.whenComplete((results, exception) -> {
-            // 异常
             if (exception != null) {
                 ExecutionResult executionResult = handleNonNullException(executionContext, overallResult, exception);
                 completeListCtx.onCompleted(executionResult, exception);
                 return;
             }
-
-            // 正常：
             List<Object> completedResults = new ArrayList<>(results.size());
             for (ExecutionResult completedValue : results) {
                 completedResults.add(completedValue.getData());
@@ -743,10 +697,7 @@ public abstract class ExecutionStrategy {
     }
 
 
-
-    protected Iterable<Object> toIterable(ExecutionContext context,
-                                          ExecutionStrategyParameters parameters,
-                                          Object result) {
+    protected Iterable<Object> toIterable(ExecutionContext context, ExecutionStrategyParameters parameters, Object result) {
         if (FpKit.isIterable(result)) {
             return FpKit.toIterable(result);
         }
@@ -818,7 +769,7 @@ public abstract class ExecutionStrategy {
 
     protected ExecutionResult handleNonNullException(ExecutionContext executionContext, CompletableFuture<ExecutionResult> result, Throwable e) {
         ExecutionResult executionResult = null;
-        List<GraphQLError> errors = new ArrayList<>(executionContext.getErrors());
+        List<GraphQLError> errors = ImmutableList.copyOf(executionContext.getErrors());
         Throwable underlyingException = e;
         if (e instanceof CompletionException) {
             underlyingException = e.getCause();
@@ -842,20 +793,11 @@ public abstract class ExecutionStrategy {
 
     /**
      * Builds the type info hierarchy for the current field
-     * fixme 构建当前字段信息的层级结构。
      *
      * @param executionContext the execution context  in play
-     *                         使用的执行上下文
-     *
      * @param parameters       contains the parameters holding the fields to be executed and source object
-     *                         执行策略参数：字段参数，source
-     *
      * @param fieldDefinition  the field definition to build type info for
-     *                         字段定义
-     *
      * @param fieldContainer   the field container
-     *                         字段的类型：包含哪些字段？
-     *
      * @return a new type info
      */
     protected ExecutionStepInfo createExecutionStepInfo(ExecutionContext executionContext,
@@ -888,9 +830,7 @@ public abstract class ExecutionStrategy {
                 .build();
     }
 
-    /**
-     * ======================================= 优先获取字段别名 ==============================================
-     */
+
     @Internal
     public static String mkNameForPath(Field currentField) {
         return mkNameForPath(Collections.singletonList(currentField));

@@ -1475,7 +1475,7 @@ class QueryTraverserTest extends Specification {
         1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
             it.field.name == "bar" && it.traverserContext.getParentNodes().size() == 5 &&
                     it.traverserContext.getParentContext().getParentContext().thisNode() instanceof FragmentDefinition &&
-                    ((FragmentDefinition) it.traverserContext.getParentContext().getParentContext().thisNode()).getDirective("myDirective") != null
+                    ((FragmentDefinition) it.traverserContext.getParentContext().getParentContext().thisNode()).hasDirective("myDirective")
         })
 
 
@@ -1709,5 +1709,43 @@ class QueryTraverserTest extends Specification {
         0 * visitor.visitArgument(_)
     }
 
+    def "conditional nodes via variables are defaulted correctly and visited correctly"() {
 
+        given:
+        def schema = TestUtil.schema("""
+            type Query{
+                foo: Foo
+                bar: String
+            }
+            type Foo {
+                subFoo: String  
+            }
+        """)
+        def visitor = mockQueryVisitor()
+        def query = createQuery('''
+            query test($var : Boolean = true)  {
+                bar @include(if:$var)
+            }
+            ''')
+        QueryTraverser queryTraversal = createQueryTraversal(query, schema)
+
+        when: "we have an enabled variable conditional node"
+        queryTraversal.visitPreOrder(visitor)
+
+        then: "it should be visited"
+        1 * visitor.visitField({ QueryVisitorFieldEnvironmentImpl it ->
+            it.fieldDefinition.name == "bar"
+        })
+
+        when: "we have an enabled variable conditional node"
+        query = createQuery('''
+            query test($var : Boolean = false)  {
+                bar @include(if:$var)
+            }
+            ''')
+        queryTraversal = createQueryTraversal(query, schema)
+        queryTraversal.visitPreOrder(visitor)
+        then: "it should not be visited"
+        0 * visitor.visitField(_)
+    }
 }

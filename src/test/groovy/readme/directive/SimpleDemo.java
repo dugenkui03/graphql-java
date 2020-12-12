@@ -19,7 +19,7 @@ public class SimpleDemo extends SimpleInstrumentation {
 
         // 获取字段上的指令
         // get the directive used on this Field.
-        Directive skipByExp = parameters.getEnvironment().getField().getDirective("skipByExp");
+        Directive skipByExp = parameters.getEnvironment().getField().getDirectives("skipByExp").get(0);
         if (skipByExp != null) {
             Map<String, Object> arguments = parameters.getEnvironment().getArguments();
             // 如果表达式为真，则将dataFetcher的行为修改为返回null的函数

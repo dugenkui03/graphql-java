@@ -1,9 +1,10 @@
 package graphql.language;
 
 
-import graphql.Assert;
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -15,25 +16,23 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 import static java.util.Collections.emptyMap;
 
-// 类型系统定义
 @PublicApi
 public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefinition> implements SDLDefinition<DirectiveDefinition>, NamedNode<DirectiveDefinition> {
-    // 指令名称
     private final String name;
-    // 指令入参
-    private final List<InputValueDefinition> inputValueDefinitions;
-    // 有效位置
-    private final List<DirectiveLocation> directiveLocations;
+    private final boolean repeatable;
+    private final ImmutableList<InputValueDefinition> inputValueDefinitions;
+    private final ImmutableList<DirectiveLocation> directiveLocations;
 
     public static final String CHILD_INPUT_VALUE_DEFINITIONS = "inputValueDefinitions";
     public static final String CHILD_DIRECTIVE_LOCATION = "directiveLocation";
 
     @Internal
     protected DirectiveDefinition(String name,
-                                  // 描述内容
+                                  boolean repeatable,
                                   Description description,
                                   List<InputValueDefinition> inputValueDefinitions,
                                   List<DirectiveLocation> directiveLocations,
@@ -43,8 +42,9 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
                                   Map<String, String> additionalData) {
         super(sourceLocation, comments, ignoredChars, additionalData, description);
         this.name = name;
-        this.inputValueDefinitions = inputValueDefinitions;
-        this.directiveLocations = Assert.assertNotNull(directiveLocations);
+        this.repeatable = repeatable;
+        this.inputValueDefinitions = ImmutableList.copyOf(inputValueDefinitions);
+        this.directiveLocations = ImmutableList.copyOf(directiveLocations);
     }
 
     /**
@@ -53,7 +53,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
      * @param name of the directive definition
      */
     public DirectiveDefinition(String name) {
-        this(name, null, new ArrayList<>(), new ArrayList<>(), null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, false, null, emptyList(), emptyList(), null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     @Override
@@ -61,18 +61,27 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         return name;
     }
 
+    /**
+     * An AST node can have multiple directives associated with it IF the directive definition allows
+     * repeatable directives.
+     *
+     * @return true if this directive definition allows repeatable directives
+     */
+    public boolean isRepeatable() {
+        return repeatable;
+    }
+
     public List<InputValueDefinition> getInputValueDefinitions() {
-        return new ArrayList<>(inputValueDefinitions);
+        return inputValueDefinitions;
     }
 
     public List<DirectiveLocation> getDirectiveLocations() {
-        return new ArrayList<>(directiveLocations);
+        return directiveLocations;
     }
 
     @Override
     public List<Node> getChildren() {
         List<Node> result = new ArrayList<>();
-        // 这两个变量在初始化的时候、即使没有值、也用空list赋值了
         result.addAll(inputValueDefinitions);
         result.addAll(directiveLocations);
         return result;
@@ -111,6 +120,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
     @Override
     public DirectiveDefinition deepCopy() {
         return new DirectiveDefinition(name,
+                repeatable,
                 description,
                 deepCopy(inputValueDefinitions),
                 deepCopy(directiveLocations),
@@ -138,7 +148,6 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         return new Builder();
     }
 
-    // 默默背一下：将当前对象转换为一个新对象：引用指向的属性是相同的
     public DirectiveDefinition transform(Consumer<Builder> builderConsumer) {
         Builder builder = new Builder(this);
         builderConsumer.accept(builder);
@@ -147,11 +156,12 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
 
     public static final class Builder implements NodeBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private String name;
+        private boolean repeatable = false;
         private Description description;
-        private List<InputValueDefinition> inputValueDefinitions = new ArrayList<>();
-        private List<DirectiveLocation> directiveLocations = new ArrayList<>();
+        private ImmutableList<InputValueDefinition> inputValueDefinitions = emptyList();
+        private ImmutableList<DirectiveLocation> directiveLocations = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -160,11 +170,12 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
 
         private Builder(DirectiveDefinition existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
+            this.repeatable = existing.isRepeatable();
             this.description = existing.getDescription();
-            this.inputValueDefinitions = existing.getInputValueDefinitions();
-            this.directiveLocations = existing.getDirectiveLocations();
+            this.inputValueDefinitions = ImmutableList.copyOf(existing.getInputValueDefinitions());
+            this.directiveLocations = ImmutableList.copyOf(existing.getDirectiveLocations());
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
         }
@@ -175,12 +186,17 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder repeatable(boolean repeatable) {
+            this.repeatable = repeatable;
             return this;
         }
 
@@ -190,22 +206,23 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
         }
 
         public Builder inputValueDefinitions(List<InputValueDefinition> inputValueDefinitions) {
-            this.inputValueDefinitions = inputValueDefinitions;
+            this.inputValueDefinitions = ImmutableList.copyOf(inputValueDefinitions);
             return this;
         }
 
         public Builder inputValueDefinition(InputValueDefinition inputValueDefinition) {
-            this.inputValueDefinitions.add(inputValueDefinition);
+            this.inputValueDefinitions = ImmutableKit.addToList(inputValueDefinitions, inputValueDefinition);
             return this;
         }
 
+
         public Builder directiveLocations(List<DirectiveLocation> directiveLocations) {
-            this.directiveLocations = directiveLocations;
+            this.directiveLocations = ImmutableList.copyOf(directiveLocations);
             return this;
         }
 
         public Builder directiveLocation(DirectiveLocation directiveLocation) {
-            this.directiveLocations.add(directiveLocation);
+            this.directiveLocations = ImmutableKit.addToList(directiveLocations, directiveLocation);
             return this;
         }
 
@@ -226,7 +243,7 @@ public class DirectiveDefinition extends AbstractDescribedNode<DirectiveDefiniti
 
 
         public DirectiveDefinition build() {
-            return new DirectiveDefinition(name, description, inputValueDefinitions, directiveLocations, sourceLocation, comments, ignoredChars, additionalData);
+            return new DirectiveDefinition(name, repeatable, description, inputValueDefinitions, directiveLocations, sourceLocation, comments, ignoredChars, additionalData);
         }
     }
 }

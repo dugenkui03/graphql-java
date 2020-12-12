@@ -1,9 +1,12 @@
 package graphql.execution;
 
+import com.google.common.collect.ImmutableList;
 import graphql.Assert;
 import graphql.AssertException;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -130,7 +133,6 @@ public class ResultPath {
      * Parses an execution path from the provided path string in the format /segment1/segment2[index]/segmentN
      *
      * @param pathString the path string
-     *
      * @return a parsed execution path
      */
     public static ResultPath parse(String pathString) {
@@ -159,7 +161,6 @@ public class ResultPath {
      * This will create an execution path from the list of objects
      *
      * @param objects the path objects
-     *
      * @return a new execution path
      */
     public static ResultPath fromList(List<?> objects) {
@@ -183,7 +184,6 @@ public class ResultPath {
      * Takes the current path and adds a new segment to it, returning a new path
      *
      * @param segment the string path segment to add
-     *
      * @return a new path containing that segment
      */
     public ResultPath segment(String segment) {
@@ -194,7 +194,6 @@ public class ResultPath {
      * Takes the current path and adds a new segment to it, returning a new path
      *
      * @param segment the int path segment to add
-     *
      * @return a new path containing that segment
      */
     public ResultPath segment(int segment) {
@@ -219,7 +218,6 @@ public class ResultPath {
      * equals "/a/b[9]"
      *
      * @param segment the integer segment to use
-     *
      * @return a new path with the last segment replaced
      */
     public ResultPath replaceSegment(int segment) {
@@ -232,7 +230,6 @@ public class ResultPath {
      * equals "/a/b/x"
      *
      * @param segment the string segment to use
-     *
      * @return a new path with the last segment replaced
      */
     public ResultPath replaceSegment(String segment) {
@@ -252,11 +249,10 @@ public class ResultPath {
      * Appends the provided path to the current one
      *
      * @param path the path to append
-     *
      * @return a new path
      */
     public ResultPath append(ResultPath path) {
-        List<Object> objects = this.toList();
+        List<Object> objects = new ArrayList<>(this.toList());
         objects.addAll(assertNotNull(path).toList());
         return fromList(objects);
     }
@@ -277,12 +273,30 @@ public class ResultPath {
      */
     public List<Object> toList() {
         if (parent == null) {
-            return new LinkedList<>();
+            return ImmutableKit.emptyList();
         }
         LinkedList<Object> list = new LinkedList<>();
         ResultPath p = this;
         while (p.segment != null) {
             list.addFirst(p.segment);
+            p = p.parent;
+        }
+        return ImmutableList.copyOf(list);
+    }
+
+    /**
+     * @return this path as a list of result keys, without any indices
+     */
+    public List<String> getKeysOnly() {
+        if (parent == null) {
+            return new LinkedList<>();
+        }
+        LinkedList<String> list = new LinkedList<>();
+        ResultPath p = this;
+        while (p.segment != null) {
+            if (p.segment instanceof String) {
+                list.addFirst((String) p.segment);
+            }
             p = p.parent;
         }
         return list;

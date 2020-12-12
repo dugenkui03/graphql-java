@@ -1,6 +1,7 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
 import graphql.util.TraversalControl;
@@ -14,8 +15,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
-import static java.util.Collections.emptyMap;
 
 /**
  * 操作类型定义：操作类型名称、todo TypeName
@@ -39,11 +41,11 @@ public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinitio
     /**
      * alternative to using a Builder for convenience
      *
-     * @param name of the operation
+     * @param name     of the operation
      * @param typeName the type in play
      */
     public OperationTypeDefinition(String name, TypeName typeName) {
-        this(name, typeName, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, typeName, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     public TypeName getTypeName() {
@@ -120,7 +122,7 @@ public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinitio
 
     public static final class Builder implements NodeBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private String name;
         private TypeName typeName;
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
@@ -132,7 +134,7 @@ public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinitio
 
         private Builder(OperationTypeDefinition existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
             this.typeName = existing.getTypeName();
             this.ignoredChars = existing.getIgnoredChars();
@@ -146,7 +148,7 @@ public class OperationTypeDefinition extends AbstractNode<OperationTypeDefinitio
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 

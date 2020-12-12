@@ -1,8 +1,10 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -13,18 +15,17 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
-import static graphql.language.NodeUtil.directivesByName;
-import static graphql.language.NodeUtil.directiveByName;
 
 /**
  * 唯二属性：指令列表、操作类型定义
  */
 @PublicApi
-public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> implements SDLDefinition<SchemaDefinition> {
+public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> implements SDLDefinition<SchemaDefinition>, DirectivesContainer<SchemaDefinition> {
 
-    private final List<Directive> directives;
-    private final List<OperationTypeDefinition> operationTypeDefinitions;
+    private final ImmutableList<Directive> directives;
+    private final ImmutableList<OperationTypeDefinition> operationTypeDefinitions;
 
     public static final String CHILD_DIRECTIVES = "directives";
     public static final String CHILD_OPERATION_TYPE_DEFINITIONS = "operationTypeDefinitions";
@@ -39,25 +40,16 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
                                Map<String, String> additionalData,
                                Description description) {
         super(sourceLocation, comments, ignoredChars, additionalData, description);
-        this.directives = directives;
-        this.operationTypeDefinitions = operationTypeDefinitions;
+        this.directives = ImmutableList.copyOf(directives);
+        this.operationTypeDefinitions = ImmutableList.copyOf(operationTypeDefinitions);
     }
 
     public List<Directive> getDirectives() {
-        return new ArrayList<>(directives);
+        return directives;
     }
-
-    public Map<String, Directive> getDirectivesByName() {
-        return directivesByName(directives);
-    }
-
-    public Directive getDirective(String directiveName) {
-        return directiveByName(directives, directiveName).orElse(null);
-    }
-
 
     public List<OperationTypeDefinition> getOperationTypeDefinitions() {
-        return new ArrayList<>(operationTypeDefinitions);
+        return operationTypeDefinitions;
     }
 
     public Description getDescription() {
@@ -128,11 +120,11 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
         return new Builder();
     }
 
-    public static final class Builder implements NodeDirectivesBuilder {
+    public static final class Builder implements NodeBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
-        private List<Directive> directives = new ArrayList<>();
-        private List<OperationTypeDefinition> operationTypeDefinitions = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
+        private ImmutableList<Directive> directives = emptyList();
+        private ImmutableList<OperationTypeDefinition> operationTypeDefinitions = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
         private Description description;
@@ -143,9 +135,9 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
 
         protected Builder(SchemaDefinition existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
-            this.directives = existing.getDirectives();
-            this.operationTypeDefinitions = existing.getOperationTypeDefinitions();
+            this.comments = ImmutableList.copyOf(existing.getComments());
+            this.directives = ImmutableList.copyOf(existing.getDirectives());
+            this.operationTypeDefinitions = ImmutableList.copyOf(existing.getOperationTypeDefinitions());
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
             this.description = existing.getDescription();
@@ -162,28 +154,27 @@ public class SchemaDefinition extends AbstractDescribedNode<SchemaDefinition> im
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 
-        @Override
         public Builder directives(List<Directive> directives) {
-            this.directives = directives;
+            this.directives = ImmutableList.copyOf(directives);
             return this;
         }
 
         public Builder directive(Directive directive) {
-            this.directives.add(directive);
+            this.directives = ImmutableKit.addToList(directives, directive);
             return this;
         }
 
         public Builder operationTypeDefinitions(List<OperationTypeDefinition> operationTypeDefinitions) {
-            this.operationTypeDefinitions = operationTypeDefinitions;
+            this.operationTypeDefinitions = ImmutableList.copyOf(operationTypeDefinitions);
             return this;
         }
 
-        public Builder operationTypeDefinition(OperationTypeDefinition operationTypeDefinitions) {
-            this.operationTypeDefinitions.add(operationTypeDefinitions);
+        public Builder operationTypeDefinition(OperationTypeDefinition operationTypeDefinition) {
+            this.operationTypeDefinitions = ImmutableKit.addToList(operationTypeDefinitions, operationTypeDefinition);
             return this;
         }
 

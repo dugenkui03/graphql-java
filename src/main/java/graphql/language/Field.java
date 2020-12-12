@@ -1,37 +1,37 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import graphql.Internal;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.google.common.collect.ImmutableMap.copyOf;
 import static graphql.Assert.assertNotNull;
-import static java.util.Collections.emptyMap;
+import static graphql.collect.ImmutableKit.addToMap;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
 
 /*
  * This is provided to a DataFetcher, therefore it is a public API.
  * This might change in the future.
  */
 @PublicApi
-public class Field extends AbstractNode<Field>
-        //选择集标识、List<Selection>、指令、名称
-        implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
+public class Field extends AbstractNode<Field> implements Selection<Field>, SelectionSetContainer<Field>, DirectivesContainer<Field>, NamedNode<Field> {
 
-    //名称、别名、字段上的参数和指令
     private final String name;
     private final String alias;
-    private final List<Argument> arguments;
-    private final List<Directive> directives;
-    //todo 查询字段上为啥要有SelectionSet
+    private final ImmutableList<Argument> arguments;
+    private final ImmutableList<Directive> directives;
     private final SelectionSet selectionSet;
 
     public static final String CHILD_ARGUMENTS = "arguments";
@@ -52,8 +52,8 @@ public class Field extends AbstractNode<Field>
         super(sourceLocation, comments, ignoredChars, additionalData);
         this.name = name;
         this.alias = alias;
-        this.arguments = arguments;
-        this.directives = directives;
+        this.arguments = ImmutableList.copyOf(arguments);
+        this.directives = ImmutableList.copyOf(directives);
         this.selectionSet = selectionSet;
     }
 
@@ -64,7 +64,7 @@ public class Field extends AbstractNode<Field>
      * @param name of the field
      */
     public Field(String name) {
-        this(name, null, new ArrayList<>(), new ArrayList<>(), null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, null, emptyList(), emptyList(), null, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     /**
@@ -74,7 +74,7 @@ public class Field extends AbstractNode<Field>
      * @param arguments to the field
      */
     public Field(String name, List<Argument> arguments) {
-        this(name, null, arguments, new ArrayList<>(), null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, null, arguments, emptyList(), null, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     /**
@@ -85,7 +85,7 @@ public class Field extends AbstractNode<Field>
      * @param selectionSet of the field
      */
     public Field(String name, List<Argument> arguments, SelectionSet selectionSet) {
-        this(name, null, arguments, new ArrayList<>(), selectionSet, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, null, arguments, emptyList(), selectionSet, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     /**
@@ -95,7 +95,7 @@ public class Field extends AbstractNode<Field>
      * @param selectionSet of the field
      */
     public Field(String name, SelectionSet selectionSet) {
-        this(name, null, new ArrayList<>(), new ArrayList<>(), selectionSet, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, null, emptyList(), emptyList(), selectionSet, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     @Override
@@ -137,12 +137,12 @@ public class Field extends AbstractNode<Field>
     }
 
     public List<Argument> getArguments() {
-        return Collections.unmodifiableList(arguments);
+        return arguments;
     }
 
     @Override
     public List<Directive> getDirectives() {
-        return Collections.unmodifiableList(directives);
+        return directives;
     }
 
     @Override
@@ -215,28 +215,28 @@ public class Field extends AbstractNode<Field>
 
     public static final class Builder implements NodeDirectivesBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private String name;
         private String alias;
-        private List<Argument> arguments = new ArrayList<>();
-        private List<Directive> directives = new ArrayList<>();
+        private ImmutableList<Argument> arguments = emptyList();
+        private ImmutableList<Directive> directives = emptyList();
         private SelectionSet selectionSet;
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
-        private Map<String, String> additionalData = new LinkedHashMap<>();
+        private ImmutableMap<String, String> additionalData = emptyMap();
 
         private Builder() {
         }
 
         private Builder(Field existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
             this.alias = existing.getAlias();
-            this.arguments = existing.getArguments();
-            this.directives = existing.getDirectives();
+            this.arguments = ImmutableList.copyOf(existing.getArguments());
+            this.directives = ImmutableList.copyOf(existing.getDirectives());
             this.selectionSet = existing.getSelectionSet();
             this.ignoredChars = existing.getIgnoredChars();
-            this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
+            this.additionalData = copyOf(existing.getAdditionalData());
         }
 
 
@@ -246,7 +246,7 @@ public class Field extends AbstractNode<Field>
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 
@@ -261,13 +261,18 @@ public class Field extends AbstractNode<Field>
         }
 
         public Builder arguments(List<Argument> arguments) {
-            this.arguments = arguments;
+            this.arguments = ImmutableList.copyOf(arguments);
             return this;
         }
 
         @Override
         public Builder directives(List<Directive> directives) {
-            this.directives = directives;
+            this.directives = ImmutableList.copyOf(directives);
+            return this;
+        }
+
+        public Builder directive(Directive directive) {
+            this.directives = ImmutableKit.addToList(directives, directive);
             return this;
         }
 
@@ -282,12 +287,12 @@ public class Field extends AbstractNode<Field>
         }
 
         public Builder additionalData(Map<String, String> additionalData) {
-            this.additionalData = assertNotNull(additionalData);
+            this.additionalData = ImmutableMap.copyOf(assertNotNull(additionalData));
             return this;
         }
 
         public Builder additionalData(String key, String value) {
-            this.additionalData.put(key, value);
+            this.additionalData = addToMap(this.additionalData, key, value);
             return this;
         }
 

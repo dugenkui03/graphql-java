@@ -9,6 +9,7 @@ import graphql.schema.GraphQLNamedOutputType;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
+import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLUnionType;
 import graphql.util.FpKit;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static graphql.collect.ImmutableKit.map;
 import static graphql.schema.GraphQLTypeUtil.isList;
 import static graphql.schema.GraphQLTypeUtil.isNonNull;
 import static graphql.schema.GraphQLTypeUtil.simplePrint;
@@ -48,6 +50,10 @@ public class TypesImplementInterfaces implements SchemaValidationRule {
         if (type instanceof GraphQLImplementingType) {
             check((GraphQLImplementingType) type, validationErrorCollector);
         }
+    }
+
+    @Override
+    public void check(GraphQLSchema graphQLSchema, SchemaValidationErrorCollector validationErrorCollector) {
     }
 
     private void check(GraphQLImplementingType implementingType, SchemaValidationErrorCollector validationErrorCollector) {
@@ -111,7 +117,7 @@ public class TypesImplementInterfaces implements SchemaValidationRule {
         List<GraphQLArgument> objectArgs = objectFieldDef.getArguments();
 
         Map<String, GraphQLArgument> interfaceArgsByName = FpKit.getByName(interfaceArgs, GraphQLArgument::getName);
-        List<String> objectArgsNames = FpKit.map(objectArgs, GraphQLArgument::getName);
+        List<String> objectArgsNames = map(objectArgs, GraphQLArgument::getName);
 
         if (!objectArgsNames.containsAll(interfaceArgsByName.keySet())) {
             final String missingArgsNames = interfaceArgsByName.keySet().stream()

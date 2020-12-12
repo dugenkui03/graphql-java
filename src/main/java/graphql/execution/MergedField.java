@@ -1,5 +1,6 @@
 package graphql.execution;
 
+import com.google.common.collect.ImmutableList;
 import graphql.PublicApi;
 import graphql.language.Argument;
 import graphql.language.Field;
@@ -10,7 +11,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotEmpty;
-import static java.util.Collections.unmodifiableList;
 
 /**
  * This represent all Fields in a query which overlap and are merged into one.
@@ -60,7 +60,7 @@ import static java.util.Collections.unmodifiableList;
 @PublicApi
 public class MergedField {
     //同名、同类型的字段，都会存放在这个list中
-    private final List<Field> fields;
+    private final ImmutableList<Field> fields;
     //list的第一个元素
     private final Field singleField;
     //字段名称
@@ -70,9 +70,7 @@ public class MergedField {
 
     private MergedField(List<Field> fields) {
         assertNotEmpty(fields);
-        //todo 不能被更改的集合？那transform怎么办？
-        //     new Builder()的时候，使用list作为构造器参数，构造了一个新fields。
-        this.fields = unmodifiableList(fields);
+        this.fields = ImmutableList.copyOf(fields);
         this.singleField = fields.get(0);
         this.name = singleField.getName();
         this.resultKey = singleField.getAlias() != null ? singleField.getAlias() : name;

@@ -8,9 +8,11 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionStra
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
+
+import static graphql.collect.ImmutableKit.map;
 
 /**
  * The standard graphql execution strategy that runs fields asynchronously non-blocking.
@@ -36,38 +38,32 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
-    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext,
-                                                      ExecutionStrategyParameters strategyParameters) throws NonNullableFieldWasNullException {
+    public CompletableFuture<ExecutionResult> execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException {
 
-        // 获取全局Instrumentation工具
         Instrumentation instrumentation = executionContext.getInstrumentation();
-
-        // MergedField
-        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, strategyParameters);
+        InstrumentationExecutionStrategyParameters instrumentationParameters = new InstrumentationExecutionStrategyParameters(executionContext, parameters);
 
         ExecutionStrategyInstrumentationContext executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters);
 
-        MergedSelectionSet mergedSelectionSet = strategyParameters.getFields();
-        List<String> fieldNames = new ArrayList<>(mergedSelectionSet.keySet());
+        MergedSelectionSet fields = parameters.getFields();
+        Set<String> fieldNames = fields.keySet();
         List<CompletableFuture<FieldValueInfo>> futures = new ArrayList<>(fieldNames.size());
         List<String> resolvedFields = new ArrayList<>(fieldNames.size());
         for (String fieldName : fieldNames) {
             //本质是个list
-            MergedField currentField = mergedSelectionSet.getSubField(fieldName);
+            MergedField currentField = fields.getSubField(fieldName);
 
-            //todo
-            ResultPath fieldPath = strategyParameters.getPath().segment(mkNameForPath(currentField));
-            ExecutionStrategyParameters newParameters = strategyParameters
+            ResultPath fieldPath = parameters.getPath().segment(mkNameForPath(currentField));
+            ExecutionStrategyParameters newParameters = parameters
                     //fixme
                     //  path(segment),this是parent、parent是当前节点
                     //  field()：当前要调用dataFetcher获取的节点；
                     //  parent()：父节点的策略函数。
                     //      注：父节点的当前字段是中的list<Field>是顶层字段；
                     //          path中的parent 和 segment 都是null；
-                    .transform(builder -> builder.field(currentField).path(fieldPath).parent(strategyParameters));
+                    .transform(builder -> builder.field(currentField).path(fieldPath).parent(parameters));
 
             resolvedFields.add(fieldName);
-            //Let fieldType be the return type defined for the field fieldName of objectType.
             CompletableFuture<FieldValueInfo> future = resolveFieldWithInfo(executionContext, newParameters);
             futures.add(future);
         }
@@ -79,17 +75,13 @@ public class AsyncExecutionStrategy extends AbstractAsyncExecutionStrategy {
          * 即使有字段执行报错、已经在 resolveFieldWithInfo 进行了解析、封装为"错误结果"，
          * 因此在 Async.each 调用 allOf方法的时候，并不会有"一个错误导致整体错误"的事情。
          */
-        Async.each(futures)
-        // whenComplete 的参数是消费函数，handle会对值进行转换
-        .whenComplete((completeValueInfos, throwable) -> {
+        Async.each(futures).whenComplete((completeValueInfos, throwable) -> {
             BiConsumer<List<ExecutionResult>, Throwable> handleResultsConsumer = handleResults(executionContext, resolvedFields, overallResult);
             if (throwable != null) {
                 handleResultsConsumer.accept(null, throwable.getCause());
                 return;
             }
-
-            // CompletableFuture<List<U>> -> List<U>
-            List<CompletableFuture<ExecutionResult>> executionResultFuture = completeValueInfos.stream().map(FieldValueInfo::getFieldValue).collect(Collectors.toList());
+            List<CompletableFuture<ExecutionResult>> executionResultFuture = map(completeValueInfos, FieldValueInfo::getFieldValue);
             executionStrategyCtx.onFieldValuesInfo(completeValueInfos);
             Async.each(executionResultFuture).whenComplete(handleResultsConsumer);
         })

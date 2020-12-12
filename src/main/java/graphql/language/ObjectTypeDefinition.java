@@ -1,8 +1,10 @@
 package graphql.language;
 
 
+import com.google.common.collect.ImmutableList;
 import graphql.Internal;
 import graphql.PublicApi;
+import graphql.collect.ImmutableKit;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
@@ -14,15 +16,16 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static graphql.Assert.assertNotNull;
+import static graphql.collect.ImmutableKit.emptyList;
+import static graphql.collect.ImmutableKit.emptyMap;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
-import static java.util.Collections.emptyMap;
 
 @PublicApi
 public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefinition> implements ImplementingTypeDefinition<ObjectTypeDefinition>, DirectivesContainer<ObjectTypeDefinition>, NamedNode<ObjectTypeDefinition> {
     private final String name;
-    private final List<Type> implementz;
-    private final List<Directive> directives;
-    private final List<FieldDefinition> fieldDefinitions;
+    private final ImmutableList<Type> implementz;
+    private final ImmutableList<Directive> directives;
+    private final ImmutableList<FieldDefinition> fieldDefinitions;
 
     public static final String CHILD_IMPLEMENTZ = "implementz";
     public static final String CHILD_DIRECTIVES = "directives";
@@ -40,9 +43,9 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
                                    Map<String, String> additionalData) {
         super(sourceLocation, comments, ignoredChars, additionalData, description);
         this.name = name;
-        this.implementz = implementz;
-        this.directives = directives;
-        this.fieldDefinitions = fieldDefinitions;
+        this.implementz = ImmutableList.copyOf(implementz);
+        this.directives = ImmutableList.copyOf(directives);
+        this.fieldDefinitions = ImmutableList.copyOf(fieldDefinitions);
     }
 
     /**
@@ -51,22 +54,22 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
      * @param name of the object type
      */
     public ObjectTypeDefinition(String name) {
-        this(name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, null, new ArrayList<>(), IgnoredChars.EMPTY, emptyMap());
+        this(name, emptyList(), emptyList(), emptyList(), null, null, emptyList(), IgnoredChars.EMPTY, emptyMap());
     }
 
     @Override
     public List<Type> getImplements() {
-        return new ArrayList<>(implementz);
+        return implementz;
     }
 
     @Override
     public List<Directive> getDirectives() {
-        return new ArrayList<>(directives);
+        return directives;
     }
 
     @Override
     public List<FieldDefinition> getFieldDefinitions() {
-        return new ArrayList<>(fieldDefinitions);
+        return fieldDefinitions;
     }
 
     @Override
@@ -153,12 +156,12 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
 
     public static final class Builder implements NodeDirectivesBuilder {
         private SourceLocation sourceLocation;
-        private List<Comment> comments = new ArrayList<>();
+        private ImmutableList<Comment> comments = emptyList();
         private String name;
         private Description description;
-        private List<Type> implementz = new ArrayList<>();
-        private List<Directive> directives = new ArrayList<>();
-        private List<FieldDefinition> fieldDefinitions = new ArrayList<>();
+        private ImmutableList<Type> implementz = emptyList();
+        private ImmutableList<Directive> directives = emptyList();
+        private ImmutableList<FieldDefinition> fieldDefinitions = emptyList();
         private IgnoredChars ignoredChars = IgnoredChars.EMPTY;
         private Map<String, String> additionalData = new LinkedHashMap<>();
 
@@ -167,12 +170,12 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
 
         private Builder(ObjectTypeDefinition existing) {
             this.sourceLocation = existing.getSourceLocation();
-            this.comments = existing.getComments();
+            this.comments = ImmutableList.copyOf(existing.getComments());
             this.name = existing.getName();
             this.description = existing.getDescription();
-            this.directives = existing.getDirectives();
-            this.implementz = existing.getImplements();
-            this.fieldDefinitions = existing.getFieldDefinitions();
+            this.directives = ImmutableList.copyOf(existing.getDirectives());
+            this.implementz = ImmutableList.copyOf(existing.getImplements());
+            this.fieldDefinitions = ImmutableList.copyOf(existing.getFieldDefinitions());
             this.ignoredChars = existing.getIgnoredChars();
             this.additionalData = new LinkedHashMap<>(existing.getAdditionalData());
         }
@@ -183,7 +186,7 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
         }
 
         public Builder comments(List<Comment> comments) {
-            this.comments = comments;
+            this.comments = ImmutableList.copyOf(comments);
             return this;
         }
 
@@ -198,33 +201,33 @@ public class ObjectTypeDefinition extends AbstractDescribedNode<ObjectTypeDefini
         }
 
         public Builder implementz(List<Type> implementz) {
-            this.implementz = implementz;
+            this.implementz = ImmutableList.copyOf(implementz);
             return this;
         }
 
         public Builder implementz(Type implement) {
-            this.implementz.add(implement);
+            this.implementz = ImmutableKit.addToList(implementz, implement);
             return this;
         }
 
         @Override
         public Builder directives(List<Directive> directives) {
-            this.directives = directives;
+            this.directives = ImmutableList.copyOf(directives);
             return this;
         }
 
         public Builder directive(Directive directive) {
-            this.directives.add(directive);
+            this.directives = ImmutableKit.addToList(directives, directive);
             return this;
         }
 
         public Builder fieldDefinitions(List<FieldDefinition> fieldDefinitions) {
-            this.fieldDefinitions = fieldDefinitions;
+            this.fieldDefinitions = ImmutableList.copyOf(fieldDefinitions);
             return this;
         }
 
         public Builder fieldDefinition(FieldDefinition fieldDefinition) {
-            this.fieldDefinitions.add(fieldDefinition);
+            this.fieldDefinitions = ImmutableKit.addToList(fieldDefinitions, fieldDefinition);
             return this;
         }
 
