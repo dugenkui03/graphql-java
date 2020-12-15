@@ -28,15 +28,16 @@ class QueryDirectivesImplTest extends Specification {
 
         def mergedField = MergedField.newMergedField([f1, f2]).build()
 
-        def impl = new QueryDirectivesImpl(mergedField, schema, [var: 10])
+        // 构建查询指令
+        def queryDirective = new QueryDirectivesImpl(mergedField, schema, [var: 10])
 
         when:
-        def directives = impl.getImmediateDirectivesByName()
+        def directives = queryDirective.getImmediateDirectivesByName()
         then:
         directives.keySet().sort() == ["cached", "timeout", "upper"]
 
         when:
-        def result = impl.getImmediateDirective("cached")
+        def result = queryDirective.getImmediateDirective("cached")
 
         then:
         result.size() == 2
