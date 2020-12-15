@@ -6,6 +6,8 @@ import java.util.List;
 
 /**
  * A GraphQLType which can implement interfaces
+ *
+ * 可以实现结构的类型
  */
 @PublicApi
 public interface GraphQLImplementingType extends GraphQLFieldsContainer {

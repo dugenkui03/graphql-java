@@ -66,8 +66,10 @@ import static graphql.Assert.assertNotNull;
 import static graphql.util.TraversalControl.CONTINUE;
 import static graphql.util.TreeTransformerUtil.changeNode;
 
+// 匿名程序
 public class Anonymizer {
 
+    // 保存 schema 和 查询
     public static class AnonymizeResult {
         private GraphQLSchema schema;
         private List<String> queries;
@@ -86,14 +88,23 @@ public class Anonymizer {
         }
     }
 
+    // 匿名 schema
     public static GraphQLSchema anonymizeSchema(GraphQLSchema schema) {
         return anonymizeSchemaAndQueries(schema, Collections.emptyList(), Collections.emptyMap()).schema;
     }
 
+    // 匿名 schema 和 queries
     public static AnonymizeResult anonymizeSchemaAndQueries(GraphQLSchema schema, List<String> queries) {
         return anonymizeSchemaAndQueries(schema, queries, Collections.emptyMap());
     }
 
+    /**
+     *
+     * @param schema
+     * @param queries
+     * @param variables 查询变量
+     * @return
+     */
     public static AnonymizeResult anonymizeSchemaAndQueries(GraphQLSchema schema, List<String> queries, Map<String, Object> variables) {
         assertNotNull(queries, () -> "queries can't be null");
 
@@ -291,6 +302,7 @@ public class Anonymizer {
                     newName = "argument" + argumentCounter.getAndIncrement();
                 } else {
                     List<GraphQLArgument> matchingArgumentDefinitions = getMatchingArgumentDefinitions(curName, matchingInterfaceFieldDefinitions);
+                    // 如果没有
                     if (matchingArgumentDefinitions.size() == 0) {
                         newName = "argument" + argumentCounter.getAndIncrement();
                     } else {
@@ -436,11 +448,18 @@ public class Anonymizer {
         return matchingInterfaceFieldDefinitions;
     }
 
+    /**
+     * 获取 fieldDefinitions 中名称为 name 的参数列表
+     * @param name
+     * @param fieldDefinitions
+     * @return
+     */
     private static List<GraphQLArgument> getMatchingArgumentDefinitions(
             String name,
             List<GraphQLFieldDefinition> fieldDefinitions) {
         List<GraphQLArgument> result = new ArrayList<>();
         for (GraphQLFieldDefinition fieldDefinition : fieldDefinitions) {
+            // map(Function) 的语义是、当存在数据时、才进行函数转换、并返回结果
             Optional.ofNullable(fieldDefinition.getArgument(name)).map(result::add);
         }
         return result;
