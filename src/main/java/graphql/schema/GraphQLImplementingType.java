@@ -10,8 +10,10 @@ import java.util.List;
 @PublicApi
 public interface GraphQLImplementingType extends GraphQLFieldsContainer {
     /**
-     * @return This returns GraphQLInterface or GraphQLTypeReference instances, if the type
-     * references are not resolved yet. After they are resolved it contains only GraphQLInterface.
+     * @return This returns GraphQLInterface or GraphQLTypeReference instances,
+     * if the type references are not resolved yet. After they are resolved
+     * it contains only GraphQLInterface.
+     *
      * Reference resolving happens when a full schema is built.
      */
     List<GraphQLNamedOutputType> getInterfaces();

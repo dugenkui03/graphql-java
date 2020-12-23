@@ -638,4 +638,14 @@ extend input Input @directive {
         result == "directive @d2 on FIELD | ENUM"
 
     }
+
+    def "test "() {
+        when:
+        AstPrinter.printAst(new Parser().parseDocument("""
+         "" scalar Demo
+        """))
+
+        then:
+        1 == 1
+    }
 }
