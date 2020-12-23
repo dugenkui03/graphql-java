@@ -492,6 +492,7 @@ public class GraphQLFieldDefinition implements GraphQLNamedSchemaElement, GraphQ
         }
 
         public GraphQLFieldDefinition build() {
+            // fixme 构建字段的时候，如果没有指定df、则使用PropertyDF
             if (dataFetcherFactory == null) {
                 dataFetcherFactory = DataFetcherFactories.useDataFetcher(new PropertyDataFetcher<>(name));
             }

@@ -59,6 +59,7 @@ public class EchoingWiringFactory implements WiringFactory {
 
     @Override
     public DataFetcher getDefaultDataFetcher(FieldWiringEnvironment environment) {
+        // todo 这是个啥
         return env -> {
             GraphQLOutputType fieldType = env.getFieldType();
             if (fieldType instanceof GraphQLObjectType) {

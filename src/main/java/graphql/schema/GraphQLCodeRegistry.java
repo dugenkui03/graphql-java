@@ -73,11 +73,13 @@ public class GraphQLCodeRegistry {
     private static DataFetcher<?> getDataFetcherImpl(FieldCoordinates coordinates, GraphQLFieldDefinition fieldDefinition, Map<FieldCoordinates, DataFetcherFactory<?>> dataFetcherMap, Map<String, DataFetcherFactory<?>> systemDataFetcherMap, DataFetcherFactory<?> defaultDataFetcherFactory) {
         assertNotNull(coordinates);
         assertNotNull(fieldDefinition);
-
+        // null
         DataFetcherFactory<?> dataFetcherFactory = systemDataFetcherMap.get(fieldDefinition.getName());
         if (dataFetcherFactory == null) {
+            // null
             dataFetcherFactory = dataFetcherMap.get(coordinates);
             if (dataFetcherFactory == null) {
+                // 使用默认的DF
                 dataFetcherFactory = defaultDataFetcherFactory;
             }
         }
@@ -171,6 +173,7 @@ public class GraphQLCodeRegistry {
         private final Map<String, DataFetcherFactory<?>> systemDataFetcherMap = new LinkedHashMap<>();
         private final Map<String, TypeResolver> typeResolverMap = new HashMap<>();
         private GraphqlFieldVisibility fieldVisibility = DEFAULT_FIELD_VISIBILITY;
+        // fixme 默认的DF是PropertyData
         private DataFetcherFactory<?> defaultDataFetcherFactory = env -> PropertyDataFetcher.fetching(env.getFieldDefinition().getName());
 
 

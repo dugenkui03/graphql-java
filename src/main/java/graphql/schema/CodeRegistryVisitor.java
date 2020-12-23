@@ -24,6 +24,7 @@ class CodeRegistryVisitor extends GraphQLTypeVisitorStub {
         GraphQLFieldsContainer parentContainerType = (GraphQLFieldsContainer) context.getParentContext().thisNode();
         DataFetcher dataFetcher = node.getDataFetcher();
         if (dataFetcher == null) {
+            // todo 默认的dataFetcher
             dataFetcher = new PropertyDataFetcher<>(node.getName());
         }
         FieldCoordinates coordinates = coordinates(parentContainerType, node);
