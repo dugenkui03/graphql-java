@@ -23,12 +23,15 @@ public class ScalarLeafs extends AbstractRule {
     public void checkField(Field field) {
         GraphQLOutputType type = getValidationContext().getOutputType();
         if (type == null) return;
+        // 如果是叶子节点，则不能再有叶子节点
         if (isLeaf(type)) {
             if (field.getSelectionSet() != null) {
                 String message = String.format("Sub selection not allowed on leaf type %s of field %s", simplePrint(type), field.getName());
                 addError(ValidationErrorType.SubSelectionNotAllowed, field.getSourceLocation(), message);
             }
-        } else {
+        }
+        // 如果不是叶子节点、则必须有下层叶子节点
+        else {
             if (field.getSelectionSet() == null) {
                 String message = String.format("Sub selection required for type %s of field %s", simplePrint(type), field.getName());
                 addError(ValidationErrorType.SubSelectionRequired, field.getSourceLocation(), message);
