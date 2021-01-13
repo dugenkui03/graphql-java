@@ -22,6 +22,8 @@ import static graphql.util.FpKit.getByName;
 
 /**
  * A directive can be used to modify the behavior of a graphql field or type.
+ * 可用来修改字段和类型的运行时行为。
+ *
  * <p>
  * See http://graphql.org/learn/queries/#directives for more details on the concept.
  */

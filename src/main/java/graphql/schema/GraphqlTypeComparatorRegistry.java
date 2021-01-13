@@ -4,6 +4,9 @@ import graphql.PublicApi;
 
 import java.util.Comparator;
 
+/**
+ * 类型比较注册器
+ */
 @PublicApi
 public interface GraphqlTypeComparatorRegistry {
 

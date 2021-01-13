@@ -15,6 +15,8 @@ import java.util.Map;
 
 /**
  * This turns AST directives into runtime directives with resolved types and so on
+ *
+ * 将 查询文本指令转换为 运行时指令对象。
  */
 @Internal
 public class DirectivesResolver {
@@ -24,7 +26,17 @@ public class DirectivesResolver {
     public DirectivesResolver() {
     }
 
-    public Map<String, GraphQLDirective> resolveDirectives(List<Directive> directives, GraphQLSchema schema, Map<String, Object> variables) {
+    /**
+     * 将 文本指令 转换为运行时指令对象
+     *
+     * @param directives
+     * @param schema
+     * @param variables todo 这个变量有啥用
+     * @return
+     */
+    public Map<String, GraphQLDirective> resolveDirectives(List<Directive> directives,
+                                                           GraphQLSchema schema,
+                                                           Map<String, Object> variables) {
         GraphQLCodeRegistry codeRegistry = schema.getCodeRegistry();
         Map<String, GraphQLDirective> directiveMap = new LinkedHashMap<>();
         directives.forEach(directive -> {

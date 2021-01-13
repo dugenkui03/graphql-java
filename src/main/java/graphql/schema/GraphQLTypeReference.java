@@ -9,11 +9,19 @@ import graphql.util.TraverserContext;
 import static graphql.Assert.assertValidName;
 
 /**
- * A special type to allow a object/interface types to reference itself. It's replaced with the real type
- * object when the schema is built.
+ * A special type to allow a object/interface types to reference itself.
+ * It's replaced with the real type object when the schema is built.
+ *
  */
 @PublicApi
 public class GraphQLTypeReference implements GraphQLNamedOutputType, GraphQLNamedInputType {
+
+    private final String name;
+
+    public GraphQLTypeReference(String name) {
+        assertValidName(name);
+        this.name = name;
+    }
 
     /**
      * A factory method for creating type references so that when used with static imports allows
@@ -26,13 +34,6 @@ public class GraphQLTypeReference implements GraphQLNamedOutputType, GraphQLName
      */
     public static GraphQLTypeReference typeRef(String typeName) {
         return new GraphQLTypeReference(typeName);
-    }
-
-    private final String name;
-
-    public GraphQLTypeReference(String name) {
-        assertValidName(name);
-        this.name = name;
     }
 
     @Override
