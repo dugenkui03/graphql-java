@@ -1,5 +1,16 @@
 import java.text.SimpleDateFormat
 
+/**
+ * 参考：
+ *      1. https://www.jianshu.com/p/5bb1e87df15f;
+ *      2. 任务类型：https://docs.gradle.org/current/userguide/java_plugin.html
+ *      3. 任务详情可点击超链接：https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.JavaCompile.html
+ *
+ */
+
+/**
+ * fixme 指定使用的官方插件
+ */
 plugins {
     id "com.jfrog.bintray" version "1.8.4"
     id 'java'
@@ -11,10 +22,21 @@ plugins {
     // id 'osgi' doesn't work anymore for gradle 6.6
 }
 
-
+/**
+ * @return 获取 "开发版本"，即每一次编译的版本
+ */
 def getDevelopmentVersion() {
+
     def output = new StringBuilder()
     def error = new StringBuilder()
+    /**
+     * git -C 项目目录（projectDir.toString()：项目当前所处目录
+     * git -C <path>：Run as if git was started in <path> instead of the current working directory.
+     *
+     * git rev-parse --short HEAD
+     * 显示最后一次提交的 commit 版本号的短version
+     * https://www.oxysun.cn/git/git-rev-parse.html
+     */
     def gitShortHash = ["git", "-C", projectDir.toString(), "rev-parse", "--short", "HEAD"].execute()
     gitShortHash.waitForProcessOutput(output, error)
     def gitHash = output.toString().trim()
@@ -27,47 +49,78 @@ def getDevelopmentVersion() {
     version
 }
 
+/**
+ *  fixme 放在最外层就会执行，没有所有的 main 函数进行调用
+ *
+ *  如果不是1.8则抛异常。
+ */
 if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
     def msg = String.format("This build must be run with java 1.8 - you are running %s - gradle finds the JDK via JAVA_HOME=%s",
             JavaVersion.current(), System.getenv("JAVA_HOME"))
     throw new GradleException(msg)
 }
 
-
+/**
+ *  1. 变量初始化
+ * */
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 def reactiveStreamsVersion = '1.0.2'
 def slf4jVersion = '1.7.30'
 def releaseVersion = System.env.RELEASE_VERSION
+/**
+ * fixme 如果release版本存在则使用release版本，如果不存在则使用当前时间搞一个版本
+ * */
 version = releaseVersion ? releaseVersion : getDevelopmentVersion()
+/**
+ * fixme groupId
+ * */
 group = 'com.graphql-java'
 
-
+/**
+ * 依赖的仓库
+ */
 repositories {
     mavenCentral()
     mavenLocal()
 }
 
+// 似乎没什么用，因为没有配合 buildscript {}
 apply plugin: 'groovy'
 
+/**
+ * todo 直接依赖的jar包
+ */
 jar {
+    // todo 添加依赖的打包文件
     from "LICENSE.md"
     from "src/main/antlr/Graphql.g4"
     from "src/main/antlr/GraphqlOperation.g4"
     from "src/main/antlr/GraphqlSDL.g4"
     from "src/main/antlr/GraphqlCommon.g4"
+
+    // fixme 打包的名称？
     manifest {
         attributes('Automatic-Module-Name': 'com.graphql-java')
     }
 }
 
+/**
+ * fixme 各种前缀说明
+ */
 dependencies {
-    implementation 'org.antlr:antlr4-runtime:4.8'
-    implementation 'org.slf4j:slf4j-api:' + slf4jVersion
+    // Adds a dependency to the 'api' configuration.
     api 'com.graphql-java:java-dataloader:2.2.3'
     api 'org.reactivestreams:reactive-streams:' + reactiveStreamsVersion
+    // Adds a dependency to the 'antlr' configuration
     antlr "org.antlr:antlr4:4.8"
+
+    // Adds a dependency to the 'implementation' configuration.
+    // https://gradle.github.io/kotlin-dsl-docs/api/org.gradle.kotlin.dsl/org.gradle.api.artifacts.dsl.-dependency-handler/implementation.html
+    implementation 'org.antlr:antlr4-runtime:4.8'
+    implementation 'org.slf4j:slf4j-api:' + slf4jVersion
     implementation 'com.google.guava:guava:30.0-jre'
+
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
     testImplementation 'org.codehaus.groovy:groovy-all:2.5.13'
@@ -79,16 +132,14 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:' + slf4jVersion
     testImplementation 'org.awaitility:awaitility-groovy:3.0.0'
     testImplementation 'com.github.javafaker:javafaker:0.13'
-
     testImplementation 'org.reactivestreams:reactive-streams-tck:' + reactiveStreamsVersion
     testImplementation "io.reactivex.rxjava2:rxjava:2.1.5"
-
     testImplementation 'org.testng:testng:6.1.1' // use for reactive streams test inheritance
-
     testImplementation 'org.openjdk.jmh:jmh-core:1.25'
     testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.25'
 }
 
+// 打包时包含依赖
 shadowJar {
     minimize()
     archiveClassifier.set('')
@@ -99,6 +150,7 @@ shadowJar {
         include 'com.google.common.math.*'
         include 'com.google.common.primitives.*'
     }
+    // 打包时依赖的路径
     dependencies {
         include(dependency('com.google.guava:guava:30.0-jre'))
     }
@@ -113,28 +165,48 @@ shadowJar {
 }
 
 
+/**
+ * 所有定义的task都会运行
+ *
+ * fixme https://www.jianshu.com/p/cd1a78dc8346
+ */
 task removeNotNeededGuava(type: Zip) {
+    // 一个Task包含若干Action
     from({ zipTree({"build/libs/graphql-java-${project.version}.jar"})}) {
         exclude('/com/**')
     }
+
     archiveFileName = "graphql-java-tmp.jar"
     destinationDirectory = file("${project.buildDir}/libs")
+
+    // Task有doFirst和doLast两个函数，用于添加需要最先执行的Action和需要和需要最后执行的Action
     doLast {
         delete("build/libs/graphql-java-${project.version}.jar")
         file("build/libs/graphql-java-tmp.jar").renameTo(file("build/libs/graphql-java-${project.version}.jar"))
     }
 }
 
-
+// removeNotNeededGuava 总是在 shadowJar 之后执行
 shadowJar.finalizedBy removeNotNeededGuava
 
 
+//
 task testng(type: Test) {
     useTestNG()
 }
+
+// 检查依赖的任务？
 check.dependsOn testng
 
+/**
+ * fixme 编译java源文件
+ *
+ * compileJava 是任务类型：https://docs.gradle.org/current/userguide/java_plugin.html
+ *
+ * source是参数：
+ */
 compileJava.source file("build/generated-src"), sourceSets.main.java
+
 
 generateGrammarSource {
     includes = ['Graphql.g4']
@@ -270,6 +342,14 @@ tasks.withType(PublishToMavenRepository) {
 }
 
 
+/**
+ * 给 gradleVersion 和 distributionUrl 赋值
+ *
+ * fixme https://www.jianshu.com/p/682af083d754
+ *      Wrapper任务：使用申明版本的gradle 执行构建任务。
+ *      如果本地没有Wrapper 中申明的gradle 版本，Wrapper会先下载它。
+ *      "Gradle wrapper"指的是Android应用根目录下的gradlew.bat脚本文件,这里的"w"指的就是"wrapper"
+ */
 task myWrapper(type: Wrapper) {
     gradleVersion = '6.6.1'
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
