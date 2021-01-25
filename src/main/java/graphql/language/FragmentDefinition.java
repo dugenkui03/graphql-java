@@ -21,13 +21,22 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 
 /**
  * Provided to the DataFetcher, therefore public API
+ *
+ * tag: 从文本解析得到的片段定义？
  */
 @PublicApi
 public class FragmentDefinition extends AbstractNode<FragmentDefinition> implements Definition<FragmentDefinition>, SelectionSetContainer<FragmentDefinition>, DirectivesContainer<FragmentDefinition>, NamedNode<FragmentDefinition> {
 
+    // 片段名称
     private final String name;
+
+    // 片段类型
     private final TypeName typeCondition;
+
+    // 片段上定义的指令
     private final ImmutableList<Directive> directives;
+
+    // 片段元素组成：Field、InlineFragment和FragmentSpread
     private final SelectionSet selectionSet;
 
     public static final String CHILD_TYPE_CONDITION = "typeCondition";

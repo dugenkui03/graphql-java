@@ -19,10 +19,16 @@ import static graphql.collect.ImmutableKit.emptyList;
 import static graphql.collect.ImmutableKit.emptyMap;
 import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 
+/**
+ * 片段的类型和元素信息见 {@link FragmentDefinition}
+ */
 @PublicApi
 public class FragmentSpread extends AbstractNode<FragmentSpread> implements Selection<FragmentSpread>, DirectivesContainer<FragmentSpread>, NamedNode<FragmentSpread> {
 
+    // 片段名称
     private final String name;
+
+    // 命名片段上定义的指令
     private final ImmutableList<Directive> directives;
 
     public static final String CHILD_DIRECTIVES = "directives";

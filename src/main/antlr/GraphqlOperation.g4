@@ -31,6 +31,7 @@ fragmentSpread : '...' fragmentName directives?;
 
 inlineFragment : '...' typeCondition? directives? selectionSet;
 
+//片段上不定义参数
 fragmentDefinition : FRAGMENT fragmentName typeCondition directives? selectionSet;
 
 

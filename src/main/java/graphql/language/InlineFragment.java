@@ -21,8 +21,13 @@ import static graphql.language.NodeChildrenContainer.newNodeChildrenContainer;
 
 @PublicApi
 public class InlineFragment extends AbstractNode<InlineFragment> implements Selection<InlineFragment>, SelectionSetContainer<InlineFragment>, DirectivesContainer<InlineFragment> {
+    // 片段的类型名称，比如 User、Coupon
     private final TypeName typeCondition;
+
+    // 片段上定义的指令
     private final ImmutableList<Directive> directives;
+
+    // 片段元素：Selection-可能是 Field、FragmentSpread 和 InlineFragment
     private final SelectionSet selectionSet;
 
     public static final String CHILD_TYPE_CONDITION = "typeCondition";
