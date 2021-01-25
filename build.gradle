@@ -64,6 +64,8 @@ jar {
 dependencies {
     implementation 'org.antlr:antlr4-runtime:4.8'
     implementation 'org.slf4j:slf4j-api:' + slf4jVersion
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    compile group: 'com.google.guava', name: 'guava', version: '30.1-jre'
     api 'com.graphql-java:java-dataloader:2.2.3'
     api 'org.reactivestreams:reactive-streams:' + reactiveStreamsVersion
     antlr "org.antlr:antlr4:4.8"
