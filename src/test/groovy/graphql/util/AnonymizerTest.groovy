@@ -449,4 +449,170 @@ type Object2 {
         then:
         newQuery == "query {field2 {__typename alias1:__typename field1}}"
     }
+
+    def "handles cyclic types"() {
+        def schema = TestUtil.schema("""
+            type Query {
+                query: Foo
+            }
+            type Foo {
+                foo: [Bar]
+            }
+
+            type Bar {
+                bar: [Foo]
+            }
+        """)
+        when:
+        def result = Anonymizer.anonymizeSchema(schema)
+        def newSchema = new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeDirectiveDefinitions(false)).print(result)
+
+        then:
+        newSchema == """schema {
+  query: Object1
+}
+
+type Object1 {
+  field1: Object2
+}
+
+type Object2 {
+  field2: [Object3]
+}
+
+type Object3 {
+  field3: [Object2]
+}
+"""
+    }
+
+    def "descriptions are removed"() {
+        def schema = TestUtil.schema("""
+            "DOC"
+            type Query {
+                "DOC"
+                query(
+                "DOC"
+                arg: String): Foo
+            }
+            "DOC"
+            type Foo {
+                "DOC"
+                foo: String
+            }
+
+        """)
+        when:
+        def result = Anonymizer.anonymizeSchema(schema)
+        def newSchema = new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeDirectiveDefinitions(false)).print(result)
+
+        then:
+        newSchema == """schema {
+  query: Object1
+}
+
+type Object1 {
+  field1(argument1: String): Object2
+}
+
+type Object2 {
+  field2: String
+}
+"""
+    }
+
+    def "deprecated reasons are removed"() {
+        def schema = TestUtil.schema("""
+            type Query {
+                foo: String @deprecated(reason: "secret")
+            }
+        """)
+        when:
+        def result = Anonymizer.anonymizeSchema(schema)
+        def newSchema = new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeDirectiveDefinitions(false)).print(result)
+
+        then:
+        newSchema == """schema {
+  query: Object1
+}
+
+type Object1 {
+  field1: String @deprecated
+}
+"""
+    }
+
+    def "same field across hierarchy"() {
+        def schema = TestUtil.schema("""
+            type Query {
+                foo: Interface2
+            }
+interface Interface1 implements Interface2 & Interface3 {
+  id: ID!
+}
+interface Interface4 implements Interface1 & Interface2 & Interface3 {
+  id: ID!
+}
+interface Interface5 implements Interface1 & Interface2 & Interface3 & Interface6{
+  id: ID!
+}
+interface Interface2 {
+  id: ID!
+}
+
+interface Interface3 {
+  id: ID!
+}
+interface Interface6 {
+  id: ID!
+}
+
+interface Interface7 implements Interface6 {
+  id: ID!
+}
+
+
+        """)
+        when:
+        def result = Anonymizer.anonymizeSchema(schema)
+        def newSchema = new SchemaPrinter(SchemaPrinter.Options.defaultOptions().includeDirectiveDefinitions(false)).print(result)
+
+        then:
+        newSchema == """schema {
+  query: Object1
+}
+
+interface Interface1 implements Interface2 & Interface3 {
+  field1: ID!
+}
+
+interface Interface2 {
+  field1: ID!
+}
+
+interface Interface3 {
+  field1: ID!
+}
+
+interface Interface4 implements Interface1 & Interface2 & Interface3 {
+  field1: ID!
+}
+
+interface Interface5 implements Interface1 & Interface2 & Interface3 & Interface6 {
+  field1: ID!
+}
+
+interface Interface6 {
+  field1: ID!
+}
+
+interface Interface7 implements Interface6 {
+  field1: ID!
+}
+
+type Object1 {
+  field2: Interface2
+}
+"""
+    }
 }
